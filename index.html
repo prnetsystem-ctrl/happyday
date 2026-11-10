@@ -76,9 +76,13 @@ let DB = {};
 // ==========================================
 // BƯỚC 2: TẢI DỮ LIỆU TỪ GOOGLE SHEETS (GET)
 // ==========================================
-fetch(SCRIPT_URL)
+fetch(SCRIPT_URL, {
+    redirect: 'follow', // Bắt buộc để theo dõi chuyển hướng của Google
+    headers: {
+        "Content-Type": "text/plain;charset=utf-8",
+    }
+  })
   .then(response => response.json())
-  .then(data => {
     DB = data; // Gán dữ liệu Google Sheets vào biến DB
     
     // Ẩn chữ Loading và hiện Dashboard
