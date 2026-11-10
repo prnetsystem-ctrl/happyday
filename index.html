@@ -65,22 +65,22 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
 </main>
 
 <script>
-// ==========================================
-// BƯỚC 1: DÁN LINK WEB APP TỪ GOOGLE SHEETS
-// ==========================================
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxWHpvBlcZR_NjM3KbJbXdYTGsXK9JGa-7o0xF3dc8UOyUdVVb35f4widxPwld_IQS/exec";
-
 let DB = {};
 
-// ==========================================
-// BƯỚC 2: TẢI DỮ LIỆU TỪ GOOGLE SHEETS (GET)
-// ==========================================
 fetch(SCRIPT_URL, {
   method: 'GET',
-  redirect: 'follow'
+  redirect: 'follow',
+  mode: 'cors'
 })
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) {
+        throw new Error("Lỗi mạng: " + response.status);
+    }
+    return response.json();
+  })
   .then(data => {
+    // Sửa lỗi JSON nếu App Script bọc mảng bị sai
     DB = data; 
     
     document.getElementById('loading').style.display = 'none';
@@ -90,12 +90,9 @@ fetch(SCRIPT_URL, {
   })
   .catch(error => {
     console.error("Lỗi khi tải dữ liệu từ Google Sheet:", error);
-    document.getElementById('loading').innerText = "Không thể tải dữ liệu, vui lòng kiểm tra lại link Web App hoặc kết nối mạng.";
+    document.getElementById('loading').innerText = "Không thể tải dữ liệu (" + error.message + "). Vui lòng kiểm tra lại link Web App.";
   });
 
-// ==========================================
-// BƯỚC 3: GỬI DỮ LIỆU LÊN GOOGLE SHEETS (POST)
-// ==========================================
 document.getElementById('add').addEventListener('click', function() {
   const ngayNhap = document.getElementById('fd').value; 
   const donViNhap = document.getElementById('fu').value;
@@ -124,7 +121,8 @@ document.getElementById('add').addEventListener('click', function() {
 
   fetch(SCRIPT_URL, {
     method: 'POST',
-    redirect: 'follow', 
+    redirect: 'follow',
+    mode: 'cors',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
   })
@@ -146,9 +144,6 @@ document.getElementById('add').addEventListener('click', function() {
   });
 });
 
-// ==========================================
-// TOÀN BỘ LOGIC XỬ LÝ GIAO DIỆN (UI/UX)
-// ==========================================
 function initDashboard() {
     const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>Array.from(e.querySelectorAll(s));
     let t_db=$('#db'),t_dt=$('#dt'),t_nl=$('#nl'),nbc=$('#nbc'),rk=$('#rk'),du=$('#du'),dp=$('#dp'),dq=$('#dq'),ds=$('#ds');
@@ -165,12 +160,14 @@ function initDashboard() {
         $('#rng').innerText=`Tuần ${w} (T${m} - Q${q})`;
         
         let sum=[0,0,0,0,0,0,0], u_arr=[];
-        DB.U.forEach(u=>{
-            let uid=u[0],nm=u[1],kh_l=u[2],kh_dt=u[3],a=u[4],b=u[5];
-            let ps_w=a[w-27]||0, ps_m=b[m-6]||0, dk_w=ps_w+Math.floor(Math.random()*5); 
-            sum[0]+=kh_l; sum[1]+=kh_dt; sum[2]+=dk_w; sum[3]+=ps_w; sum[4]+=ps_m; sum[5]+=(kh_l*4); sum[6]+=(kh_dt*4);
-            u_arr.push({id:uid,nm:nm,kh_l:kh_l,kh_dt:kh_dt,dk_w:dk_w,ps_w:ps_w,ps_m:ps_m,pw:P(ps_w,kh_l),pm:P(ps_m,kh_l*4)});
-        });
+        if(DB.U) {
+            DB.U.forEach(u=>{
+                let uid=u[0],nm=u[1],kh_l=u[2],kh_dt=u[3],a=u[4]||[],b=u[5]||[];
+                let ps_w=a[w-27]||0, ps_m=b[m-6]||0, dk_w=ps_w+Math.floor(Math.random()*5); 
+                sum[0]+=kh_l; sum[1]+=kh_dt; sum[2]+=dk_w; sum[3]+=ps_w; sum[4]+=ps_m; sum[5]+=(kh_l*4); sum[6]+=(kh_dt*4);
+                u_arr.push({id:uid,nm:nm,kh_l:kh_l,kh_dt:kh_dt,dk_w:dk_w,ps_w:ps_w,ps_m:ps_m,pw:P(ps_w,kh_l),pm:P(ps_m,kh_l*4)});
+            });
+        }
 
         $('#cards').innerHTML=`
             <div class="card" style="--c:var(--navy)"><h3>KẾ HOẠCH LƯỢT TUẦN ${w}</h3><b>${F(sum[0])}</b><small>Tất cả 50 đơn vị</small></div>
@@ -184,18 +181,26 @@ function initDashboard() {
         for(let i=0;i<7;i++){
             let ds=dd.toISOString().slice(0,10);
             days.push(dd.getDate()+'/'+(dd.getMonth()+1));
-            d_vals.push(DB.D[ds]||0);
+            d_vals.push(DB.D && DB.D[ds] ? DB.D[ds] : 0);
             dd.setDate(dd.getDate()+1);
         }
         $('#t1').innerText='Lượt ra quân 7 ngày qua';
         draw_bar($('#c1'),days,d_vals,var_c('--teal'));
 
         let w_lb=[], w_val=[];
-        for(let i=Math.max(27,w-12);i<=w;i++) { w_lb.push('W'+i); let vw=0; DB.U.forEach(x=>vw+=(x[4][i-27]||0)); w_val.push(vw); }
+        for(let i=Math.max(27,w-12);i<=w;i++) { 
+            w_lb.push('W'+i); let vw=0; 
+            if(DB.U) DB.U.forEach(x=>vw+=(x[4][i-27]||0)); 
+            w_val.push(vw); 
+        }
         draw_bar($('#c2'),w_lb,w_val,var_c('--blue'));
 
         let m_lb=[], m_val=[];
-        for(let i=Math.max(6,m-5);i<=m;i++) { m_lb.push('T'+i); let vm=0; DB.U.forEach(x=>vm+=(x[5][i-6]||0)); m_val.push(vm); }
+        for(let i=Math.max(6,m-5);i<=m;i++) { 
+            m_lb.push('T'+i); let vm=0; 
+            if(DB.U) DB.U.forEach(x=>vm+=(x[5][i-6]||0)); 
+            m_val.push(vm); 
+        }
         draw_bar($('#c3'),m_lb,m_val,var_c('--orange'));
 
         let s_u=[...u_arr];
@@ -217,8 +222,10 @@ function initDashboard() {
     function render_dt(){
         let uid=cur_u, p=dp.value, q=dq.value.toLowerCase(), s=ds.value;
         let d_str=nbc.value, d=D(d_str), w=T(d_str), m=d.getMonth()+1, qy=Q(m);
-        let u=DB.U.find(x=>x[0]==uid); if(!u) return;
-        let pts=DB.P[uid]||[];
+        let u = null;
+        if(DB.U) u = DB.U.find(x=>x[0]==uid); 
+        if(!u) return;
+        let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
         let day_arr=[]; 
         if(p==='Ngày') day_arr=[Math.floor((d-D('2026-06-26'))/864e5)];
         else if(p==='Tuần') { let s_d=(w-27)*7; for(let i=0;i<7;i++) day_arr.push(s_d+i); }
@@ -229,7 +236,8 @@ function initDashboard() {
         let p_arr=[];
         pts.forEach(pt=>{
             if(q && !pt[0].toString().includes(q) && !pt[1].toLowerCase().includes(q)) return;
-            let act=DB.A[pt[0]]||[[],[]], a1=act[0], a2=act[1];
+            let act = (DB.A && DB.A[pt[0]]) ? DB.A[pt[0]] : [[],[]];
+            let a1 = act[0] || [], a2 = act[1] || [];
             let dk=0, tt=0, dt=0;
             day_arr.forEach(dy=>{ if(a1.includes(dy)) dk++; let ix=a2.indexOf(dy); if(ix>-1){ tt++; dt+=a2[ix+1]; } });
             let st=tt>0?1:(dk>0?2:3);
@@ -257,7 +265,10 @@ function initDashboard() {
     }
 
     function init(){
-        let u_opt=''; DB.U.forEach(u=>{ u_opt+=`<option value="${u[0]}">${u[0]} - ${u[1]}</option>`; });
+        let u_opt=''; 
+        if(DB.U){
+            DB.U.forEach(u=>{ u_opt+=`<option value="${u[0]}">${u[0]} - ${u[1]}</option>`; });
+        }
         du.innerHTML=u_opt; fu.innerHTML=u_opt; du.value=cur_u; fu.value=cur_u; pop_fp();
         render_db();
     }
@@ -277,13 +288,14 @@ function initDashboard() {
     dq.addEventListener('keyup',e=>{if(e.key==='Enter')render_dt()});
 
     function pop_fp(){
-        let uid=fu.value, pts=DB.P[uid]||[], h='';
+        let uid=fu.value, pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [], h='';
         pts.forEach(p=>h+=`<option value="${p[0]}">${p[1]}</option>`); pl.innerHTML=h;
         fp.value=''; pn.innerText='';
     }
     fu.addEventListener('change',pop_fp);
     fp.addEventListener('input',()=>{
-        let pts=DB.P[fu.value]||[], pt=pts.find(x=>x[0]==fp.value);
+        let pts = (DB.P && DB.P[fu.value]) ? DB.P[fu.value] : []; 
+        let pt=pts.find(x=>x[0]==fp.value);
         if(pt) pn.innerHTML=`<span class="ok">✔ ${pt[1]}</span>`; else if(fp.value) pn.innerHTML=`<span class="err">✖ Không có trong CSDL</span>`; else pn.innerText='';
     });
 
