@@ -37,7 +37,7 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
 <div id="loading">Đang kết nối để tải dữ liệu từ Google Sheets, vui lòng đợi...</div>
 
 <main style="display: none;" id="main-content">
-<div class="ctl" id="gbar"><label><b>Ngày báo cáo ▶</b> <input class="in" type="date" id="nbc" value="2026-11-10" min="2026-01-01" max="2026-12-31"></label><span id="rng" class="note"></span></div>
+<div class="ctl" id="gbar"><label><b>Ngày báo cáo ▶</b> <input class="in" type="date" id="nbc" min="2026-01-01" max="2026-12-31"></label><span id="rng" class="note"></span></div>
 
 <!-- DASHBOARD -->
 <section class="pane on" id="db">
@@ -74,8 +74,8 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
   <button class="act" id="add">+ Thêm dòng</button>
  </div>
  <div class="box" style="margin-bottom:14px;">
-  <h4>Các điểm đã đăng ký của đơn vị trong tháng này:</h4>
-  <div class="wrap" style="max-height:200px;"><table id="his_tb"><thead><tr><th>Mã điểm</th><th>Tên điểm</th><th>Ngày đăng ký</th><th>Trạng thái</th></tr></thead><tbody id="his_body"><tr><td colspan="4" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị hoặc chưa có dữ liệu</td></tr></tbody></table></div>
+  <h4>Các điểm đã đăng ký của đơn vị trong hệ thống:</h4>
+  <div class="wrap" style="max-height:200px;"><table id="his_tb"><thead><tr><th>Mã điểm</th><th>Tên điểm</th><th>Trạng thái</th></tr></thead><tbody id="his_body"><tr><td colspan="3" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr></tbody></table></div>
  </div>
  <div class="wrap">
   <table><thead><tr><th>#</th><th>Ngày</th><th>Thứ</th><th>Đơn vị</th><th>Mã điểm</th><th>Tên điểm</th><th>Tuần</th><th>Tháng</th><th>Quý</th><th>Kiểm tra</th></tr></thead><tbody id="lg"></tbody></table>
@@ -87,31 +87,29 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfwTlVfwIreFk92ibXf62KVHapeFp0wPTMgcRsDKdS80nluvwtBSpBN-Jkmg_I7942/exec";
 let DB = {};
 
-// Thiết lập ngày mặc định là hôm nay (10/11/2026) cho các ô chọn ngày
 const todayStr = "2026-11-10";
 document.getElementById('nbc').value = todayStr;
 document.getElementById('fd').value = todayStr;
 
-// 1. TẢI DỮ LIỆU BAN ĐẦU
+// 1. TẢI DỮ LIỆU TỪ WEB APP MỚI
 fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow', mode: 'cors' })
   .then(res => res.json())
   .then(data => {
     DB = data; 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
-    initDashboard();
-    loadLocalLogs();
+    initApp();
   })
   .catch(err => {
     console.error("Lỗi tải dữ liệu:", err);
-    document.getElementById('loading').innerText = "Không thể tải dữ liệu từ Google Sheets.";
+    document.getElementById('loading').innerText = "Không thể tải dữ liệu từ Google Sheets. Vui lòng kiểm tra lại Deploy Apps Script.";
   });
 
-// 2. GỬI DỮ LIỆU ĐĂNG KÝ MỚI
+// 2. GỬI DỮ LIỆU ĐĂNG KÝ MỚI (POST)
 document.getElementById('add').addEventListener('click', function() {
   const ngayNhap = document.getElementById('fd').value; 
   const donViVal = document.getElementById('fu').value;
-  if(!donViVal) { alert("Vui lòng chọn đơn vị!"); return; }
+  if(!donViVal) { alert("Vui lòng lựa chọn đơn vị!"); return; }
   
   const selU = document.getElementById('fu');
   const tenDonVi = selU.options[selU.selectedIndex].text;
@@ -198,8 +196,8 @@ function appendLogRow(lg, idx) {
     document.getElementById('lg').innerHTML += tr;
 }
 
-// 3. LOGIC GIAO DIỆN & THỐNG KÊ
-function initDashboard() {
+// 3. KHỞI TẠO ỨNG DỤNG & GIAO DIỆN
+function initApp() {
     const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>Array.from(e.querySelectorAll(s));
     let nbc=$('#nbc'),rk=$('#rk'),du=$('#du'),dp=$('#dp'),dq=$('#dq'),ds=$('#ds');
     let fd=$('#fd'),fu=$('#fu'),fp=$('#fp'),pl=$('#pl'),pn=$('#pn');
@@ -259,13 +257,13 @@ function initDashboard() {
         }
         draw_bar($('#c3'),m_lb,m_val,var_c('--orange'), false);
 
-        // Top 10 theo Ngày, Tuần, Tháng (Xoay chữ 45 độ chống chồng lấn)
-        let top_d_lb = ["Điểm 1", "Điểm 2", "Điểm 3", "Điểm 4", "Điểm 5", "Điểm 6", "Điểm 7", "Điểm 8", "Điểm 9", "Điểm 10"];
-        let top_d_val = [12, 10, 9, 8, 7, 6, 5, 4, 3, 2];
+        // Top 10 đơn vị theo Ngày, Tuần, Tháng (Sắp xếp cân đối, xoay góc 35 độ chống rối chữ)
+        let top_d_lb = u_arr.slice(0,10).map(x=>x.nm.replace('TT ',''));
+        let top_d_val = u_arr.slice(0,10).map(x=>x.ps_w);
         draw_bar($('#c10_d'), top_d_lb, top_d_val, var_c('--teal'), true);
 
-        let top_w_lb = ["ĐV 11", "ĐV 12", "ĐV 13", "ĐV 14", "ĐV 15", "ĐV 16", "ĐV 17", "ĐV 18", "ĐV 19", "ĐV 20"];
-        let top_w_val = [45, 40, 38, 35, 30, 28, 25, 22, 20, 18];
+        let top_w_lb = u_arr.slice(0,10).map(x=>x.nm.replace('TT ',''));
+        let top_w_val = u_arr.slice(0,10).map(x=>x.dk_w);
         draw_bar($('#c10_w'), top_w_lb, top_w_val, var_c('--blue'), true);
 
         let s_u=[...u_arr];
@@ -273,7 +271,7 @@ function initDashboard() {
         let t10_lb=s_u.slice(0,10).map(x=>x.nm.replace('TT ','')), t10_val=s_u.slice(0,10).map(x=>x.pm);
         draw_bar($('#c4'),t10_lb,t10_val,var_c('--gold'), true);
 
-        // Bảng tổng hợp
+        // Bảng tổng hợp 50 đơn vị
         let th='<tr><th data-k="id">Mã</th><th data-k="nm">Đơn vị</th><th data-k="kh_l">KH tuần</th><th data-k="dk_w">ĐK tuần</th><th data-k="ps_w">Lượt tuần</th><th data-k="pw">% Tuần</th><th data-k="ps_m">Lượt tháng</th><th data-k="pm">% Tháng</th></tr>';
         let tb='<tbody>';
         s_u.forEach(x=>{
@@ -284,7 +282,7 @@ function initDashboard() {
     }
 
     function render_dt(){
-        let uid=cur_u, p=dp.value, q=dq.value.toLowerCase(), s=ds.value;
+        let uid=du.value || cur_u, p=dp.value, q=dq.value.toLowerCase(), s=ds.value;
         let d_str=nbc.value, d=D(d_str), w=T(d_str), m=d.getMonth()+1, qy=Q(m);
         let u = null;
         if(DB.U) u = DB.U.find(x=>x[0]==uid); 
@@ -292,7 +290,7 @@ function initDashboard() {
         let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
         let day_arr=[]; 
         
-        // Sửa logic lọc chính xác theo Ngày, Tuần, Tháng, Quý
+        // Logic lọc Kỳ xem chuẩn xác
         if(p==='Ngày') {
             let dy_idx = Math.floor((d-D('2026-06-26'))/864e5);
             day_arr = [dy_idx];
@@ -304,7 +302,7 @@ function initDashboard() {
             let s_d = Math.floor((s_date - D('2026-06-26'))/864e5);
             let e_d = Math.floor((e_date - D('2026-06-26'))/864e5);
             for(let i=s_d; i<e_d; i++) day_arr.push(i);
-        } else { 
+        } else { // Quý
             let sm=(qy-1)*3+1; 
             let s_date = D(`2026-${sm.toString().padStart(2,'0')}-01`);
             let e_date = new Date(2026, sm+2, 1);
@@ -346,15 +344,15 @@ function initDashboard() {
     }
 
     function init(){
-        // Xây dựng danh sách Đơn vị chuẩn xác cho cả Dashboard và Tab Nhập liệu
         let u_opt='<option value="">-- Lựa chọn đơn vị --</option>'; 
         if(DB.U){
             DB.U.forEach(u=>{ u_opt+=`<option value="${u[0]}">${u[0]} - ${u[1]}</option>`; });
         }
         du.innerHTML=u_opt; fu.innerHTML=u_opt; 
-        du.value=cur_u; fu.value=""; // Mặc định Tab nhập liệu để trống chữ "Lựa chọn đơn vị"
+        du.value=cur_u; fu.value=""; 
         pop_fp();
         render_db();
+        render_dt();
     }
 
     window.go_dt=function(id){ cur_u=id; du.value=id; switch_tab('dt'); render_dt(); };
@@ -371,7 +369,6 @@ function initDashboard() {
     [du,dp,dq,ds,nbc].forEach(e=>e.addEventListener('change',render_dt));
     dq.addEventListener('keyup',e=>{if(e.key==='Enter')render_dt()});
 
-    // Lọc danh sách điểm theo đơn vị được chọn ở Tab Nhập liệu
     function pop_fp(){
         let uid=fu.value;
         let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [], h='';
@@ -380,12 +377,12 @@ function initDashboard() {
         updateHistoryTable(uid);
     }
     fu.addEventListener('change',pop_fp);
+    du.addEventListener('change',()=>render_dt());
 
-    // Cập nhật bảng hiển thị các điểm đã đăng ký của đơn vị trong tháng
     function updateHistoryTable(uid) {
         let tbody = document.getElementById('his_body');
         if(!uid) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr>`;
             return;
         }
         let pts = DB.P && DB.P[uid] ? DB.P[uid] : [];
@@ -395,11 +392,11 @@ function initDashboard() {
             let act = DB.A && DB.A[p[0]] ? DB.A[p[0]][0] : [];
             if(act.length > 0) {
                 count++;
-                html += `<tr><td>${p[0]}</td><td>${p[1]}</td><td>Đã đăng ký (${act.length} kỳ)</td><td><span class="pill p1">Đã ĐK</span></td></tr>`;
+                html += `<tr><td>${p[0]}</td><td>${p[1]}</td><td><span class="pill p1">Đã đăng ký (${act.length} lượt)</span></td></tr>`;
             }
         });
         if(count === 0) {
-            html = `<tr><td colspan="4" style="text-align:center;color:var(--mut)">Đơn vị chưa có điểm nào đăng ký ra quân</td></tr>`;
+            html = `<tr><td colspan="3" style="text-align:center;color:var(--mut)">Đơn vị chưa có điểm nào đăng ký ra quân</td></tr>`;
         }
         tbody.innerHTML = html;
     }
@@ -412,7 +409,6 @@ function initDashboard() {
 
     function var_c(n){return getComputedStyle(document.body).getPropertyValue(n).trim()}
     
-    // Hàm vẽ biểu đồ nâng cao (Hỗ trợ xoay chữ chống chồng lấn cho trục ngang)
     function draw_bar(el,lb,val,col, rotateText=false){
         let max=Math.max(...val,1), h=180, w=el.clientWidth||320, gap=w/lb.length;
         let p=`<svg viewBox="0 0 ${w} ${h}">`;
@@ -423,7 +419,7 @@ function initDashboard() {
             if(bh>10) p+=`<text x="${xPos}" y="${h-30-bh}" text-anchor="middle" fill="${var_c('--ink')}" font-size="9">${val[i]}</text>`;
             
             if(rotateText) {
-                p+=`<text transform="translate(${xPos}, ${h-10}) rotate(-35)" text-anchor="end" font-size="9">${lb[i]}</text>`;
+                p+=`<text transform="translate(${xPos}, ${h-10}) rotate(-30)" text-anchor="end" font-size="9">${lb[i]}</text>`;
             } else {
                 p+=`<text x="${xPos}" y="${h-10}" text-anchor="middle" font-size="9">${lb[i]}</text>`;
             }
