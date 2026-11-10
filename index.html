@@ -68,7 +68,7 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
 // ==========================================
 // BƯỚC 1: DÁN LINK WEB APP TỪ GOOGLE SHEETS
 // ==========================================
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLoLKVi-64aM1O7Lhf4qn4Kozr_JCE1r8dCWmrMlCGjefaBzUk26Dm_nSPfIyWH2JU/exec";
+const SCRIPT_URL = "DÁN_LINK_WEB_APP_CỦA_BẠN_VÀO_ĐÂY";
 
 // Biến DB sẽ được nạp dữ liệu từ Google Sheets
 let DB = {};
@@ -106,9 +106,17 @@ document.getElementById('add').addEventListener('click', function() {
       return;
   }
 
+  // --- BẮT ĐẦU ĐOẠN TỰ ĐỘNG DỊCH NGÀY SANG "Kỳ X" ---
+  const D = d => new Date(d + 'T00:00:00+07:00');
+  const ngayGoc = D('2026-06-26'); // Ngày gốc của hệ thống (Kỳ 0)
+  const ngayChon = D(ngayNhap);
+  const soNgayCachBiet = Math.floor((ngayChon - ngayGoc) / 864e5);
+  const tenCotSheet = "Kỳ " + soNgayCachBiet; // Tự động tạo ra chữ "Kỳ 0", "Kỳ 1",...
+  // --------------------------------------------------
+
   // Đóng gói thông tin gửi lên
   const payload = {
-    ngay: ngayNhap,
+    ngay: tenCotSheet, // Gửi tên Cột theo định dạng "Kỳ X"
     donVi: donViNhap,
     maDiem: maDiemNhap
   };
@@ -117,4 +125,190 @@ document.getElementById('add').addEventListener('click', function() {
   btnAdd.innerText = "Đang lưu...";
   btnAdd.disabled = true;
 
-  fetch(
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if(data.status === "success") {
+        alert(data.message);
+    } else {
+        alert("Lỗi: " + data.message);
+    }
+  })
+  .catch(error => {
+    console.error("Lỗi mạng:", error);
+    alert("Không thể kết nối đến hệ thống.");
+  })
+  .finally(() => {
+    btnAdd.innerText = "+ Thêm dòng";
+    btnAdd.disabled = false;
+  });
+});
+
+// ==========================================
+// TOÀN BỘ LOGIC XỬ LÝ GIAO DIỆN (UI/UX)
+// Được bọc trong hàm initDashboard để chỉ chạy khi đã có dữ liệu
+// ==========================================
+function initDashboard() {
+    const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>Array.from(e.querySelectorAll(s));
+    let t_db=$('#db'),t_dt=$('#dt'),t_nl=$('#nl'),nbc=$('#nbc'),rk=$('#rk'),du=$('#du'),dp=$('#dp'),dq=$('#dq'),ds=$('#ds');
+    let fd=$('#fd'),fu=$('#fu'),fp=$('#fp'),pl=$('#pl'),pn=$('#pn'),add=$('#add'),lg=$('#lg');
+    let cur_u=12,sz=1,lg_arr=[];
+
+    const D=d=>new Date(d+'T00:00:00+07:00'),F=n=>new Intl.NumberFormat('vi').format(n),P=(a,b)=>b?Math.round(a/b*100):0;
+    const S_dt='12/11/2026',E_dt='26/06/2026'; // Mockup bounds
+    const T=d=>{let d0=D('2025-12-26'),d1=D(d);return Math.floor((d1-d0)/(7*864e5))+1}; // Tuần Happy Day
+    const Q=m=>Math.floor((m-1)/3)+1;
+
+    function render_db(){
+        let d_str=nbc.value,d=D(d_str),w=T(d_str),m=d.getMonth()+1,q=Q(m);
+        $('#rng').innerText=`Tuần ${w} (T${m} - Q${q})`;
+        
+        let sum=[0,0,0,0,0,0,0], u_arr=[];
+        DB.U.forEach(u=>{
+            let uid=u[0],nm=u[1],kh_l=u[2],kh_dt=u[3],a=u[4],b=u[5];
+            let ps_w=a[w-27]||0, ps_m=b[m-6]||0, dk_w=ps_w+Math.floor(Math.random()*5); // Mockup ĐK
+            sum[0]+=kh_l; sum[1]+=kh_dt; sum[2]+=dk_w; sum[3]+=ps_w; sum[4]+=ps_m; sum[5]+=(kh_l*4); sum[6]+=(kh_dt*4);
+            u_arr.push({id:uid,nm:nm,kh_l:kh_l,kh_dt:kh_dt,dk_w:dk_w,ps_w:ps_w,ps_m:ps_m,pw:P(ps_w,kh_l),pm:P(ps_m,kh_l*4)});
+        });
+
+        $('#cards').innerHTML=`
+            <div class="card" style="--c:var(--navy)"><h3>KẾ HOẠCH LƯỢT TUẦN ${w}</h3><b>${F(sum[0])}</b><small>Tất cả 50 đơn vị</small></div>
+            <div class="card" style="--c:var(--orange)"><h3>ĐÃ ĐĂNG KÝ LƯỢT TUẦN ${w}</h3><b>${F(sum[2])}</b><small>Tỷ lệ: ${P(sum[2],sum[0])}% KH</small></div>
+            <div class="card" style="--c:var(--teal)"><h3>PHÁT SINH DT LƯỢT TUẦN ${w}</h3><b>${F(sum[3])}</b><small>Tỷ lệ: ${P(sum[3],sum[0])}% KH</small></div>
+            <div class="card" style="--c:var(--blue)"><h3>PHÁT SINH DT LƯỢT THÁNG ${m}</h3><b>${F(sum[4])}</b><small>Tỷ lệ: ${P(sum[4],sum[5])}% KH</small></div>
+        `;
+
+        // Chart 1: Lượt ra quân 7 ngày
+        let dd=new Date(d); dd.setDate(dd.getDate()-6);
+        let days=[], d_vals=[];
+        for(let i=0;i<7;i++){
+            let ds=dd.toISOString().slice(0,10);
+            days.push(dd.getDate()+'/'+(dd.getMonth()+1));
+            d_vals.push(DB.D[ds]||0);
+            dd.setDate(dd.getDate()+1);
+        }
+        $('#t1').innerText='Lượt ra quân 7 ngày qua';
+        draw_bar($('#c1'),days,d_vals,var_c('--teal'));
+
+        // Chart 2: 13 Tuần
+        let w_lb=[], w_val=[];
+        for(let i=Math.max(27,w-12);i<=w;i++) { w_lb.push('W'+i); let vw=0; DB.U.forEach(x=>vw+=(x[4][i-27]||0)); w_val.push(vw); }
+        draw_bar($('#c2'),w_lb,w_val,var_c('--blue'));
+
+        // Chart 3: 6 Tháng
+        let m_lb=[], m_val=[];
+        for(let i=Math.max(6,m-5);i<=m;i++) { m_lb.push('T'+i); let vm=0; DB.U.forEach(x=>vm+=(x[5][i-6]||0)); m_val.push(vm); }
+        draw_bar($('#c3'),m_lb,m_val,var_c('--orange'));
+
+        // Chart 4: Top 10
+        let s_u=[...u_arr];
+        if(rk.value==='Tuần') s_u.sort((a,b)=>b.pw-a.pw);
+        else if(rk.value==='Tháng') s_u.sort((a,b)=>b.pm-a.pm);
+        else s_u.sort((a,b)=>(b.ps_m+b.ps_w)-(a.ps_m+a.ps_w)); // Mockup Quý
+        let t10_lb=s_u.slice(0,10).map(x=>x.nm.replace('TT ','')), t10_val=s_u.slice(0,10).map(x=>rk.value==='Tuần'?x.pw:x.pm);
+        draw_bar($('#c4'),t10_lb,t10_val,var_c('--gold'));
+
+        // Table
+        let th='<tr><th data-k="id">Mã</th><th data-k="nm">Đơn vị</th><th data-k="kh_l">KH tuần</th><th data-k="dk_w">ĐK tuần</th><th data-k="ps_w">Lượt tuần</th><th data-k="pw">% Tuần</th><th data-k="ps_m">Lượt tháng</th><th data-k="pm">% Tháng</th></tr>';
+        let tb='<tbody>';
+        s_u.forEach(x=>{
+            tb+=`<tr class="rw" onclick="go_dt(${x.id})"><td>${x.id}</td><td>${x.nm}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100,x.pw)}%"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100,x.pm)}%;background:var(--orange)"></div>${x.pm}%</td></tr>`;
+        });
+        tb+=`<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[3],sum[0])}%</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[4],sum[5])}%</td></tr></tbody>`;
+        $('#tb').innerHTML=th+tb;
+    }
+
+    function render_dt(){
+        let uid=cur_u, p=dp.value, q=dq.value.toLowerCase(), s=ds.value;
+        let d_str=nbc.value, d=D(d_str), w=T(d_str), m=d.getMonth()+1, qy=Q(m);
+        let u=DB.U.find(x=>x[0]==uid); if(!u) return;
+        let pts=DB.P[uid]||[];
+        let day_arr=[]; 
+        if(p==='Ngày') day_arr=[Math.floor((d-D('2026-06-26'))/864e5)];
+        else if(p==='Tuần') { let s_d=(w-27)*7; for(let i=0;i<7;i++) day_arr.push(s_d+i); }
+        else if(p==='Tháng') { let s_d=Math.floor((D(`2026-${m.toString().padStart(2,'0')}-01`)-D('2026-06-26'))/864e5); let e_d=Math.floor((D(`2026-${(m+1).toString().padStart(2,'0')}-01`)-D('2026-06-26'))/864e5); for(let i=s_d;i<e_d;i++) day_arr.push(i); }
+        else { let sm=(qy-1)*3+1; let s_d=Math.floor((D(`2026-${sm.toString().padStart(2,'0')}-01`)-D('2026-06-26'))/864e5); let e_d=Math.floor((D(`2026-${(sm+3).toString().padStart(2,'0')}-01`)-D('2026-06-26'))/864e5); for(let i=s_d;i<e_d;i++) day_arr.push(i); }
+        
+        let sum=[0,0,0,0,0]; // Lượt ĐK, Lượt TT, DT KH, DT TT, Điểm ĐK
+        let p_arr=[];
+        pts.forEach(pt=>{
+            if(q && !pt[0].toString().includes(q) && !pt[1].toLowerCase().includes(q)) return;
+            let act=DB.A[pt[0]]||[[],[]], a1=act[0], a2=act[1];
+            let dk=0, tt=0, dt=0;
+            day_arr.forEach(dy=>{ if(a1.includes(dy)) dk++; let ix=a2.indexOf(dy); if(ix>-1){ tt++; dt+=a2[ix+1]; } });
+            let st=tt>0?1:(dk>0?2:3);
+            if(s && st.toString()!==s) return;
+            let kh_d = p==='Ngày'?1:(p==='Tuần'?1:Math.round(day_arr.length/7));
+            let kh_dt = kh_d*5; // Mockup 5tr/lượt
+            sum[0]+=dk; sum[1]+=tt; sum[2]+=kh_dt; sum[3]+=dt; if(dk>0) sum[4]++;
+            p_arr.push({id:pt[0],nm:pt[1],ct:pt[2],dk:dk,tt:tt,kh_d:kh_d,kh_dt:kh_dt,dt:dt,st:st});
+        });
+
+        $('#dcards').innerHTML=`
+            <div class="card" style="--c:var(--navy)"><h3>TỔNG LƯỢT ĐĂNG KÝ</h3><b>${F(sum[0])}</b><small>${sum[4]} điểm tham gia</small></div>
+            <div class="card" style="--c:var(--teal)"><h3>LƯỢT PHÁT SINH DT</h3><b>${F(sum[1])}</b><small>Tỷ lệ: ${P(sum[1],sum[0])}% ĐK</small></div>
+            <div class="card" style="--c:var(--orange)"><h3>TỔNG DOANH THU (TR)</h3><b>${F(Math.round(sum[3]/1e6))}</b><small>Đạt ${P(sum[3]/1e6,sum[2])}% Kế hoạch</small></div>
+        `;
+        $('#dn').innerText=`Đang hiển thị ${p_arr.length} điểm`;
+
+        let th=`<tr><th data-k="id">Mã</th><th data-k="nm">Tên điểm</th><th data-k="ct">Chỉ tiêu lượt</th><th data-k="dk">Lượt ĐK</th><th data-k="tt">Lượt PSDT</th><th data-k="dt">Doanh thu</th><th>Trạng thái</th></tr>`;
+        let tb='<tbody>';
+        p_arr.forEach(x=>{
+            let p_cl=x.st===1?'p1':(x.st===2?'p2':'p3'), p_tx=x.st===1?'Có DT':(x.st===2?'ĐK, 0 DT':'Chưa ĐK');
+            tb+=`<tr><td>${x.id}</td><td>${x.nm}</td><td class="n">${x.kh_d}</td><td class="n ${x.dk<x.kh_d?'err':''}">${x.dk}</td><td class="n ${x.tt<x.dk?'err':'ok'}">${x.tt}</td><td class="n">${F(x.dt)}</td><td style="text-align:center"><span class="pill ${p_cl}">${p_tx}</span></td></tr>`;
+        });
+        $('#dtb').innerHTML=th+tb;
+    }
+
+    function init(){
+        let u_opt=''; DB.U.forEach(u=>{ u_opt+=`<option value="${u[0]}">${u[0]} - ${u[1]}</option>`; });
+        du.innerHTML=u_opt; fu.innerHTML=u_opt; du.value=cur_u; fu.value=cur_u; pop_fp();
+        render_db();
+    }
+
+    window.go_dt=function(id){ cur_u=id; du.value=id; switch_tab('dt'); render_dt(); };
+    function switch_tab(id){
+        $$('.pane').forEach(e=>e.classList.remove('on')); $$('nav button').forEach(e=>e.classList.remove('on'));
+        $(`#${id}`).classList.add('on'); $(`nav button[data-t="${id}"]`).classList.add('on');
+        if(id==='db') render_db(); if(id==='dt') render_dt();
+        if(id==='db'||id==='dt') $('#gbar').style.display='flex'; else $('#gbar').style.display='none';
+    }
+
+    $$('nav button').forEach(b=>b.addEventListener('click',e=>switch_tab(e.target.dataset.t)));
+    nbc.addEventListener('change',render_db);
+    rk.addEventListener('change',render_db);
+    [du,dp,dq,ds,nbc].forEach(e=>e.addEventListener('change',render_dt));
+    dq.addEventListener('keyup',e=>{if(e.key==='Enter')render_dt()});
+
+    function pop_fp(){
+        let uid=fu.value, pts=DB.P[uid]||[], h='';
+        pts.forEach(p=>h+=`<option value="${p[0]}">${p[1]}</option>`); pl.innerHTML=h;
+        fp.value=''; pn.innerText='';
+    }
+    fu.addEventListener('change',pop_fp);
+    fp.addEventListener('input',()=>{
+        let pts=DB.P[fu.value]||[], pt=pts.find(x=>x[0]==fp.value);
+        if(pt) pn.innerHTML=`<span class="ok">✔ ${pt[1]}</span>`; else if(fp.value) pn.innerHTML=`<span class="err">✖ Không có trong CSDL</span>`; else pn.innerText='';
+    });
+
+    function var_c(n){return getComputedStyle(document.body).getPropertyValue(n).trim()}
+    function draw_bar(el,lb,val,col){
+        let max=Math.max(...val,1), h=160, w=el.clientWidth||300, gap=w/lb.length;
+        let p=`<svg viewBox="0 0 ${w} ${h}">`;
+        for(let i=0;i<lb.length;i++){
+            let bh=(val[i]/max)*(h-20);
+            p+=`<rect x="${i*gap+gap*0.1}" y="${h-15-bh}" width="${gap*0.8}" height="${bh}" fill="${col}" rx="2"/>`;
+            p+=`<text x="${i*gap+gap*0.5}" y="${h-2}" text-anchor="middle">${lb[i]}</text>`;
+            if(bh>10) p+=`<text x="${i*gap+gap*0.5}" y="${h-20-bh}" text-anchor="middle" fill="${var_c('--ink')}">${val[i]}</text>`;
+        }
+        el.innerHTML=p+'</svg>';
+    }
+
+    init();
+}
+</script>
+</body></html>
