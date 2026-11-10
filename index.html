@@ -77,17 +77,15 @@ let DB = {};
 // ==========================================
 fetch(SCRIPT_URL, {
   method: 'GET',
-  redirect: 'follow' // Quan trọng để xử lý chuyển hướng của Google
+  redirect: 'follow'
 })
   .then(response => response.json())
   .then(data => {
     DB = data; 
     
-    // Ẩn chữ Loading và hiện Dashboard
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
 
-    // Gọi hàm chạy giao diện sau khi đã có data
     initDashboard();
   })
   .catch(error => {
@@ -108,13 +106,11 @@ document.getElementById('add').addEventListener('click', function() {
       return;
   }
 
-  // --- TỰ ĐỘNG DỊCH NGÀY SANG "Kỳ X" ---
   const D = d => new Date(d + 'T00:00:00+07:00');
-  const ngayGoc = D('2026-06-26'); // Ngày gốc của hệ thống (Kỳ 0)
+  const ngayGoc = D('2026-06-26');
   const ngayChon = D(ngayNhap);
   const soNgayCachBiet = Math.floor((ngayChon - ngayGoc) / 864e5);
   const tenCotSheet = "Kỳ " + soNgayCachBiet; 
-  // ------------------------------------
 
   const payload = {
     ngay: tenCotSheet, 
@@ -128,7 +124,7 @@ document.getElementById('add').addEventListener('click', function() {
 
   fetch(SCRIPT_URL, {
     method: 'POST',
-    redirect: 'follow', // Quan trọng để xử lý CORS
+    redirect: 'follow', 
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
   })
