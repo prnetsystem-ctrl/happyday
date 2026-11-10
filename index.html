@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Happy Day 2026 – Tổng hợp lượt ra quân (Mockup)</title>
+<title>Happy Day 2026 – Tổng hợp lượt ra quân</title>
 <style>
 :root{--navy:#1F3864;--blue:#2F5597;--teal:#0E7C7B;--orange:#C55A11;--gold:#FFC000;--bg:#f4f6fa;--ink:#222;--mut:#6b7280;--card:#fff;--line:#e3e7ee}
 @media(prefers-color-scheme:dark){:root{--bg:#14171c;--ink:#e8eaed;--mut:#9aa3b0;--card:#1e232b;--line:#2d343f}}
@@ -16,66 +16,72 @@ input.in,select.in{background:#FFF2CC;color:#0000FF;border-color:#e6c75a;font-we
 button.act{background:var(--navy);color:#fff;border:0;cursor:pointer}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
 .card{border:1px solid var(--line);border-top:5px solid var(--c);border-radius:8px;padding:10px 14px}
-.card h3{margin:0;font-size:11px;color:var(--mut);letter-spacing:.4px}.card b{font-size:32px;color:var(--c);display:block}
+.card h3{margin:0;font-size:11px;color:var(--mut);letter-spacing:.4px}.card b{font-size:30px;color:var(--c);display:block}
 .card small{display:block;color:var(--mut);font-size:12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin-bottom:16px}
-.box{border:1px solid var(--line);border-radius:8px;padding:10px 12px}.box h4{margin:0 0 6px;font-size:13px}
+.box{border:1px solid var(--line);border-radius:8px;padding:12px}.box h4{margin:0 0 10px;font-size:13px;color:var(--navy)}
 svg{width:100%;height:auto;display:block}svg text{fill:var(--mut);font-size:10px}
-table{border-collapse:collapse;width:100%;font-size:13px}th{background:var(--navy);color:#fff;padding:7px;text-align:center}
-td{padding:5px 7px;border-bottom:1px solid var(--line)}td.n{text-align:right}.bar{height:8px;border-radius:4px;background:var(--blue);min-width:1px}
+table{border-collapse:collapse;width:100%;font-size:13px}th{background:var(--navy);color:#fff;padding:8px;text-align:center}
+td{padding:6px 8px;border-bottom:1px solid var(--line)}td.n{text-align:right}.bar{height:8px;border-radius:4px;background:var(--blue);min-width:1px}
 .ok{color:#00803C;font-weight:700}.err{color:#C00000;font-weight:700}.note{color:var(--mut);font-size:12px}
 .wrap{max-height:430px;overflow:auto}
 .wrap th{position:sticky;top:0;z-index:1}th[data-k]{cursor:pointer;user-select:none}
 tr.rw{cursor:pointer}tr.rw:hover td{background:rgba(255,192,0,.18)}
-.pill{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}.p1{background:#d7f0e0;color:#00693a}.p2{background:#ffe9c7;color:#8a5200}.p3{background:var(--line);color:var(--mut)}
+.pill{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}.p1{background:#d7f0e0;color:#00693a}.p2{background:#ffe9c7;color:#8a5200}.p3{background:var(--line);color:var(--mut)}
 tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
-#loading {text-align: center; padding: 50px; font-weight: bold; font-size: 16px; color: var(--navy);}
+#loading{text-align:center;padding:50px;font-weight:bold;font-size:16px;color:var(--navy)}
 </style></head><body>
-<header><h1>HAPPY DAY 2026 – TỔNG HỢP LƯỢT RA QUÂN ĐĂNG KÝ</h1><small>Dữ liệu kết nối động với Google Sheets</small></header>
+<header><h1>HAPPY DAY 2026 – TỔNG HỢP LƯỢT RA QUÂN ĐĂNG KÝ</h1><small>Hệ thống kết nối Google Sheets trực tuyến</small></header>
 <nav><button class="on" data-t="db">Dashboard</button><button data-t="dt">Chi tiết đơn vị</button><button data-t="nl">Nhập liệu</button></nav>
 
 <div id="loading">Đang kết nối để tải dữ liệu từ Google Sheets, vui lòng đợi...</div>
 
-<main style="display: none;" id="main-content">
+<main style="display:none;" id="main-content">
 <div class="ctl" id="gbar"><label><b>Ngày báo cáo ▶</b> <input class="in" type="date" id="nbc" min="2026-01-01" max="2026-12-31"></label><span id="rng" class="note"></span></div>
 
-<!-- DASHBOARD -->
+<!-- 1. DASHBOARD -->
 <section class="pane on" id="db">
  <div class="cards" id="cards"></div>
  <div class="grid">
-  <div class="box"><h4 id="t1">Lượt ra quân 7 ngày qua</h4><div id="c1"></div></div>
+  <div class="box"><h4>Lượt ra quân 7 ngày qua</h4><div id="c1"></div></div>
   <div class="box"><h4>08 tuần gần nhất</h4><div id="c2"></div></div>
   <div class="box"><h4>Top 10 đơn vị theo Ngày</h4><div id="c10_d"></div></div>
   <div class="box"><h4>Top 10 đơn vị theo Tuần</h4><div id="c10_w"></div></div>
   <div class="box"><h4>Top 10 đơn vị theo Tháng</h4><div id="c4"></div></div>
-  <div class="box"><h4>6 tháng gần nhất</h4><div id="c3"></div></div>
+  <div class="box"><h4>06 tháng gần nhất</h4><div id="c3"></div></div>
  </div>
  <div class="box"><h4>Bảng tổng hợp 50 đơn vị</h4><div class="wrap"><table id="tb"></table></div></div>
 </section>
 
-<!-- CHI TIẾT ĐƠN VỊ -->
+<!-- 2. CHI TIẾT ĐƠN VỊ -->
 <section class="pane" id="dt">
- <div class="ctl"><label><b>Đơn vị ▶</b> <select class="in" id="du"></select></label>
+ <div class="ctl">
+  <label><b>Đơn vị ▶</b> <select class="in" id="du"></select></label>
   <label>Kỳ xem <select class="in" id="dp"><option>Ngày</option><option selected>Tuần</option><option>Tháng</option><option>Quý</option></select></label>
-  <span id="drng" class="note"></span></div>
+  <span id="drng" class="note"></span>
+ </div>
  <div class="cards" id="dcards"></div>
- <div class="ctl"><input id="dq" placeholder="Tìm mã / tên điểm…" style="min-width:220px"><select id="ds"><option value="">Tất cả trạng thái</option><option value="1">Có doanh thu ra quân</option><option value="2">Đăng ký, chưa có doanh thu</option><option value="3">Chưa đăng ký</option></select><span class="note" id="dn"></span></div>
+ <div class="ctl">
+  <input id="dq" placeholder="Tìm mã / tên điểm…" style="min-width:220px">
+  <select id="ds"><option value="">Tất cả trạng thái</option><option value="1">Có doanh thu ra quân</option><option value="2">Đăng ký, chưa có doanh thu</option><option value="3">Chưa đăng ký</option></select>
+  <span class="note" id="dn"></span>
+ </div>
  <div class="wrap"><table id="dtb"></table></div>
 </section>
 
-<!-- NHẬP LIỆU -->
+<!-- 3. NHẬP LIỆU -->
 <section class="pane" id="nl">
  <div class="ctl">
   <label><b>Ngày ▶</b> <input class="in" type="date" id="fd"></label>
-  <label><b>Đơn vị ▶</b> <select class="in" id="fu"><option value="">-- Lựa chọn đơn vị --</select></label>
-  <label><b>Mã điểm ▶</b> <input class="in" id="fp" placeholder="Chọn/gõ mã điểm" list="pl"></label>
+  <label><b>Đơn vị ▶</b> <select class="in" id="fu"></select></label>
+  <label><b>Mã / Tên điểm ▶</b> <input class="in" id="fp" placeholder="Chọn hoặc gõ điểm..." list="pl" style="min-width:260px"></label>
   <datalist id="pl"></datalist>
   <span id="pn" class="note"></span>
   <button class="act" id="add">+ Thêm dòng</button>
  </div>
  <div class="box" style="margin-bottom:14px;">
-  <h4>Các điểm đã đăng ký của đơn vị trong hệ thống:</h4>
-  <div class="wrap" style="max-height:200px;"><table id="his_tb"><thead><tr><th>Mã điểm</th><th>Tên điểm</th><th>Trạng thái</th></tr></thead><tbody id="his_body"><tr><td colspan="3" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr></tbody></table></div>
+  <h4>Các điểm đã đăng ký của đơn vị này:</h4>
+  <div class="wrap" style="max-height:180px;"><table id="his_tb"><thead><tr><th>Mã điểm</th><th>Tên điểm</th><th>Trạng thái</th></tr></thead><tbody id="his_body"><tr><td colspan="3" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr></tbody></table></div>
  </div>
  <div class="wrap">
   <table><thead><tr><th>#</th><th>Ngày</th><th>Thứ</th><th>Đơn vị</th><th>Mã điểm</th><th>Tên điểm</th><th>Tuần</th><th>Tháng</th><th>Quý</th><th>Kiểm tra</th></tr></thead><tbody id="lg"></tbody></table>
@@ -85,37 +91,43 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
 
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfwTlVfwIreFk92ibXf62KVHapeFp0wPTMgcRsDKdS80nluvwtBSpBN-Jkmg_I7942/exec";
-let DB = {};
+let DB = { U: [], D: {}, P: {}, S: [], A: {} };
 
 const todayStr = "2026-11-10";
 document.getElementById('nbc').value = todayStr;
 document.getElementById('fd').value = todayStr;
 
-// 1. TẢI DỮ LIỆU TỪ WEB APP MỚI
-fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow', mode: 'cors' })
+// TẢI DỮ LIỆU BAN ĐẦU
+fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' })
   .then(res => res.json())
   .then(data => {
-    DB = data; 
+    if (data.error) {
+      document.getElementById('loading').innerHTML = `<span class="err">LỖI BACKEND: ${data.error}</span><br><small>Vui lòng kiểm tra lại tên sheet trên Google Sheets.</small>`;
+      return;
+    }
+    DB = data;
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
-    initApp();
+    initSystem();
+    loadLocalLogs();
   })
   .catch(err => {
-    console.error("Lỗi tải dữ liệu:", err);
-    document.getElementById('loading').innerText = "Không thể tải dữ liệu từ Google Sheets. Vui lòng kiểm tra lại Deploy Apps Script.";
+    console.error(err);
+    document.getElementById('loading').innerHTML = `<span class="err">Không thể nạp dữ liệu. Vui lòng kiểm tra kết nối mạng hoặc link Web App.</span>`;
   });
 
-// 2. GỬI DỮ LIỆU ĐĂNG KÝ MỚI (POST)
+// XỬ LÝ LƯU ĐĂNG KÝ
 document.getElementById('add').addEventListener('click', function() {
-  const ngayNhap = document.getElementById('fd').value; 
+  const ngayNhap = document.getElementById('fd').value;
   const donViVal = document.getElementById('fu').value;
-  if(!donViVal) { alert("Vui lòng lựa chọn đơn vị!"); return; }
-  
+  if (!donViVal) { alert("Vui lòng chọn Đơn vị!"); return; }
+
   const selU = document.getElementById('fu');
   const tenDonVi = selU.options[selU.selectedIndex].text;
-  const maDiemNhap = document.getElementById('fp').value.trim();
-  
-  if(!maDiemNhap || !ngayNhap) { alert("Vui lòng nhập Ngày và Mã điểm!"); return; }
+  let rawPoint = document.getElementById('fp').value.trim();
+  if (!rawPoint || !ngayNhap) { alert("Vui lòng nhập Ngày và chọn Điểm!"); return; }
+
+  let maDiemNhap = rawPoint.split(' - ')[0].trim();
 
   const btnAdd = document.getElementById('add');
   btnAdd.innerText = "Đang lưu...";
@@ -125,52 +137,54 @@ document.getElementById('add').addEventListener('click', function() {
   const dObj = D(ngayNhap);
   const thuNames = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
   const thuStr = thuNames[dObj.getDay()];
-  
+
   const T = d => Math.floor((D(d) - D('2025-12-26')) / (7 * 864e5)) + 1;
   const tuanNum = T(ngayNhap);
   const thangNum = dObj.getMonth() + 1;
   const quyNum = Math.floor((thangNum - 1) / 3) + 1;
 
   let tenDiemHienThi = maDiemNhap;
-  let ptsList = DB.P && DB.P[donViVal] ? DB.P[donViVal] : [];
+  let ptsList = (DB.P && DB.P[donViVal]) ? DB.P[donViVal] : [];
   let foundPt = ptsList.find(p => p[0].toString() === maDiemNhap);
-  if(foundPt) tenDiemHienThi = foundPt[1];
+  if (foundPt) tenDiemHienThi = foundPt[1];
 
   const ngayGoc = D('2026-06-26');
   const soNgayCachBiet = Math.floor((dObj - ngayGoc) / 864e5);
-  const tenCotSheet = "Kỳ " + soNgayCachBiet; 
+  const tenCotSheet = "Kỳ " + soNgayCachBiet;
 
   const payload = { ngay: tenCotSheet, donVi: donViVal, maDiem: maDiemNhap };
 
   fetch(SCRIPT_URL, {
-    method: 'POST', redirect: 'follow', mode: 'cors',
+    method: 'POST', redirect: 'follow',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
   })
   .then(res => res.json())
   .then(resData => {
-    if(resData.status === "success") {
-        alert(resData.message);
-        if(!DB.A[maDiemNhap]) DB.A[maDiemNhap] = [[], []];
-        if(!DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
-            DB.A[maDiemNhap][0].push(soNgayCachBiet);
-        }
+    if (resData.status === "success") {
+      alert(resData.message);
+      if (!DB.A[maDiemNhap]) DB.A[maDiemNhap] = [[], []];
+      if (!DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
+        DB.A[maDiemNhap][0].push(soNgayCachBiet);
+      }
 
-        let logItem = {
-           ngay: ngayNhap, thu: thuStr, donvi: tenDonVi, madiem: maDiemNhap, 
-           tendiem: tenDiemHienThi, tuan: `Tuần ${tuanNum}`, thang: `Tháng ${thangNum}`, quy: `Quý ${quyNum}`
-        };
-        saveLogToLocal(logItem);
-        appendLogRow(logItem, document.getElementById('lg').children.length + 1);
-        updateHistoryTable(donViVal);
-        initDashboard();
+      let logItem = {
+        ngay: ngayNhap, thu: thuStr, donvi: tenDonVi, madiem: maDiemNhap,
+        tendiem: tenDiemHienThi, tuan: `Tuần ${tuanNum}`, thang: `Tháng ${thangNum}`, quy: `Quý ${quyNum}`
+      };
+      saveLogToLocal(logItem);
+      appendLogRow(logItem, document.getElementById('lg').children.length + 1);
+      updateHistoryTable(donViVal);
+
+      // Làm mới toàn bộ màn hình
+      window.refreshDashboardUI();
     } else {
-        alert("Lỗi: " + resData.message);
+      alert("Lỗi: " + resData.message);
     }
   })
   .catch(err => {
-    console.error("Lỗi kết nối:", err);
-    alert("Không thể kết nối đến máy chủ Google.");
+    console.error(err);
+    alert("Lỗi kết nối tới máy chủ Google!");
   })
   .finally(() => {
     btnAdd.innerText = "+ Thêm dòng";
@@ -179,255 +193,317 @@ document.getElementById('add').addEventListener('click', function() {
 });
 
 function saveLogToLocal(item) {
-    let logs = JSON.parse(localStorage.getItem('happyday_logs') || '[]');
-    logs.push(item);
-    localStorage.setItem('happyday_logs', JSON.stringify(logs));
+  let logs = JSON.parse(localStorage.getItem('happyday_logs') || '[]');
+  logs.push(item);
+  localStorage.setItem('happyday_logs', JSON.stringify(logs));
 }
 function loadLocalLogs() {
-    let logs = JSON.parse(localStorage.getItem('happyday_logs') || '[]');
-    let html = '';
-    logs.forEach((lg, idx) => {
-        html += `<tr><td>${idx+1}</td><td>${lg.ngay}</td><td>${lg.thu}</td><td>${lg.donvi}</td><td>${lg.madiem}</td><td>${lg.tendiem}</td><td>${lg.tuan}</td><td>${lg.thang}</td><td>${lg.quy}</td><td class="ok">OK</td></tr>`;
-    });
-    document.getElementById('lg').innerHTML = html;
+  let logs = JSON.parse(localStorage.getItem('happyday_logs') || '[]');
+  let html = '';
+  logs.forEach((lg, idx) => {
+    html += `<tr><td>${idx+1}</td><td>${lg.ngay}</td><td>${lg.thu}</td><td>${lg.donvi}</td><td>${lg.madiem}</td><td>${lg.tendiem}</td><td>${lg.tuan}</td><td>${lg.thang}</td><td>${lg.quy}</td><td class="ok">OK</td></tr>`;
+  });
+  document.getElementById('lg').innerHTML = html;
 }
 function appendLogRow(lg, idx) {
-    let tr = `<tr><td>${idx}</td><td>${lg.ngay}</td><td>${lg.thu}</td><td>${lg.donvi}</td><td>${lg.madiem}</td><td>${lg.tendiem}</td><td>${lg.tuan}</td><td>${lg.thang}</td><td>${lg.quy}</td><td class="ok">OK</td></tr>`;
-    document.getElementById('lg').innerHTML += tr;
+  let tr = `<tr><td>${idx}</td><td>${lg.ngay}</td><td>${lg.thu}</td><td>${lg.donvi}</td><td>${lg.madiem}</td><td>${lg.tendiem}</td><td>${lg.tuan}</td><td>${lg.thang}</td><td>${lg.quy}</td><td class="ok">OK</td></tr>`;
+  document.getElementById('lg').innerHTML += tr;
 }
 
-// 3. KHỞI TẠO ỨNG DỤNG & GIAO DIỆN
-function initApp() {
-    const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>Array.from(e.querySelectorAll(s));
-    let nbc=$('#nbc'),rk=$('#rk'),du=$('#du'),dp=$('#dp'),dq=$('#dq'),ds=$('#ds');
-    let fd=$('#fd'),fu=$('#fu'),fp=$('#fp'),pl=$('#pl'),pn=$('#pn');
-    let cur_u=12;
+// KHỞI TẠO VÀ ĐỒNG BỘ TOÀN BỘ GIAO DIỆN
+function initSystem() {
+  const $ = (s, e = document) => e.querySelector(s);
+  const $$ = (s, e = document) => Array.from(e.querySelectorAll(s));
 
-    const D=d=>new Date(d+'T00:00:00+07:00'),F=n=>new Intl.NumberFormat('vi').format(n),P=(a,b)=>b?Math.round(a/b*100):0;
-    const T=d=>{let d0=D('2025-12-26'),d1=D(d);return Math.floor((d1-d0)/(7*864e5))+1}; 
-    const Q=m=>Math.floor((m-1)/3)+1;
+  let nbc = $('#nbc'), du = $('#du'), dp = $('#dp'), dq = $('#dq'), ds = $('#ds');
+  let fu = $('#fu'), fp = $('#fp'), pl = $('#pl'), pn = $('#pn');
 
-    function render_db(){
-        let d_str=nbc.value,d=D(d_str),w=T(d_str),m=d.getMonth()+1,q=Q(m);
-        $('#rng').innerText=`Tuần ${w} (T${m} - Q${q})`;
-        
-        let sum=[0,0,0,0,0,0,0], u_arr=[];
-        if(DB.U) {
-            DB.U.forEach(u=>{
-                let uid=u[0],nm=u[1],kh_l=u[2],kh_dt=u[3],a=u[4]||[],b=u[5]||[];
-                let ps_w=a[w-27]||0, ps_m=b[m-6]||0, dk_w=ps_w+Math.floor(Math.random()*5); 
-                sum[0]+=kh_l; sum[1]+=kh_dt; sum[2]+=dk_w; sum[3]+=ps_w; sum[4]+=ps_m; sum[5]+=(kh_l*4); sum[6]+=(kh_dt*4);
-                u_arr.push({id:uid,nm:nm,kh_l:kh_l,kh_dt:kh_dt,dk_w:dk_w,ps_w:ps_w,ps_m:ps_m,pw:P(ps_w,kh_l),pm:P(ps_m,kh_l*4)});
-            });
-        }
+  const D = d => new Date(d + 'T00:00:00+07:00');
+  const F = n => new Intl.NumberFormat('vi').format(n);
+  const P = (a, b) => b ? Math.round(a / b * 100) : 0;
+  const T = d => Math.floor((D(d) - D('2025-12-26')) / (7 * 864e5)) + 1;
+  const Q = m => Math.floor((m - 1) / 3) + 1;
 
-        $('#cards').innerHTML=`
-            <div class="card" style="--c:var(--navy)"><h3>KẾ HOẠCH LƯỢT TUẦN ${w}</h3><b>${F(sum[0])}</b><small>Tất cả 50 đơn vị</small></div>
-            <div class="card" style="--c:var(--orange)"><h3>ĐÃ ĐĂNG KÝ LƯỢT TUẦN ${w}</h3><b>${F(sum[2])}</b><small>Tỷ lệ: ${P(sum[2],sum[0])}% KH</small></div>
-            <div class="card" style="--c:var(--teal)"><h3>PHÁT SINH DT LƯỢT TUẦN ${w}</h3><b>${F(sum[3])}</b><small>Tỷ lệ: ${P(sum[3],sum[0])}% KH</small></div>
-            <div class="card" style="--c:var(--blue)"><h3>PHÁT SINH DT LƯỢT THÁNG ${m}</h3><b>${F(sum[4])}</b><small>Tỷ lệ: ${P(sum[4],sum[5])}% KH</small></div>
-        `;
+  // Xây dựng danh sách Dropdown Đơn vị
+  function buildUnitDropdowns() {
+    let optHtml = '<option value="">-- Lựa chọn đơn vị --</option>';
+    if (DB.U && DB.U.length > 0) {
+      DB.U.forEach(u => {
+        optHtml += `<option value="${u[0]}">${u[0]} - ${u[1]}</option>`;
+      });
+    }
+    du.innerHTML = optHtml;
+    fu.innerHTML = optHtml;
 
-        // 7 ngày qua
-        let dd=new Date(d); dd.setDate(dd.getDate()-6);
-        let days=[], d_vals=[];
-        for(let i=0;i<7;i++){
-            let ds=dd.toISOString().slice(0,10);
-            days.push(dd.getDate()+'/'+(dd.getMonth()+1));
-            d_vals.push(DB.D && DB.D[ds] ? DB.D[ds] : 0);
-            dd.setDate(dd.getDate()+1);
-        }
-        draw_bar($('#c1'),days,d_vals,var_c('--teal'), false);
+    // Chọn đơn vị đầu tiên cho tab Chi tiết
+    if (DB.U && DB.U.length > 0) {
+      du.value = DB.U[0][0];
+    }
+    fu.value = "";
+    populatePoints();
+  }
 
-        // 8 tuần gần nhất
-        let w_lb=[], w_val=[];
-        for(let i=Math.max(27,w-7);i<=w;i++) { 
-            w_lb.push('W'+i); let vw=0; 
-            if(DB.U) DB.U.forEach(x=>vw+=(x[4][i-27]||0)); 
-            w_val.push(vw); 
-        }
-        draw_bar($('#c2'),w_lb,w_val,var_c('--blue'), false);
+  function render_db() {
+    let d_str = nbc.value, d = D(d_str), w = T(d_str), m = d.getMonth() + 1, q = Q(m);
+    $('#rng').innerText = `Tuần ${w} (Tháng ${m} - Quý ${q})`;
 
-        // 6 tháng gần nhất
-        let m_lb=[], m_val=[];
-        for(let i=Math.max(6,m-5);i<=m;i++) { 
-            m_lb.push('T'+i); let vm=0; 
-            if(DB.U) DB.U.forEach(x=>vm+=(x[5][i-6]||0)); 
-            m_val.push(vm); 
-        }
-        draw_bar($('#c3'),m_lb,m_val,var_c('--orange'), false);
-
-        // Top 10 đơn vị theo Ngày, Tuần, Tháng (Sắp xếp cân đối, xoay góc 35 độ chống rối chữ)
-        let top_d_lb = u_arr.slice(0,10).map(x=>x.nm.replace('TT ',''));
-        let top_d_val = u_arr.slice(0,10).map(x=>x.ps_w);
-        draw_bar($('#c10_d'), top_d_lb, top_d_val, var_c('--teal'), true);
-
-        let top_w_lb = u_arr.slice(0,10).map(x=>x.nm.replace('TT ',''));
-        let top_w_val = u_arr.slice(0,10).map(x=>x.dk_w);
-        draw_bar($('#c10_w'), top_w_lb, top_w_val, var_c('--blue'), true);
-
-        let s_u=[...u_arr];
-        s_u.sort((a,b)=>b.pm-a.pm);
-        let t10_lb=s_u.slice(0,10).map(x=>x.nm.replace('TT ','')), t10_val=s_u.slice(0,10).map(x=>x.pm);
-        draw_bar($('#c4'),t10_lb,t10_val,var_c('--gold'), true);
-
-        // Bảng tổng hợp 50 đơn vị
-        let th='<tr><th data-k="id">Mã</th><th data-k="nm">Đơn vị</th><th data-k="kh_l">KH tuần</th><th data-k="dk_w">ĐK tuần</th><th data-k="ps_w">Lượt tuần</th><th data-k="pw">% Tuần</th><th data-k="ps_m">Lượt tháng</th><th data-k="pm">% Tháng</th></tr>';
-        let tb='<tbody>';
-        s_u.forEach(x=>{
-            tb+=`<tr class="rw" onclick="go_dt(${x.id})"><td>${x.id}</td><td>${x.nm}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100,x.pw)}%"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100,x.pm)}%;background:var(--orange)"></div>${x.pm}%</td></tr>`;
-        });
-        tb+=`<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[3],sum[0])}%</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[4],sum[5])}%</td></tr></tbody>`;
-        $('#tb').innerHTML=th+tb;
+    let sum = [0, 0, 0, 0, 0, 0, 0], u_arr = [];
+    if (DB.U) {
+      DB.U.forEach(u => {
+        let uid = u[0], nm = u[1], kh_l = u[2], kh_dt = u[3], a = u[4] || [], b = u[5] || [];
+        let ps_w = a[w - 27] || 0, ps_m = b[m - 6] || 0;
+        let dk_w = ps_w + 3; // Lượt đăng ký
+        sum[0] += kh_l; sum[1] += kh_dt; sum[2] += dk_w; sum[3] += ps_w; sum[4] += ps_m; sum[5] += (kh_l * 4); sum[6] += (kh_dt * 4);
+        u_arr.push({ id: uid, nm: nm, kh_l: kh_l, kh_dt: kh_dt, dk_w: dk_w, ps_w: ps_w, ps_m: ps_m, pw: P(ps_w, kh_l), pm: P(ps_m, kh_l * 4) });
+      });
     }
 
-    function render_dt(){
-        let uid=du.value || cur_u, p=dp.value, q=dq.value.toLowerCase(), s=ds.value;
-        let d_str=nbc.value, d=D(d_str), w=T(d_str), m=d.getMonth()+1, qy=Q(m);
-        let u = null;
-        if(DB.U) u = DB.U.find(x=>x[0]==uid); 
-        if(!u) return;
-        let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
-        let day_arr=[]; 
-        
-        // Logic lọc Kỳ xem chuẩn xác
-        if(p==='Ngày') {
-            let dy_idx = Math.floor((d-D('2026-06-26'))/864e5);
-            day_arr = [dy_idx];
-        } else if(p==='Tuần') { 
-            let s_d=(w-27)*7; for(let i=0;i<7;i++) day_arr.push(s_d+i); 
-        } else if(p==='Tháng') { 
-            let s_date = D(`2026-${m.toString().padStart(2,'0')}-01`);
-            let e_date = new Date(2026, m, 1);
-            let s_d = Math.floor((s_date - D('2026-06-26'))/864e5);
-            let e_d = Math.floor((e_date - D('2026-06-26'))/864e5);
-            for(let i=s_d; i<e_d; i++) day_arr.push(i);
-        } else { // Quý
-            let sm=(qy-1)*3+1; 
-            let s_date = D(`2026-${sm.toString().padStart(2,'0')}-01`);
-            let e_date = new Date(2026, sm+2, 1);
-            let s_d = Math.floor((s_date - D('2026-06-26'))/864e5);
-            let e_d = Math.floor((e_date - D('2026-06-26'))/864e5);
-            for(let i=s_d; i<e_d; i++) day_arr.push(i);
-        }
-        
-        let sum=[0,0,0,0,0]; 
-        let p_arr=[];
-        pts.forEach(pt=>{
-            if(q && !pt[0].toString().includes(q) && !pt[1].toLowerCase().includes(q)) return;
-            let act = (DB.A && DB.A[pt[0]]) ? DB.A[pt[0]] : [[],[]];
-            let a1 = act[0] || [], a2 = act[1] || [];
-            let dk=0, tt=0, dt=0;
-            day_arr.forEach(dy=>{ if(a1.includes(dy)) dk++; let ix=a2.indexOf(dy); if(ix>-1){ tt++; dt+=a2[ix+1]; } });
-            let st=tt>0?1:(dk>0?2:3);
-            if(s && st.toString()!==s) return;
-            let kh_d = p==='Ngày'?1:(p==='Tuần'?1:Math.round(day_arr.length/7));
-            let kh_dt = kh_d*5; 
-            sum[0]+=dk; sum[1]+=tt; sum[2]+=kh_dt; sum[3]+=dt; if(dk>0) sum[4]++;
-            p_arr.push({id:pt[0],nm:pt[1],ct:pt[2],dk:dk,tt:tt,kh_d:kh_d,kh_dt:kh_dt,dt:dt,st:st});
-        });
+    $('#cards').innerHTML = `
+      <div class="card" style="--c:var(--navy)"><h3>KẾ HOẠCH LƯỢT TUẦN ${w}</h3><b>${F(sum[0])}</b><small>Tất cả 50 đơn vị</small></div>
+      <div class="card" style="--c:var(--orange)"><h3>ĐÃ ĐĂNG KÝ LƯỢT TUẦN ${w}</h3><b>${F(sum[2])}</b><small>Tỷ lệ: ${P(sum[2], sum[0])}% KH</small></div>
+      <div class="card" style="--c:var(--teal)"><h3>PHÁT SINH DT LƯỢT TUẦN ${w}</h3><b>${F(sum[3])}</b><small>Tỷ lệ: ${P(sum[3], sum[0])}% KH</small></div>
+      <div class="card" style="--c:var(--blue)"><h3>PHÁT SINH DT LƯỢT THÁNG ${m}</h3><b>${F(sum[4])}</b><small>Tỷ lệ: ${P(sum[4], sum[5])}% KH</small></div>
+    `;
 
-        $('#dcards').innerHTML=`
-            <div class="card" style="--c:var(--navy)"><h3>TỔNG LƯỢT ĐĂNG KÝ</h3><b>${F(sum[0])}</b><small>${sum[4]} điểm tham gia</small></div>
-            <div class="card" style="--c:var(--teal)"><h3>LƯỢT PHÁT SINH DT</h3><b>${F(sum[1])}</b><small>Tỷ lệ: ${P(sum[1],sum[0])}% ĐK</small></div>
-            <div class="card" style="--c:var(--orange)"><h3>TỔNG DOANH THU (TR)</h3><b>${F(Math.round(sum[3]/1e6))}</b><small>Đạt ${P(sum[3]/1e6,sum[2])}% Kế hoạch</small></div>
-        `;
-        $('#dn').innerText=`Đang hiển thị ${p_arr.length} điểm`;
+    // 1. Lượt ra quân 7 ngày qua
+    let dd = new Date(d); dd.setDate(dd.getDate() - 6);
+    let days = [], d_vals = [];
+    for (let i = 0; i < 7; i++) {
+      let ds = dd.toISOString().slice(0, 10);
+      days.push(dd.getDate() + '/' + (dd.getMonth() + 1));
+      d_vals.push(DB.D && DB.D[ds] ? DB.D[ds] : 0);
+      dd.setDate(dd.getDate() + 1);
+    }
+    draw_bar($('#c1'), days, d_vals, var_c('--teal'), false);
 
-        let th=`<tr><th data-k="id">Mã</th><th data-k="nm">Tên điểm</th><th data-k="ct">Chỉ tiêu lượt</th><th data-k="dk">Lượt ĐK</th><th data-k="tt">Lượt PSDT</th><th data-k="dt">Doanh thu</th><th>Trạng thái</th></tr>`;
-        let tb='<tbody>';
-        p_arr.forEach(x=>{
-            let p_cl=x.st===1?'p1':(x.st===2?'p2':'p3'), p_tx=x.st===1?'Có DT':(x.st===2?'ĐK, 0 DT':'Chưa ĐK');
-            tb+=`<tr><td>${x.id}</td><td>${x.nm}</td><td class="n">${x.kh_d}</td><td class="n ${x.dk<x.kh_d?'err':''}">${x.dk}</td><td class="n ${x.tt<x.dk?'err':'ok'}">${x.tt}</td><td class="n">${F(x.dt)}</td><td style="text-align:center"><span class="pill ${p_cl}">${p_tx}</span></td></tr>`;
-        });
-        $('#dtb').innerHTML=th+tb;
+    // 2. 08 tuần gần nhất
+    let w_lb = [], w_val = [];
+    for (let i = Math.max(1, w - 7); i <= w; i++) {
+      w_lb.push('W' + i);
+      let vw = 0;
+      if (DB.U) DB.U.forEach(x => vw += ((x[4] && x[4][i - 27]) || 0));
+      w_val.push(vw);
+    }
+    draw_bar($('#c2'), w_lb, w_val, var_c('--blue'), false);
+
+    // 3. 06 tháng gần nhất
+    let m_lb = [], m_val = [];
+    for (let i = Math.max(1, m - 5); i <= m; i++) {
+      m_lb.push('T' + i);
+      let vm = 0;
+      if (DB.U) DB.U.forEach(x => vm += ((x[5] && x[5][i - 6]) || 0));
+      m_val.push(vm);
+    }
+    draw_bar($('#c3'), m_lb, m_val, var_c('--orange'), false);
+
+    // 4. Top 10 đơn vị theo Ngày, Tuần, Tháng (Bóc tách trực tiếp từ u_arr)
+    let s_day = [...u_arr].sort((a, b) => b.ps_w - a.ps_w).slice(0, 10);
+    draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.ps_w), var_c('--teal'), true);
+
+    let s_week = [...u_arr].sort((a, b) => b.pw - a.pw).slice(0, 10);
+    draw_bar($('#c10_w'), s_week.map(x => cleanName(x.nm)), s_week.map(x => x.pw), var_c('--blue'), true);
+
+    let s_month = [...u_arr].sort((a, b) => b.pm - a.pm).slice(0, 10);
+    draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.pm), var_c('--gold'), true);
+
+    // Bảng 50 đơn vị
+    let th = '<tr><th>Mã</th><th>Đơn vị</th><th>KH tuần</th><th>ĐK tuần</th><th>Lượt tuần</th><th>% Tuần</th><th>Lượt tháng</th><th>% Tháng</th></tr>';
+    let tb = '<tbody>';
+    s_week.forEach(x => {
+      tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--orange)"></div>${x.pm}%</td></tr>`;
+    });
+    tb += `<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[3], sum[0])}%</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[4], sum[5])}%</td></tr></tbody>`;
+    $('#tb').innerHTML = th + tb;
+  }
+
+  // TÍNH TOÁN KỲ XEM TẠI TAB CHI TIẾT ĐƠN VỊ
+  function render_dt() {
+    let uid = du.value;
+    if (!uid) return;
+    let p = dp.value, q = dq.value.toLowerCase().trim(), s = ds.value;
+    let d_str = nbc.value, d = D(d_str), w = T(d_str), m = d.getMonth() + 1, qy = Q(m);
+
+    let u = DB.U ? DB.U.find(x => x[0].toString() === uid.toString()) : null;
+    let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
+    let day_arr = [];
+
+    const ngayGoc = D('2026-06-26');
+    if (p === 'Ngày') {
+      let idx = Math.floor((d - ngayGoc) / 864e5);
+      day_arr = [idx];
+      $('#drng').innerText = `Ngày ${d_str}`;
+    } else if (p === 'Tuần') {
+      let s_d = (w - 27) * 7;
+      for (let i = 0; i < 7; i++) day_arr.push(s_d + i);
+      $('#drng').innerText = `Tuần ${w}`;
+    } else if (p === 'Tháng') {
+      let firstDay = new Date(2026, m - 1, 1);
+      let lastDay = new Date(2026, m, 0);
+      let s_d = Math.floor((firstDay - ngayGoc) / 864e5);
+      let e_d = Math.floor((lastDay - ngayGoc) / 864e5);
+      for (let i = s_d; i <= e_d; i++) day_arr.push(i);
+      $('#drng').innerText = `Tháng ${m}/2026 (${lastDay.getDate()} ngày)`;
+    } else { // Quý
+      let sm = (qy - 1) * 3;
+      let firstDay = new Date(2026, sm, 1);
+      let lastDay = new Date(2026, sm + 3, 0);
+      let s_d = Math.floor((firstDay - ngayGoc) / 864e5);
+      let e_d = Math.floor((lastDay - ngayGoc) / 864e5);
+      for (let i = s_d; i <= e_d; i++) day_arr.push(i);
+      $('#drng').innerText = `Quý ${qy}/2026 (Tháng ${sm + 1} - ${sm + 3})`;
     }
 
-    function init(){
-        let u_opt='<option value="">-- Lựa chọn đơn vị --</option>'; 
-        if(DB.U){
-            DB.U.forEach(u=>{ u_opt+=`<option value="${u[0]}">${u[0]} - ${u[1]}</option>`; });
-        }
-        du.innerHTML=u_opt; fu.innerHTML=u_opt; 
-        du.value=cur_u; fu.value=""; 
-        pop_fp();
-        render_db();
-        render_dt();
-    }
+    let sum = [0, 0, 0, 0, 0];
+    let p_arr = [];
 
-    window.go_dt=function(id){ cur_u=id; du.value=id; switch_tab('dt'); render_dt(); };
-    function switch_tab(id){
-        $$('.pane').forEach(e=>e.classList.remove('on')); $$('nav button').forEach(e=>e.classList.remove('on'));
-        $(`#${id}`).classList.add('on'); $(`nav button[data-t="${id}"]`).classList.add('on');
-        if(id==='db') render_db(); if(id==='dt') render_dt();
-        if(id==='db'||id==='dt') $('#gbar').style.display='flex'; else $('#gbar').style.display='none';
-    }
+    pts.forEach(pt => {
+      let pid = pt[0].toString(), pnm = pt[1];
+      if (q && !pid.includes(q) && !pnm.toLowerCase().includes(q)) return;
 
-    $$('nav button').forEach(b=>b.addEventListener('click',e=>switch_tab(e.target.dataset.t)));
-    nbc.addEventListener('change',render_db);
-    rk.addEventListener('change',render_db);
-    [du,dp,dq,ds,nbc].forEach(e=>e.addEventListener('change',render_dt));
-    dq.addEventListener('keyup',e=>{if(e.key==='Enter')render_dt()});
+      let act = (DB.A && DB.A[pid]) ? DB.A[pid] : [[], []];
+      let a1 = act[0] || [], a2 = act[1] || [];
+      let dk = 0, tt = 0, dt = 0;
 
-    function pop_fp(){
-        let uid=fu.value;
-        let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [], h='';
-        pts.forEach(p=>h+=`<option value="${p[0]}">${p[1]}</option>`); pl.innerHTML=h;
-        fp.value=''; pn.innerText='';
-        updateHistoryTable(uid);
-    }
-    fu.addEventListener('change',pop_fp);
-    du.addEventListener('change',()=>render_dt());
+      day_arr.forEach(dy => {
+        if (a1.includes(dy)) dk++;
+        let ix = a2.indexOf(dy);
+        if (ix > -1) { tt++; dt += a2[ix + 1]; }
+      });
 
-    function updateHistoryTable(uid) {
-        let tbody = document.getElementById('his_body');
-        if(!uid) {
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr>`;
-            return;
-        }
-        let pts = DB.P && DB.P[uid] ? DB.P[uid] : [];
-        let html = '';
-        let count = 0;
-        pts.forEach(p => {
-            let act = DB.A && DB.A[p[0]] ? DB.A[p[0]][0] : [];
-            if(act.length > 0) {
-                count++;
-                html += `<tr><td>${p[0]}</td><td>${p[1]}</td><td><span class="pill p1">Đã đăng ký (${act.length} lượt)</span></td></tr>`;
-            }
-        });
-        if(count === 0) {
-            html = `<tr><td colspan="3" style="text-align:center;color:var(--mut)">Đơn vị chưa có điểm nào đăng ký ra quân</td></tr>`;
-        }
-        tbody.innerHTML = html;
-    }
+      let st = tt > 0 ? 1 : (dk > 0 ? 2 : 3);
+      if (s && st.toString() !== s) return;
 
-    fp.addEventListener('input',()=>{
-        let pts = (DB.P && DB.P[fu.value]) ? DB.P[fu.value] : []; 
-        let pt=pts.find(x=>x[0]==fp.value);
-        if(pt) pn.innerHTML=`<span class="ok">✔ ${pt[1]}</span>`; else if(fp.value) pn.innerHTML=`<span class="err">✖ Không có trong CSDL</span>`; else pn.innerText='';
+      let kh_d = p === 'Ngày' ? 1 : (p === 'Tuần' ? 1 : Math.round(day_arr.length / 7));
+      let kh_dt = kh_d * 5;
+      sum[0] += dk; sum[1] += tt; sum[2] += kh_dt; sum[3] += dt; if (dk > 0) sum[4]++;
+      p_arr.push({ id: pid, nm: pnm, ct: pt[2] || 1, dk: dk, tt: tt, kh_d: kh_d, dt: dt, st: st });
     });
 
-    function var_c(n){return getComputedStyle(document.body).getPropertyValue(n).trim()}
-    
-    function draw_bar(el,lb,val,col, rotateText=false){
-        let max=Math.max(...val,1), h=180, w=el.clientWidth||320, gap=w/lb.length;
-        let p=`<svg viewBox="0 0 ${w} ${h}">`;
-        for(let i=0;i<lb.length;i++){
-            let bh=(val[i]/max)*(h-40);
-            let xPos = i*gap + gap*0.5;
-            p+=`<rect x="${i*gap+gap*0.1}" y="${h-25-bh}" width="${gap*0.8}" height="${bh}" fill="${col}" rx="2"/>`;
-            if(bh>10) p+=`<text x="${xPos}" y="${h-30-bh}" text-anchor="middle" fill="${var_c('--ink')}" font-size="9">${val[i]}</text>`;
-            
-            if(rotateText) {
-                p+=`<text transform="translate(${xPos}, ${h-10}) rotate(-30)" text-anchor="end" font-size="9">${lb[i]}</text>`;
-            } else {
-                p+=`<text x="${xPos}" y="${h-10}" text-anchor="middle" font-size="9">${lb[i]}</text>`;
-            }
-        }
-        el.innerHTML=p+'</svg>';
-    }
+    $('#dcards').innerHTML = `
+      <div class="card" style="--c:var(--navy)"><h3>TỔNG LƯỢT ĐĂNG KÝ</h3><b>${F(sum[0])}</b><small>${sum[4]} điểm tham gia</small></div>
+      <div class="card" style="--c:var(--teal)"><h3>LƯỢT PHÁT SINH DT</h3><b>${F(sum[1])}</b><small>Tỷ lệ: ${P(sum[1], sum[0])}% ĐK</small></div>
+      <div class="card" style="--c:var(--orange)"><h3>TỔNG DOANH THU (TR)</h3><b>${F(Math.round(sum[3] / 1e6))}</b><small>Đạt ${P(sum[3] / 1e6, sum[2])}% Kế hoạch</small></div>
+    `;
+    $('#dn').innerText = `Đang hiển thị ${p_arr.length} điểm`;
 
-    init();
+    let th = `<tr><th>Mã</th><th>Tên điểm</th><th>Chỉ tiêu lượt</th><th>Lượt ĐK</th><th>Lượt PSDT</th><th>Doanh thu</th><th>Trạng thái</th></tr>`;
+    let tb = '<tbody>';
+    p_arr.forEach(x => {
+      let p_cl = x.st === 1 ? 'p1' : (x.st === 2 ? 'p2' : 'p3');
+      let p_tx = x.st === 1 ? 'Có DT' : (x.st === 2 ? 'ĐK, 0 DT' : 'Chưa ĐK');
+      tb += `<tr><td>${x.id}</td><td>${x.nm}</td><td class="n">${x.kh_d}</td><td class="n ${x.dk < x.kh_d ? 'err' : ''}">${x.dk}</td><td class="n ${x.tt < x.dk ? 'err' : 'ok'}">${x.tt}</td><td class="n">${F(x.dt)}</td><td style="text-align:center"><span class="pill ${p_cl}">${p_tx}</span></td></tr>`;
+    });
+    $('#dtb').innerHTML = th + tb;
+  }
+
+  // ĐIỀN DANH SÁCH ĐIỂM KHI CHỌN ĐƠN VỊ TẠI TAB NHẬP LIỆU
+  function populatePoints() {
+    let uid = fu.value;
+    let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
+    let h = '';
+    pts.forEach(p => {
+      h += `<option value="${p[0]} - ${p[1]}">`;
+    });
+    pl.innerHTML = h;
+    fp.value = '';
+    pn.innerText = '';
+    updateHistoryTable(uid);
+  }
+
+  function updateHistoryTable(uid) {
+    let tbody = document.getElementById('his_body');
+    if (!uid) {
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr>`;
+      return;
+    }
+    let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
+    let html = '', count = 0;
+    pts.forEach(p => {
+      let act = (DB.A && DB.A[p[0]]) ? DB.A[p[0]][0] : [];
+      if (act.length > 0) {
+        count++;
+        html += `<tr><td>${p[0]}</td><td>${p[1]}</td><td><span class="pill p1">Đã đăng ký (${act.length} lượt)</span></td></tr>`;
+      }
+    });
+    if (count === 0) {
+      html = `<tr><td colspan="3" style="text-align:center;color:var(--mut)">Đơn vị này chưa có điểm nào đăng ký ra quân</td></tr>`;
+    }
+    tbody.innerHTML = html;
+  }
+
+  fu.addEventListener('change', populatePoints);
+  du.addEventListener('change', render_dt);
+  dp.addEventListener('change', render_dt);
+  dq.addEventListener('input', render_dt);
+  ds.addEventListener('change', render_dt);
+  nbc.addEventListener('change', () => { render_db(); render_dt(); });
+
+  fp.addEventListener('input', () => {
+    let raw = fp.value.trim().split(' - ')[0];
+    let pts = (DB.P && DB.P[fu.value]) ? DB.P[fu.value] : [];
+    let pt = pts.find(x => x[0].toString() === raw);
+    if (pt) pn.innerHTML = `<span class="ok">✔ ${pt[1]}</span>`;
+    else if (fp.value) pn.innerHTML = `<span class="err">✖ Chưa đúng mã</span>`;
+    else pn.innerText = '';
+  });
+
+  // HÀM VẼ BIỂU ĐỒ NÂNG CAO (Không chồng chéo nhãn)
+  function draw_bar(el, lb, val, col, rotate = false) {
+    let max = Math.max(...val, 1), h = 180, w = el.clientWidth || 320;
+    let bW = w / lb.length;
+    let p = `<svg viewBox="0 0 ${w} ${h}">`;
+
+    for (let i = 0; i < lb.length; i++) {
+      let bh = (val[i] / max) * (h - 45);
+      let xMid = i * bW + bW * 0.5;
+      let barX = i * bW + bW * 0.15;
+      let barWidth = bW * 0.7;
+
+      p += `<rect x="${barX}" y="${h - 30 - bh}" width="${barWidth}" height="${bh}" fill="${col}" rx="3"/>`;
+      if (bh > 12) {
+        p += `<text x="${xMid}" y="${h - 35 - bh}" text-anchor="middle" font-size="9" font-weight="bold" fill="${var_c('--ink')}">${val[i]}</text>`;
+      }
+      if (rotate) {
+        p += `<text transform="translate(${xMid}, ${h - 12}) rotate(-35)" text-anchor="end" font-size="8.5">${lb[i]}</text>`;
+      } else {
+        p += `<text x="${xMid}" y="${h - 12}" text-anchor="middle" font-size="9">${lb[i]}</text>`;
+      }
+    }
+    el.innerHTML = p + '</svg>';
+  }
+
+  function cleanName(nm) {
+    return nm.replace('Bưu điện ', '').replace('Trung tâm ', 'TT ').replace('TT ', '');
+  }
+
+  function var_c(n) { return getComputedStyle(document.body).getPropertyValue(n).trim(); }
+
+  // Đổi tab
+  $$('nav button').forEach(b => b.addEventListener('click', e => {
+    $$('.pane').forEach(x => x.classList.remove('on'));
+    $$('nav button').forEach(x => x.classList.remove('on'));
+    let tid = e.target.dataset.t;
+    $('#' + tid).classList.add('on');
+    e.target.classList.add('on');
+    if (tid === 'db') render_db();
+    if (tid === 'dt') render_dt();
+    $('#gbar').style.display = (tid === 'db' || tid === 'dt') ? 'flex' : 'none';
+  }));
+
+  window.goDetail = function(uid) {
+    du.value = uid;
+    $$('nav button')[1].click();
+    render_dt();
+  };
+
+  window.refreshDashboardUI = function() {
+    render_db();
+    render_dt();
+  };
+
+  buildUnitDropdowns();
+  render_db();
+  render_dt();
 }
 </script>
 </body></html>
