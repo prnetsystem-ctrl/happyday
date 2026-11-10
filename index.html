@@ -65,27 +65,23 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
 </main>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfwTlVfwIreFk92ibXf62KVHapeFp0wPTMgcRsDKdS80nluvwtBSpBN-Jkmg_I7942/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxWHpvBlcZR_NjM3KbJbXdYTGsXK9JGa-7o0xF3dc8UOyUdVVb35f4widxPwld_IQS/exec";
 let DB = {};
 
+// 1. TẢI DỮ LIỆU BAN ĐẦU
 fetch(SCRIPT_URL, {
   method: 'GET',
   redirect: 'follow',
   mode: 'cors'
 })
   .then(response => {
-    if (!response.ok) {
-        throw new Error("Lỗi mạng: " + response.status);
-    }
+    if (!response.ok) { throw new Error("Lỗi mạng: " + response.status); }
     return response.json();
   })
   .then(data => {
-    // Sửa lỗi JSON nếu App Script bọc mảng bị sai
     DB = data; 
-    
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
-
     initDashboard();
   })
   .catch(error => {
@@ -93,6 +89,7 @@ fetch(SCRIPT_URL, {
     document.getElementById('loading').innerText = "Không thể tải dữ liệu (" + error.message + "). Vui lòng kiểm tra lại link Web App.";
   });
 
+// 2. GỬI DỮ LIỆU VÀ TỰ ĐỘNG CẬP NHẬT GIAO DIỆN
 document.getElementById('add').addEventListener('click', function() {
   const ngayNhap = document.getElementById('fd').value; 
   const donViNhap = document.getElementById('fu').value;
@@ -130,6 +127,22 @@ document.getElementById('add').addEventListener('click', function() {
   .then(data => {
     if(data.status === "success") {
         alert(data.message);
+        
+        // --- TỰ ĐỘNG LÀM MỚI DỮ LIỆU NGAY LẬP TỨC SAU KHI LƯU ---
+        fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow', mode: 'cors' })
+          .then(res => res.json())
+          .then(newData => {
+             DB = newData; // Cập nhật data mới vào RAM
+             
+             // In dòng lịch sử giả lập đẹp mắt xuống bảng dưới tab Nhập liệu
+             let selU = document.getElementById('fu');
+             let txtU = selU.options[selU.selectedIndex].text;
+             let tr = `<tr><td>#</td><td>${ngayNhap}</td><td>-</td><td>${txtU}</td><td>${maDiemNhap}</td><td>Đã đồng bộ Sheet</td><td>-</td><td>-</td><td>-</td><td class="ok">OK</td></tr>`;
+             document.getElementById('lg').innerHTML += tr;
+             
+             // Vẽ lại toàn bộ Dashboard ngay lập tức với số liệu mới
+             initDashboard();
+          });
     } else {
         alert("Lỗi: " + data.message);
     }
@@ -144,14 +157,14 @@ document.getElementById('add').addEventListener('click', function() {
   });
 });
 
+// 3. LOGIC GIAO DIỆN CHÍNH
 function initDashboard() {
     const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>Array.from(e.querySelectorAll(s));
-    let t_db=$('#db'),t_dt=$('#dt'),t_nl=$('#nl'),nbc=$('#nbc'),rk=$('#rk'),du=$('#du'),dp=$('#dp'),dq=$('#dq'),ds=$('#ds');
-    let fd=$('#fd'),fu=$('#fu'),fp=$('#fp'),pl=$('#pl'),pn=$('#pn'),add=$('#add'),lg=$('#lg');
-    let cur_u=12,sz=1,lg_arr=[];
+    let nbc=$('#nbc'),rk=$('#rk'),du=$('#du'),dp=$('#dp'),dq=$('#dq'),ds=$('#ds');
+    let fd=$('#fd'),fu=$('#fu'),fp=$('#fp'),pl=$('#pl'),pn=$('#pn');
+    let cur_u=12;
 
     const D=d=>new Date(d+'T00:00:00+07:00'),F=n=>new Intl.NumberFormat('vi').format(n),P=(a,b)=>b?Math.round(a/b*100):0;
-    const S_dt='12/11/2026',E_dt='26/06/2026'; 
     const T=d=>{let d0=D('2025-12-26'),d1=D(d);return Math.floor((d1-d0)/(7*864e5))+1}; 
     const Q=m=>Math.floor((m-1)/3)+1;
 
