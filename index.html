@@ -1,47 +1,212 @@
 <!DOCTYPE html>
-<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Happy Day 2026 – Tổng hợp lượt ra quân</title>
 <style>
-:root{--navy:#1F3864;--blue:#2F5597;--teal:#0E7C7B;--orange:#C55A11;--gold:#FFC000;--bg:#f4f6fa;--ink:#222;--mut:#6b7280;--card:#fff;--line:#e3e7ee}
-@media(prefers-color-scheme:dark){:root{--bg:#14171c;--ink:#e8eaed;--mut:#9aa3b0;--card:#1e232b;--line:#2d343f}}
-*{box-sizing:border-box}body{margin:0;font:14px/1.45 Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
-header{background:var(--navy);color:#fff;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-header h1{font-size:18px;margin:0}header small{opacity:.8}
-nav{display:flex;gap:4px;padding:10px 22px 0}nav button{border:0;padding:9px 18px;border-radius:8px 8px 0 0;background:var(--line);color:var(--ink);cursor:pointer;font-weight:700}
-nav button.on{background:var(--card);border-bottom:3px solid var(--gold)}
-main{padding:0 22px 30px}.pane{display:none;background:var(--card);padding:18px;border-radius:0 10px 10px 10px}.pane.on{display:block}
-.ctl{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
-input,select,button.act{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
-input.in,select.in{background:#FFF2CC;color:#0000FF;border-color:#e6c75a;font-weight:700}
-button.act{background:var(--navy);color:#fff;border:0;cursor:pointer}
-button.excel{background:#0f9d58;color:#fff;border:0;cursor:pointer;padding:7px 12px;border-radius:6px;font-weight:bold;}
-button.excel:hover{background:#0b8043;}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
-.card{border:1px solid var(--line);border-top:5px solid var(--c);border-radius:8px;padding:10px 14px}
-.card h3{margin:0;font-size:11px;color:var(--mut);letter-spacing:.4px}.card b{font-size:30px;color:var(--c);display:block}
-.card small{display:block;color:var(--mut);font-size:12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:16px}
-.box{border:1px solid var(--line);border-radius:8px;padding:12px}.box h4{margin:0 0 10px;font-size:13px;color:var(--navy)}
-svg{width:100%;height:auto;display:block}svg text{fill:var(--mut);font-size:10px}
-table{border-collapse:collapse;width:100%;font-size:13px}th{background:var(--navy);color:#fff;padding:8px;text-align:center}
-td{padding:6px 8px;border-bottom:1px solid var(--line)}td.n{text-align:right}.bar{height:8px;border-radius:4px;background:var(--blue);min-width:1px}
-.ok{color:#00803C;font-weight:700}.err{color:#C00000;font-weight:700}.note{color:var(--mut);font-size:12px}
-.wrap{max-height:430px;overflow:auto}
-.wrap th{position:sticky;top:0;z-index:1}th[data-k]{cursor:pointer;user-select:none}
-tr.rw{cursor:pointer}tr.rw:hover td{background:rgba(255,192,0,.18)}
-.pill{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}.p1{background:#d7f0e0;color:#00693a}.p2{background:#ffe9c7;color:#8a5200}.p3{background:var(--line);color:var(--mut)}
-tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
-#loading{text-align:center;padding:50px;font-size:16px;color:var(--navy)}
-.info-banner{background:#fff8e1;border-left:4px solid var(--gold);padding:10px 14px;border-radius:4px;margin-bottom:14px;color:var(--ink);font-size:14px;}
-.info-banner b{color:var(--navy);}
-</style></head><body>
-<header><h1>HAPPY DAY 2026 – TỔNG HỢP LƯỢT RA QUÂN ĐĂNG KÝ</h1><small>Hệ thống đăng ký lịch ra quân bán hàng PPBL trực tuyến</small></header>
-<nav><button class="on" data-t="db">Dashboard</button><button data-t="dt">Chi tiết đơn vị</button><button data-t="nl">Đăng ký ra quân</button></nav>
+/* BỘ NHẬN DIỆN THƯƠNG HIỆU VIETNAM POST */
+:root {
+  --vp-blue: #004588;   /* Pantone 288C - Xanh dương đậm */
+  --vp-orange: #FBAF17; /* Pantone 130C - Vàng cam */
+  --vp-dark: #333333;
+  --bg: #f4f6fa;
+  --ink: #222222;
+  --mut: #6b7280;
+  --card: #ffffff;
+  --line: #e3e7ee;
+}
+@media(prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171c; --ink: #e8eaed; --mut: #9aa3b0; 
+    --card: #1e232b; --line: #2d343f;
+  }
+}
+* { box-sizing: border-box; }
+
+/* FONT CHỮ CHUẨN HELVETICA NEUE */
+body {
+  margin: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* HEADER VỚI LOGO */
+header {
+  background: var(--card);
+  border-bottom: 3px solid var(--vp-blue);
+  padding: 12px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.brand svg {
+  height: 40px; /* Chiều cao Logo */
+  width: auto;
+}
+.header-titles {
+  display: flex;
+  flex-direction: column;
+}
+.header-titles h1 {
+  font-size: 18px;
+  margin: 0 0 4px 0;
+  color: var(--vp-blue);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.header-titles small {
+  color: var(--mut);
+  font-size: 13px;
+}
+
+/* NAV VÀ TABS */
+nav {
+  display: flex;
+  gap: 4px;
+  padding: 15px 22px 0;
+  background: var(--vp-blue);
+}
+nav button {
+  border: 0;
+  padding: 10px 20px;
+  border-radius: 8px 8px 0 0;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  font-family: inherit;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+nav button:hover { background: rgba(255,255,255,0.4); }
+nav button.on {
+  background: var(--bg);
+  color: var(--vp-blue);
+  border-top: 3px solid var(--vp-orange);
+}
+
+main { padding: 0 22px 30px; margin-top: 15px; }
+.pane { display: none; }
+.pane.on { display: block; }
+.ctl {
+  display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 14px;
+}
+input, select, button.act {
+  font-family: inherit; padding: 7px 10px; border: 1px solid var(--line);
+  border-radius: 6px; background: var(--card); color: var(--ink);
+}
+input.in, select.in {
+  background: #FFF2CC; color: var(--vp-blue); border-color: var(--vp-orange); font-weight: 700;
+}
+button.act { background: var(--vp-blue); color: #fff; border: 0; cursor: pointer; font-weight:bold; }
+button.act:hover { background: #003366; }
+button.excel { background: #0f9d58; color: #fff; border: 0; cursor: pointer; padding: 7px 12px; border-radius: 6px; font-weight: bold; font-family: inherit;}
+button.excel:hover { background: #0b8043; }
+
+/* THẺ HIỂN THỊ (CARDS) */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.card {
+  background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
+  border-radius: 8px; padding: 12px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.card h3 { margin: 0 0 5px 0; font-size: 11px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; }
+.card b { font-size: 26px; color: var(--c); display: block; margin-bottom: 4px; }
+.card .dt-hl { color: var(--vp-orange); font-size: 22px; font-weight: bold; } /* Điểm nhấn doanh thu */
+.card small { display: block; color: var(--mut); font-size: 12px; }
+
+/* BỐ CỤC KHỐI (BOX) */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 16px; }
+.box { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+.box h4 { margin: 0 0 12px; font-size: 14px; color: var(--vp-blue); font-weight: 700; }
+
+svg { width: 100%; height: auto; display: block; }
+svg text { fill: var(--mut); font-family: inherit; font-size: 10px; }
+
+/* BẢNG (TABLE) */
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { background: var(--vp-blue); color: #fff; padding: 10px 8px; text-align: center; font-weight: 500; }
+td { padding: 8px; border-bottom: 1px solid var(--line); }
+td.n { text-align: right; }
+.bar { height: 8px; border-radius: 4px; background: var(--vp-blue); min-width: 1px; }
+.ok { color: #00803C; font-weight: 700; } .err { color: #C00000; font-weight: 700; }
+.note { color: var(--mut); font-size: 12px; }
+.wrap { max-height: 450px; overflow: auto; }
+.wrap th { position: sticky; top: 0; z-index: 1; }
+th[data-k] { cursor: pointer; user-select: none; }
+tr.rw { cursor: pointer; } tr.rw:hover td { background: rgba(251,175,23,0.1); }
+.pill { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.p1 { background: #d7f0e0; color: #00693a; }
+.p2 { background: #ffe9c7; color: #8a5200; }
+.p3 { background: var(--line); color: var(--mut); }
+tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
+#gbar { margin: 12px 0; }
+#loading { text-align: center; padding: 60px; font-size: 15px; color: var(--vp-blue); }
+
+.info-banner { background: #fff8e1; border-left: 4px solid var(--vp-orange); padding: 10px 14px; border-radius: 4px; margin-bottom: 14px; color: var(--ink); font-size: 14px; }
+.info-banner b { color: var(--vp-blue); }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <!-- LOGO BƯU ĐIỆN VIỆT NAM CHUẨN SVG (Cẩm nang TH 2014) -->
+    <svg viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(0, 15)">
+        <!-- 4 vạch bay lên (Màu Vàng Cam #FBAF17) -->
+        <polygon fill="#FBAF17" points="108.9,2.8 178.6,2.8 165.7,11.2 96,11.2"/>
+        <polygon fill="#FBAF17" points="98.3,16.8 168.1,16.8 155.1,25.2 85.5,25.2"/>
+        <polygon fill="#FBAF17" points="87.8,30.8 157.5,30.8 144.6,39.2 74.9,39.2"/>
+        <polygon fill="#FBAF17" points="77.2,44.8 147,44.8 134,53.2 64.4,53.2"/>
+        <!-- Phần phong bì / hình chim (Màu Vàng Cam #FBAF17) -->
+        <path fill="#FBAF17" d="M123.5,67.2H61.6l-13.6-18.4L20,29.3L2,41.2l39,36.5l20.5,0h62L123.5,67.2z M58.5,56l-10.9-15l-19,12.7l9.4,8.8L58.5,56z"/>
+      </g>
+      <!-- Chữ VIETNAM POST (Màu Xanh Dương Đậm #004588) -->
+      <g fill="#004588" transform="translate(2, 105) scale(1.1)">
+        <!-- Chữ VIETNAM -->
+        <path d="M0,0h4.5l6,14.5L16.5,0H21l-8.5,20H8L0,0z"/>
+        <path d="M25,0h4v20h-4V0z"/>
+        <path d="M33,0h14v3.5H37V8h8.5v3.5H37V16.5h10V20H33V0z"/>
+        <path d="M51,3.5h-5.5V0h15v3.5H55V20h-4V3.5z"/>
+        <path d="M64,0h4.5l9,14.5V0h4v20h-4.5L68,5.5V20h-4V0z"/>
+        <path d="M96.5,16.5l-2.5-6H85.5l-2.5,6H79l8.5-20h5l8.5,20H96.5z M91,7L87,16h4L91,7z"/>
+        <path d="M103,0h5.5l5.5,13.5L119.5,0h5.5v20h-4V5.5l-6,14.5h-2l-6-14.5V20h-4V0z"/>
+        <!-- Chữ POST -->
+        <path d="M138,0h9.5c5.5,0,8.5,3,8.5,7.5c0,4.5-3,7.5-8.5,7.5h-5.5V20H138V0z M147,11.5c3,0,4.5-1.5,4.5-4c0-2.5-1.5-4-4.5-4h-5v8H147z"/>
+        <path d="M159,10c0-6,4-10.5,10.5-10.5S180,4,180,10c0,6-4,10.5-10.5,10.5S159,16,159,10z M176,10c0-4-2.5-7-6.5-7s-6.5,3-6.5,7s2.5,7,6.5,7S176,14,176,10z"/>
+        <path d="M184,15.5l3-2.5c2.5,2,5.5,3.5,8.5,3.5c2.5,0,4-1,4-2.5c0-1.5-1.5-2-5-3c-5-1-8.5-3-8.5-7.5c0-4.5,4-7.5,9-7.5c4,0,7.5,1.5,10,4l-3,3c-2-1.5-4.5-3-7-3c-2.5,0-4,1-4,2.5c0,1.5,1.5,2,5.5,3c4.5,1,8,3,8,7.5c0,4.5-4,7.5-9.5,7.5C189.5,20.5,186,18.5,184,15.5z"/>
+        <path d="M211,3.5h-5.5V0h15v3.5H215V20h-4V3.5z"/>
+      </g>
+    </svg>
+    <div class="header-titles">
+      <h1>Tổng hợp lượt ra quân đăng ký</h1>
+      <small>Hệ thống đăng ký lịch ra quân bán hàng PPBL trực tuyến</small>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <button class="on" data-t="db">Dashboard</button>
+  <button data-t="dt">Chi tiết đơn vị</button>
+  <button data-t="nl">Đăng ký ra quân</button>
+</nav>
 
 <div id="loading">Đang kết nối để tải dữ liệu, vui lòng đợi...</div>
 
 <main style="display:none;" id="main-content">
-<div class="ctl" id="gbar"><label><b>Ngày báo cáo ▶</b> <input class="in" type="date" id="nbc"></label><span id="rng" class="note"></span></div>
+<div class="ctl" id="gbar">
+  <label><b>Ngày báo cáo ▶</b> <input class="in" type="date" id="nbc" min="2026-01-01" max="2026-12-31"></label>
+  <span id="rng" class="note"></span>
+</div>
 
 <!-- 1. DASHBOARD -->
 <section class="pane on" id="db">
@@ -114,7 +279,7 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzN8OHHO5NJiifPE96V1Zvq2CWEkdwaV5h7PLD-xab21jRnaERMXjWGlrA-quLbvxK3/exec";
 let DB = { U: [], D: {}, P: {}, S: [], A: {} };
 
-// CẬP NHẬT NGÀY HIỆN TẠI (THỜI GIAN THỰC)
+// CẬP NHẬT THỜI GIAN THỰC
 const dNow = new Date();
 const yyyy = dNow.getFullYear();
 const mm = String(dNow.getMonth() + 1).padStart(2, '0');
@@ -163,8 +328,8 @@ document.getElementById('add').addEventListener('click', function() {
   const thuNames = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
   const thuStr = thuNames[dObj.getDay()];
   
-  const T = d => Math.floor((D(d) - D('2025-12-26')) / (7 * 864e5)) + 1;
-  const tuanNum = T(ngayNhap);
+  const t0 = D('2025-12-26');
+  const tuanNum = Math.floor((dObj - t0) / (7 * 864e5)) + 1;
   const thangNum = dObj.getMonth() + 1;
   const quyNum = Math.floor((thangNum - 1) / 3) + 1;
 
@@ -225,7 +390,7 @@ document.getElementById('add').addEventListener('click', function() {
   });
 });
 
-// HỖ TRỢ EXPORT EXCEL CHI TIẾT TẠI TAB CHI TIẾT ĐƠN VỊ
+// XUẤT EXCEL TẠI CHI TIẾT ĐƠN VỊ
 document.getElementById('exportExcel').addEventListener('click', function() {
   const uid = document.getElementById('du').value;
   if (!uid) { alert("Vui lòng chọn đơn vị trước khi tải dữ liệu!"); return; }
@@ -234,7 +399,7 @@ document.getElementById('exportExcel').addEventListener('click', function() {
   let tenDonVi = selU.options[selU.selectedIndex].text;
   let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
   
-  let csvContent = "\uFEFF"; // BOM cho UTF-8
+  let csvContent = "\uFEFF"; 
   csvContent += "STT,Ngày,Thứ,Đơn vị,Mã điểm,Tên điểm,Tuần,Tháng,Quý\n";
   
   const t0 = new Date('2025-12-26T00:00:00+07:00').getTime();
@@ -248,36 +413,22 @@ document.getElementById('exportExcel').addEventListener('click', function() {
     act.forEach(idx => {
         let dTime = d0 + idx * 86400000;
         let dObj = new Date(dTime);
-        
         let yy = dObj.getFullYear();
         let mm = String(dObj.getMonth() + 1).padStart(2, '0');
         let dd = String(dObj.getDate()).padStart(2, '0');
         let ngayStr = `${dd}/${mm}/${yy}`;
-        
         let thuStr = thuNames[dObj.getDay()];
         let tuanNum = Math.floor((dTime - t0) / (7 * 86400000)) + 1;
         let thangNum = dObj.getMonth() + 1;
         let quyNum = Math.floor((thangNum - 1) / 3) + 1;
         
-        records.push({
-           timestamp: dTime,
-           ngay: ngayStr,
-           thu: thuStr,
-           donvi: tenDonVi,
-           madiem: p[0],
-           tendiem: p[1],
-           tuan: `Tuần ${tuanNum}`,
-           thang: `Tháng ${thangNum}`,
-           quy: `Quý ${quyNum}`
-        });
+        records.push({ timestamp: dTime, ngay: ngayStr, thu: thuStr, donvi: tenDonVi, madiem: p[0], tendiem: p[1], tuan: `Tuần ${tuanNum}`, thang: `Tháng ${thangNum}`, quy: `Quý ${quyNum}` });
     });
   });
 
   if(records.length === 0){ alert("Đơn vị này chưa có điểm nào đăng ký để tải!"); return; }
 
-  // Sắp xếp các bản ghi mới nhất lên đầu
   records.sort((a,b) => b.timestamp - a.timestamp);
-
   records.forEach((rec, i) => {
     csvContent += `"${i+1}","${rec.ngay}","${rec.thu}","${rec.donvi}","${rec.madiem}","${rec.tendiem}","${rec.tuan}","${rec.thang}","${rec.quy}"\n`;
   });
@@ -310,7 +461,7 @@ function appendLogRow(lg, idx) {
   document.getElementById('lg').innerHTML += tr;
 }
 
-// KHỞI TẠO VÀ ĐỒNG BỘ TOÀN BỘ GIAO DIỆN
+// KHỞI TẠO HỆ THỐNG
 function initSystem() {
   const $ = (s, e = document) => e.querySelector(s);
   const $$ = (s, e = document) => Array.from(e.querySelectorAll(s));
@@ -346,7 +497,7 @@ function initSystem() {
 
     let sum = [0, 0, 0, 0, 0, 0, 0, 0], u_arr = [];
     
-    // Tính khoảng thời gian quét Doanh Thu
+    // TÍNH DOANH THU THỰC TẾ TRONG TUẦN & THÁNG
     let s_w_d = (w - 27) * 7;
     let e_w_d = s_w_d + 6;
     let firstDay = new Date(d.getFullYear(), m - 1, 1);
@@ -355,7 +506,6 @@ function initSystem() {
     let e_m_d = Math.floor((lastDay - ngayGoc) / 864e5);
     let dt_w_sum = 0, dt_m_sum = 0;
 
-    // Quét tổng doanh thu toàn mạng lưới
     if (DB.A) {
         Object.keys(DB.A).forEach(key => {
             let revArr = DB.A[key][1] || [];
@@ -389,10 +539,10 @@ function initSystem() {
     }
 
     $('#cards').innerHTML = `
-      <div class="card" style="--c:var(--navy)"><h3>KẾ HOẠCH LƯỢT TUẦN ${w}</h3><b>${F(sum[0])}</b><small>Tất cả 50 đơn vị</small></div>
-      <div class="card" style="--c:var(--orange)"><h3>ĐÃ ĐĂNG KÝ LƯỢT TUẦN ${w}</h3><b>${F(sum[2])}</b><small>Tỷ lệ: ${P(sum[2], sum[0])}% KH</small></div>
-      <div class="card" style="--c:var(--teal)"><h3>PHÁT SINH DT LƯỢT TUẦN ${w}</h3><b>${F(sum[3])}</b><small>DT: ${F(Math.round(dt_w_sum/1e6))} Tr | Đạt ${P(sum[3], sum[0])}% KH</small></div>
-      <div class="card" style="--c:var(--blue)"><h3>PHÁT SINH DT LƯỢT THÁNG ${m}</h3><b>${F(sum[4])}</b><small>DT: ${F(Math.round(dt_m_sum/1e6))} Tr | Đạt ${P(sum[4], sum[5])}% KH</small></div>
+      <div class="card" style="--c:var(--vp-blue)"><h3>KẾ HOẠCH LƯỢT TUẦN ${w}</h3><b>${F(sum[0])}</b><small>Tất cả 50 đơn vị</small></div>
+      <div class="card" style="--c:var(--vp-orange)"><h3>ĐÃ ĐĂNG KÝ LƯỢT TUẦN ${w}</h3><b>${F(sum[2])}</b><small>Tỷ lệ: ${P(sum[2], sum[0])}% KH</small></div>
+      <div class="card" style="--c:var(--vp-blue)"><h3>PHÁT SINH DT LƯỢT TUẦN ${w}</h3><b>${F(sum[3])} <span class="dt-hl">(${F(Math.round(dt_w_sum/1e6))} Tr)</span></b><small>Đạt ${P(sum[3], sum[0])}% KH Lượt tuần</small></div>
+      <div class="card" style="--c:var(--vp-orange)"><h3>PHÁT SINH DT LƯỢT THÁNG ${m}</h3><b>${F(sum[4])} <span class="dt-hl">(${F(Math.round(dt_m_sum/1e6))} Tr)</span></b><small>Đạt ${P(sum[4], sum[5])}% KH Lượt tháng</small></div>
     `;
 
     let dd = new Date(d); dd.setDate(dd.getDate() - 6);
@@ -403,18 +553,18 @@ function initSystem() {
       d_vals.push(DB.D && DB.D[ds] ? DB.D[ds] : 0);
       dd.setDate(dd.getDate() + 1);
     }
-    draw_bar($('#c1'), days, d_vals, var_c('--teal'));
+    draw_bar($('#c1'), days, d_vals, var_c('--vp-orange'));
 
     let s_day = [...u_arr].sort((a, b) => b.dk_d - a.dk_d).slice(0, 10);
-    draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.dk_d), var_c('--teal'));
+    draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.dk_d), var_c('--vp-blue'));
     
     let s_month = [...u_arr].sort((a, b) => b.pm - a.pm).slice(0, 10);
-    draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.pm), var_c('--gold'));
+    draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.pm), var_c('--vp-orange'));
 
     let th = '<tr><th>Mã</th><th>Đơn vị</th><th>ĐK ngày</th><th>KH tuần</th><th>ĐK tuần</th><th>Lượt tuần</th><th>% Tuần</th><th>Lượt tháng</th><th>% Tháng</th></tr>';
     let tb = '<tbody>';
     u_arr.sort((a, b) => b.pw - a.pw).forEach(x => {
-      tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n ${x.dk_d<1?'err':'ok'}">${F(x.dk_d)}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--orange)"></div>${x.pm}%</td></tr>`;
+      tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n ${x.dk_d<1?'err':'ok'}">${F(x.dk_d)}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--vp-orange)"></div>${x.pm}%</td></tr>`;
     });
     tb += `<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">${F(sum[7])}</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[3], sum[0])}%</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[4], sum[5])}%</td></tr></tbody>`;
     $('#tb').innerHTML = th + tb;
@@ -433,26 +583,26 @@ function initSystem() {
     if (p === 'Ngày') {
       let idx = Math.floor((d - ngayGoc) / 864e5);
       day_arr = [idx];
-      perName = `Ngày ${d_str}`;
+      perName = `Ngày ${d.getDate()}/${m}/${d.getFullYear()}`;
     } else if (p === 'Tuần') {
       let s_d = (w - 27) * 7;
       for (let i = 0; i < 7; i++) day_arr.push(s_d + i);
       perName = `Tuần ${w}`;
     } else if (p === 'Tháng') {
-      let firstDay = new Date(2026, m - 1, 1);
-      let lastDay = new Date(2026, m, 0);
+      let firstDay = new Date(d.getFullYear(), m - 1, 1);
+      let lastDay = new Date(d.getFullYear(), m, 0);
       let s_d = Math.floor((firstDay - ngayGoc) / 864e5);
       let e_d = Math.floor((lastDay - ngayGoc) / 864e5);
       for (let i = s_d; i <= e_d; i++) day_arr.push(i);
-      perName = `Tháng ${m}/2026`;
+      perName = `Tháng ${m}/${d.getFullYear()}`;
     } else {
       let sm = (qy - 1) * 3;
-      let firstDay = new Date(2026, sm, 1);
-      let lastDay = new Date(2026, sm + 3, 0);
+      let firstDay = new Date(d.getFullYear(), sm, 1);
+      let lastDay = new Date(d.getFullYear(), sm + 3, 0);
       let s_d = Math.floor((firstDay - ngayGoc) / 864e5);
       let e_d = Math.floor((lastDay - ngayGoc) / 864e5);
       for (let i = s_d; i <= e_d; i++) day_arr.push(i);
-      perName = `Quý ${qy}/2026`;
+      perName = `Quý ${qy}/${d.getFullYear()}`;
     }
 
     let uName = u ? u[1] : "Tất cả";
@@ -491,9 +641,9 @@ function initSystem() {
     });
 
     $('#dcards').innerHTML = `
-      <div class="card" style="--c:var(--navy)"><h3>TỔNG LƯỢT ĐĂNG KÝ</h3><b>${F(sum[0])}</b><small>${sum[4]} điểm tham gia</small></div>
-      <div class="card" style="--c:var(--teal)"><h3>LƯỢT PHÁT SINH DT</h3><b>${F(sum[1])}</b><small>Tỷ lệ: ${P(sum[1], sum[0])}% ĐK</small></div>
-      <div class="card" style="--c:var(--orange)"><h3>TỔNG DOANH THU (TR)</h3><b>${F(Math.round(sum[3] / 1e6))}</b><small>Đạt ${P(sum[3] / 1e6, sum[2])}% Kế hoạch</small></div>
+      <div class="card" style="--c:var(--vp-blue)"><h3>TỔNG LƯỢT ĐĂNG KÝ</h3><b>${F(sum[0])}</b><small>${sum[4]} điểm tham gia</small></div>
+      <div class="card" style="--c:var(--vp-orange)"><h3>LƯỢT PHÁT SINH DT</h3><b>${F(sum[1])}</b><small>Tỷ lệ: ${P(sum[1], sum[0])}% ĐK</small></div>
+      <div class="card" style="--c:var(--vp-blue)"><h3>TỔNG DOANH THU (TR)</h3><b>${F(Math.round(sum[3] / 1e6))}</b><small>Đạt ${P(sum[3] / 1e6, sum[2])}% Kế hoạch</small></div>
     `;
     $('#dn').innerText = `Đang hiển thị ${p_arr.length} điểm`;
 
@@ -502,7 +652,7 @@ function initSystem() {
     p_arr.forEach(x => {
       let p_cl = x.st === 1 ? 'p1' : (x.st === 2 ? 'p2' : 'p3');
       let p_tx = x.st === 1 ? 'Có DT' : (x.st === 2 ? 'ĐK, 0 DT' : 'Chưa ĐK');
-      tb += `<tr><td>${x.id}</td><td>${x.nm}</td><td class="n">${x.kh_d}</td><td class="n ${x.dk < x.kh_d ? 'err' : ''}">${x.dk}</td><td class="n ${x.tt < x.dk ? 'err' : 'ok'}">${x.tt}</td><td class="n">${F(x.dt)}</td><td style="text-align:center"><span class="pill ${p_cl}">${p_tx}</span></td><td style="text-align:center;font-size:11px;color:var(--navy)">${x.weekStr}</td></tr>`;
+      tb += `<tr><td>${x.id}</td><td>${x.nm}</td><td class="n">${x.kh_d}</td><td class="n ${x.dk < x.kh_d ? 'err' : ''}">${x.dk}</td><td class="n ${x.tt < x.dk ? 'err' : 'ok'}">${x.tt}</td><td class="n">${F(x.dt)}</td><td style="text-align:center"><span class="pill ${p_cl}">${p_tx}</span></td><td style="text-align:center;font-size:11px;color:var(--vp-blue)">${x.weekStr}</td></tr>`;
     });
     $('#dtb').innerHTML = th + tb;
   }
@@ -536,7 +686,7 @@ function initSystem() {
         let uniqueWeeks = [...new Set(weeks)].sort((a,b)=>a-b);
         let weekStr = uniqueWeeks.map(w => 'W'+w).join(', ');
 
-        html += `<tr><td>${p[0]}</td><td>${p[1]}</td><td><span class="pill p1">Đã ĐK (${act.length} kỳ)</span></td><td><b style="color:var(--navy);font-size:12px">${weekStr}</b></td></tr>`;
+        html += `<tr><td>${p[0]}</td><td>${p[1]}</td><td><span class="pill p1">Đã ĐK (${act.length} kỳ)</span></td><td><b style="color:var(--vp-blue);font-size:12px">${weekStr}</b></td></tr>`;
       }
     });
     if (count === 0) {
@@ -569,7 +719,7 @@ function initSystem() {
     for (let i = 0; i < lb.length; i++) {
       let bh = (val[i] / max) * (h - 45), xMid = i * bW + bW * 0.5;
       p += `<rect x="${i * bW + bW * 0.15}" y="${h - 35 - bh}" width="${bW * 0.7}" height="${bh}" fill="${col}" rx="3"/>`;
-      if (bh > 12) p += `<text x="${xMid}" y="${h - 40 - bh}" text-anchor="middle" font-size="9" font-weight="bold" fill="${var_c('--ink')}">${val[i]}</text>`;
+      if (bh > 12) p += `<text x="${xMid}" y="${h - 40 - bh}" text-anchor="middle" font-size="10" font-weight="bold" fill="${var_c('--ink')}">${val[i]}</text>`;
       
       let name = lb[i];
       let parts = name.split(' ');
@@ -611,4 +761,5 @@ function initSystem() {
   render_dt();
 }
 </script>
-</body></html>
+</body>
+</html>
