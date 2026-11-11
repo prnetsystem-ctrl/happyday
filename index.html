@@ -56,9 +56,12 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
 
 <!-- 2. CHI TIẾT ĐƠN VỊ -->
 <section class="pane" id="dt">
- <div class="ctl">
-  <label><b>Đơn vị ▶</b> <select class="in" id="du"></select></label>
-  <label>Kỳ xem <select class="in" id="dp"><option>Ngày</option><option selected>Tuần</option><option>Tháng</option><option>Quý</option></select></label>
+ <div class="ctl" style="justify-content: space-between;">
+  <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
+   <label><b>Đơn vị ▶</b> <select class="in" id="du"></select></label>
+   <label>Kỳ xem <select class="in" id="dp"><option>Ngày</option><option selected>Tuần</option><option>Tháng</option><option>Quý</option></select></label>
+  </div>
+  <button class="excel" id="exportExcel">Tải danh sách Excel</button>
  </div>
  
  <div class="info-banner" id="dt_banner">
@@ -86,10 +89,7 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
  </div>
  
  <div class="box" style="margin-bottom:14px;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-    <h4 style="margin:0;">Các điểm ĐÃ ĐĂNG KÝ của ĐƠN VỊ TRÊN:</h4>
-    <button class="excel" id="exportExcel">Tải danh sách Excel</button>
-  </div>
+  <h4>Các điểm ĐÃ ĐĂNG KÝ của ĐƠN VỊ TRÊN:</h4>
   <div class="wrap" style="max-height:280px;">
    <table id="his_tb">
     <thead><tr><th>Mã điểm</th><th>Tên điểm</th><th>Trạng thái đăng ký</th><th>Tuần đã đăng ký</th></tr></thead>
@@ -111,7 +111,7 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
 </main>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfwTlVfwIreFk92ibXf62KVHapeFp0wPTMgcRsDKdS80nluvwtBSpBN-Jkmg_I7942/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzN8OHHO5NJiifPE96V1Zvq2CWEkdwaV5h7PLD-xab21jRnaERMXjWGlrA-quLbvxK3/exec";
 let DB = { U: [], D: {}, P: {}, S: [], A: {} };
 
 const todayStr = "2026-11-10";
@@ -219,12 +219,12 @@ document.getElementById('add').addEventListener('click', function() {
   });
 });
 
-// HỖ TRỢ EXPORT EXCEL DANH SÁCH ĐÃ ĐĂNG KÝ
+// HỖ TRỢ EXPORT EXCEL DANH SÁCH ĐÃ ĐĂNG KÝ TẠI TAB CHI TIẾT ĐƠN VỊ
 document.getElementById('exportExcel').addEventListener('click', function() {
-  const uid = document.getElementById('fu').value;
+  const uid = document.getElementById('du').value;
   if (!uid) { alert("Vui lòng chọn đơn vị trước khi tải dữ liệu!"); return; }
   
-  let selU = document.getElementById('fu');
+  let selU = document.getElementById('du');
   let tenDonVi = selU.options[selU.selectedIndex].text;
   let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
   
@@ -376,7 +376,6 @@ function initSystem() {
     let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
     let day_arr = [];
 
-    // Cập nhật thẻ hiển thị thông tin Kỳ Xem
     let perName = "";
     if (p === 'Ngày') {
       let idx = Math.floor((d - ngayGoc) / 864e5);
@@ -402,8 +401,7 @@ function initSystem() {
       for (let i = s_d; i <= e_d; i++) day_arr.push(i);
       perName = `Quý ${qy}/2026`;
     }
-    
-    // Gán dữ liệu vào khung Banner vàng
+
     let uName = u ? u[1] : "Tất cả";
     document.getElementById('dt_unit_name').innerText = uName;
     document.getElementById('dt_period_name').innerText = perName;
