@@ -29,12 +29,12 @@ td{padding:6px 8px;border-bottom:1px solid var(--line)}td.n{text-align:right}.ba
 tr.rw{cursor:pointer}tr.rw:hover td{background:rgba(255,192,0,.18)}
 .pill{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}.p1{background:#d7f0e0;color:#00693a}.p2{background:#ffe9c7;color:#8a5200}.p3{background:var(--line);color:var(--mut)}
 tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
-#loading{text-align:center;padding:50px;font-weight:bold;font-size:16px;color:var(--navy)}
+#loading{text-align:center;padding:50px;font-size:16px;color:var(--navy)}
 </style></head><body>
-<header><h1>HAPPY DAY 2026 – TỔNG HỢP LƯỢT RA QUÂN ĐĂNG KÝ</h1><small>Hệ thống kết nối Google Sheets trực tuyến</small></header>
-<nav><button class="on" data-t="db">Dashboard</button><button data-t="dt">Chi tiết đơn vị</button><button data-t="nl">Nhập liệu</button></nav>
+<header><h1>HAPPY DAY 2026 – TỔNG HỢP LƯỢT RA QUÂN ĐĂNG KÝ</h1><small>Hệ thống đăng ký lịch ra quân bán hàng PPBL trực tuyến</small></header>
+<nav><button class="on" data-t="db">Dashboard</button><button data-t="dt">Chi tiết đơn vị</button><button data-t="nl">Đăng ký ra quân</button></nav>
 
-<div id="loading">Đang kết nối để tải dữ liệu từ Google Sheets, vui lòng đợi...</div>
+<div id="loading">Đang kết nối để tải dữ liệu, vui lòng đợi...</div>
 
 <main style="display:none;" id="main-content">
 <div class="ctl" id="gbar"><label><b>Ngày báo cáo ▶</b> <input class="in" type="date" id="nbc" min="2026-01-01" max="2026-12-31"></label><span id="rng" class="note"></span></div>
@@ -50,7 +50,7 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
   <div class="box"><h4>Top 10 đơn vị theo Tháng</h4><div id="c4"></div></div>
   <div class="box"><h4>06 tháng gần nhất</h4><div id="c3"></div></div>
  </div>
- <div class="box"><h4>Bảng tổng hợp 50 đơn vị</h4><div class="wrap"><table id="tb"></table></div></div>
+ <div class="box"><h4 id="title_tb_50">Bảng tổng hợp 50 đơn vị</h4><div class="wrap"><table id="tb"></table></div></div>
 </section>
 
 <!-- 2. CHI TIẾT ĐƠN VỊ -->
@@ -69,7 +69,7 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
  <div class="wrap"><table id="dtb"></table></div>
 </section>
 
-<!-- 3. NHẬP LIỆU -->
+<!-- 3. ĐĂNG KÝ RA QUÂN -->
 <section class="pane" id="nl">
  <div class="ctl">
   <label><b>Ngày ▶</b> <input class="in" type="date" id="fd"></label>
@@ -77,11 +77,27 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
   <label><b>Mã / Tên điểm ▶</b> <input class="in" id="fp" placeholder="Chọn hoặc gõ điểm..." list="pl" style="min-width:260px"></label>
   <datalist id="pl"></datalist>
   <span id="pn" class="note"></span>
-  <button class="act" id="add">+ Thêm dòng</button>
+  <button class="act" id="add">Đăng ký</button>
  </div>
+ 
  <div class="box" style="margin-bottom:14px;">
   <h4>Các điểm ĐÃ ĐĂNG KÝ của ĐƠN VỊ TRÊN:</h4>
-  <div class="wrap" style="max-height:300px;"><table id="his_tb"><thead><tr><th>Mã điểm</th><th>Tên điểm</th><th>Trạng thái đăng ký</th></tr></thead><tbody id="his_body"><tr><td colspan="3" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr></tbody></table></div>
+  <div class="wrap" style="max-height:280px;">
+   <table id="his_tb">
+    <thead><tr><th>Mã điểm</th><th>Tên điểm</th><th>Trạng thái đăng ký</th><th>Tuần đã đăng ký</th></tr></thead>
+    <tbody id="his_body"><tr><td colspan="4" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr></tbody>
+   </table>
+  </div>
+ </div>
+
+ <div class="box">
+  <h4>Lịch sử vừa đăng ký (Lưu tạm trên máy hiện tại):</h4>
+  <div class="wrap">
+   <table>
+    <thead><tr><th>#</th><th>Ngày</th><th>Thứ</th><th>Đơn vị</th><th>Mã điểm</th><th>Tên điểm</th><th>Tuần</th><th>Tháng</th><th>Quý</th><th>Kiểm tra</th></tr></thead>
+    <tbody id="lg"></tbody>
+   </table>
+  </div>
  </div>
 </section>
 </main>
@@ -106,6 +122,7 @@ fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' })
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
     initSystem();
+    loadLocalLogs();
   })
   .catch(err => {
     console.error(err);
@@ -129,50 +146,88 @@ document.getElementById('add').addEventListener('click', function() {
 
   const D = d => new Date(d + 'T00:00:00+07:00');
   const dObj = D(ngayNhap);
+  const thuNames = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+  const thuStr = thuNames[dObj.getDay()];
+  
+  const T = d => Math.floor((D(d) - D('2025-12-26')) / (7 * 864e5)) + 1;
+  const tuanNum = T(ngayNhap);
+  const thangNum = dObj.getMonth() + 1;
+  const quyNum = Math.floor((thangNum - 1) / 3) + 1;
+
+  let tenDiemHienThi = maDiemNhap;
+  let selU = document.getElementById('fu');
+  let tenDonVi = selU.options[selU.selectedIndex].text;
+  let ptsList = (DB.P && DB.P[donViVal]) ? DB.P[donViVal] : [];
+  let foundPt = ptsList.find(p => p[0].toString() === maDiemNhap);
+  if (foundPt) tenDiemHienThi = foundPt[1];
+
   const ngayGoc = D('2026-06-26');
   const soNgayCachBiet = Math.floor((dObj - ngayGoc) / 864e5);
   const tenCotSheet = "Kỳ " + soNgayCachBiet;
 
   const payload = { ngay: tenCotSheet, donVi: donViVal, maDiem: maDiemNhap };
 
-  // Dùng Text thay vì JSON để tránh lỗi fetch chặn CORS khi trả về chuỗi JSON bị lỗi
   fetch(SCRIPT_URL, {
     method: 'POST', redirect: 'follow',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
   })
-  .then(res => res.text()) // Nhận chuỗi thô để dễ bắt lỗi
+  .then(res => res.text())
   .then(resTxt => {
     try {
         let resData = JSON.parse(resTxt);
         if (resData.status === "success") {
           alert(resData.message);
-          // Cập nhật mảng tĩnh trên giao diện
+          
           if (!DB.A[maDiemNhap]) DB.A[maDiemNhap] = [[], []];
           if (!DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
             DB.A[maDiemNhap][0].push(soNgayCachBiet);
           }
-          // Vẽ lại 
+
+          let logItem = {
+            ngay: ngayNhap, thu: thuStr, donvi: tenDonVi, madiem: maDiemNhap,
+            tendiem: tenDiemHienThi, tuan: `Tuần ${tuanNum}`, thang: `Tháng ${thangNum}`, quy: `Quý ${quyNum}`
+          };
+          saveLogToLocal(logItem);
+          appendLogRow(logItem, document.getElementById('lg').children.length + 1);
+          
           window.updateHistoryTable(donViVal);
           window.refreshDashboardUI();
         } else {
           alert("Lỗi server: " + resData.message);
         }
     } catch (e) {
-        alert("Thêm thành công nhưng phản hồi từ máy chủ bị lỗi hiển thị. Vui lòng tải lại trang.");
+        alert("Đã lưu thành công. Vui lòng tải lại trang để cập nhật số liệu.");
         window.location.reload();
     }
   })
   .catch(err => {
     console.error(err);
-    alert("Máy chủ không phản hồi. Lỗi mạng hoặc Google từ chối truy cập.");
+    alert("Máy chủ không phản hồi. Vui lòng thử lại sau.");
   })
   .finally(() => {
-    btnAdd.innerText = "+ Thêm dòng";
+    btnAdd.innerText = "Đăng ký";
     btnAdd.disabled = false;
   });
 });
 
+function saveLogToLocal(item) {
+  let logs = JSON.parse(localStorage.getItem('happyday_logs') || '[]');
+  logs.push(item);
+  localStorage.setItem('happyday_logs', JSON.stringify(logs));
+}
+function loadLocalLogs() {
+  let logs = JSON.parse(localStorage.getItem('happyday_logs') || '[]');
+  let html = '';
+  logs.forEach((lg, idx) => {
+    html += `<tr><td>${idx+1}</td><td>${lg.ngay}</td><td>${lg.thu}</td><td>${lg.donvi}</td><td>${lg.madiem}</td><td>${lg.tendiem}</td><td>${lg.tuan}</td><td>${lg.thang}</td><td>${lg.quy}</td><td class="ok">OK</td></tr>`;
+  });
+  document.getElementById('lg').innerHTML = html;
+}
+function appendLogRow(lg, idx) {
+  let tr = `<tr><td>${idx}</td><td>${lg.ngay}</td><td>${lg.thu}</td><td>${lg.donvi}</td><td>${lg.madiem}</td><td>${lg.tendiem}</td><td>${lg.tuan}</td><td>${lg.thang}</td><td>${lg.quy}</td><td class="ok">OK</td></tr>`;
+  document.getElementById('lg').innerHTML += tr;
+}
 
 // KHỞI TẠO VÀ ĐỒNG BỘ TOÀN BỘ GIAO DIỆN
 function initSystem() {
@@ -204,14 +259,14 @@ function initSystem() {
     let d_str = nbc.value, d = D(d_str), w = T(d_str), m = d.getMonth() + 1, q = Q(m);
     let dy_idx = Math.floor((d - ngayGoc) / 864e5);
     $('#rng').innerText = `Tuần ${w} (Tháng ${m} - Quý ${q})`;
+    $('#title_tb_50').innerText = `Bảng tổng hợp 50 đơn vị trong tháng ${m}`;
 
-    let sum = [0, 0, 0, 0, 0, 0, 0], u_arr = [];
+    let sum = [0, 0, 0, 0, 0, 0, 0, 0], u_arr = [];
     if (DB.U) {
       DB.U.forEach(u => {
         let uid = u[0], nm = u[1], kh_l = u[2], kh_dt = u[3], a = u[4] || [], b = u[5] || [];
         let ps_w = a[w - 27] || 0, ps_m = b[m - 6] || 0;
         
-        // Tính ĐK Tuần và ĐK Ngày cho Đơn vị
         let dk_w = 0, dk_d = 0;
         let s_d = (w - 27) * 7; 
         let pts = DB.P[uid] || [];
@@ -222,6 +277,7 @@ function initSystem() {
         });
 
         sum[0] += kh_l; sum[1] += kh_dt; sum[2] += dk_w; sum[3] += ps_w; sum[4] += ps_m; sum[5] += (kh_l * 4); sum[6] += (kh_dt * 4);
+        sum[7] += dk_d;
         u_arr.push({ id: uid, nm: nm, kh_l: kh_l, kh_dt: kh_dt, dk_w: dk_w, dk_d: dk_d, ps_w: ps_w, ps_m: ps_m, pw: P(ps_w, kh_l), pm: P(ps_m, kh_l * 4) });
       });
     }
@@ -233,7 +289,6 @@ function initSystem() {
       <div class="card" style="--c:var(--blue)"><h3>PHÁT SINH DT LƯỢT THÁNG ${m}</h3><b>${F(sum[4])}</b><small>Tỷ lệ: ${P(sum[4], sum[5])}% KH</small></div>
     `;
 
-    // 1. Lượt ra quân 7 ngày qua
     let dd = new Date(d); dd.setDate(dd.getDate() - 6);
     let days = [], d_vals = [];
     for (let i = 0; i < 7; i++) {
@@ -244,7 +299,6 @@ function initSystem() {
     }
     draw_bar($('#c1'), days, d_vals, var_c('--teal'), false);
 
-    // 2. 08 tuần gần nhất
     let w_lb = [], w_val = [];
     for (let i = Math.max(1, w - 7); i <= w; i++) {
       w_lb.push('W' + i);
@@ -254,7 +308,6 @@ function initSystem() {
     }
     draw_bar($('#c2'), w_lb, w_val, var_c('--blue'), false);
 
-    // 3. 06 tháng gần nhất
     let m_lb = [], m_val = [];
     for (let i = Math.max(1, m - 5); i <= m; i++) {
       m_lb.push('T' + i);
@@ -264,21 +317,21 @@ function initSystem() {
     }
     draw_bar($('#c3'), m_lb, m_val, var_c('--orange'), false);
 
-    // 4. Top 10 đơn vị
-    let s_day = [...u_arr].sort((a, b) => b.ps_w - a.ps_w).slice(0, 10);
-    draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.ps_w), var_c('--teal'), true);
+    let s_day = [...u_arr].sort((a, b) => b.dk_d - a.dk_d).slice(0, 10);
+    draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.dk_d), var_c('--teal'), true);
+    
     let s_week = [...u_arr].sort((a, b) => b.pw - a.pw).slice(0, 10);
     draw_bar($('#c10_w'), s_week.map(x => cleanName(x.nm)), s_week.map(x => x.pw), var_c('--blue'), true);
+    
     let s_month = [...u_arr].sort((a, b) => b.pm - a.pm).slice(0, 10);
     draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.pm), var_c('--gold'), true);
 
-    // Bảng 50 đơn vị (Thêm KH Ngày và ĐK Ngày)
-    let th = '<tr><th>Mã</th><th>Đơn vị</th><th>KH ngày</th><th>ĐK ngày</th><th>KH tuần</th><th>ĐK tuần</th><th>Lượt tuần</th><th>% Tuần</th><th>Lượt tháng</th><th>% Tháng</th></tr>';
+    let th = '<tr><th>Mã</th><th>Đơn vị</th><th>ĐK ngày</th><th>KH tuần</th><th>ĐK tuần</th><th>Lượt tuần</th><th>% Tuần</th><th>Lượt tháng</th><th>% Tháng</th></tr>';
     let tb = '<tbody>';
     u_arr.sort((a, b) => b.pw - a.pw).forEach(x => {
-      tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n">1</td><td class="n ${x.dk_d<1?'err':'ok'}">${F(x.dk_d)}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--orange)"></div>${x.pm}%</td></tr>`;
+      tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n ${x.dk_d<1?'err':'ok'}">${F(x.dk_d)}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--orange)"></div>${x.pm}%</td></tr>`;
     });
-    tb += `<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">50</td><td class="n">-</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[3], sum[0])}%</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[4], sum[5])}%</td></tr></tbody>`;
+    tb += `<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">${F(sum[7])}</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[3], sum[0])}%</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[4], sum[5])}%</td></tr></tbody>`;
     $('#tb').innerHTML = th + tb;
   }
 
@@ -305,8 +358,8 @@ function initSystem() {
       let s_d = Math.floor((firstDay - ngayGoc) / 864e5);
       let e_d = Math.floor((lastDay - ngayGoc) / 864e5);
       for (let i = s_d; i <= e_d; i++) day_arr.push(i);
-      $('#drng').innerText = `Tháng ${m}/2026 (${lastDay.getDate()} ngày)`;
-    } else { // Quý
+      $('#drng').innerText = `Tháng ${m}/2026`;
+    } else {
       let sm = (qy - 1) * 3;
       let firstDay = new Date(2026, sm, 1);
       let lastDay = new Date(2026, sm + 3, 0);
@@ -366,24 +419,35 @@ function initSystem() {
     window.updateHistoryTable(uid);
   }
 
-  // Tự động nạp Lịch sử Đồng bộ từ Database
+  // Khai báo Toàn cục (Global) để update gọi sau khi fetch thành công
   window.updateHistoryTable = function(uid) {
     let tbody = document.getElementById('his_body');
     if (!uid) {
-      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr>`;
       return;
     }
     let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
     let html = '', count = 0;
+    const t0 = new Date('2025-12-26T00:00:00+07:00').getTime();
+    const d0 = new Date('2026-06-26T00:00:00+07:00').getTime();
+
     pts.forEach(p => {
       let act = (DB.A && DB.A[p[0]]) ? DB.A[p[0]][0] : [];
       if (act.length > 0) {
         count++;
-        html += `<tr><td>${p[0]}</td><td>${p[1]}</td><td><span class="pill p1">Đã đăng ký (${act.length} kỳ)</span></td></tr>`;
+        // Quy đổi ra các Tuần đã đăng ký
+        let weeks = act.map(idx => {
+            let dTime = d0 + idx * 86400000;
+            return Math.floor((dTime - t0) / (7 * 86400000)) + 1;
+        });
+        let uniqueWeeks = [...new Set(weeks)].sort((a,b)=>a-b);
+        let weekStr = uniqueWeeks.map(w => 'W'+w).join(', ');
+
+        html += `<tr><td>${p[0]}</td><td>${p[1]}</td><td><span class="pill p1">Đã ĐK (${act.length} kỳ)</span></td><td>${weekStr}</td></tr>`;
       }
     });
     if (count === 0) {
-      html = `<tr><td colspan="3" style="text-align:center;color:var(--mut)">Đơn vị này chưa có điểm nào đăng ký ra quân</td></tr>`;
+      html = `<tr><td colspan="4" style="text-align:center;color:var(--mut)">Đơn vị này chưa có điểm nào đăng ký ra quân</td></tr>`;
     }
     tbody.innerHTML = html;
   };
