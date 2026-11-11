@@ -4,10 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Happy Day 2026 – Tổng hợp lượt ra quân</title>
+<!-- TÍCH HỢP FONT ROBOTO -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- TÍCH HỢP BỘ LỊCH FLATPICKR (ÉP ĐỊNH DẠNG DD/MM/YYYY & TIẾNG VIỆT) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
+/* BỘ NHẬN DIỆN THƯƠNG HIỆU VIETNAM POST */
 :root {
   --vp-blue: #004588;   
   --vp-orange: #FBAF17; 
@@ -39,7 +43,6 @@ body {
   user-select: none;
 }
 
-/* CHO PHÉP CHỌN CHỮ TRONG CÁC Ô NHẬP LIỆU */
 input, select, textarea {
   -webkit-user-select: auto;
   -moz-user-select: auto;
@@ -78,7 +81,16 @@ input, select, button.act {
   font-family: inherit; padding: 7px 10px; border: 1px solid var(--line);
   border-radius: 6px; background: var(--card); color: var(--ink);
 }
-input.in, select.in { background: #FFF2CC; color: var(--vp-blue); border-color: var(--vp-orange); font-weight: 700; }
+
+/* HIỆU CHỈNH LẠI Ô CHỌN NGÀY VÀ SELECT */
+input.in, select.in, .flatpickr-input[readonly] { 
+  background: #FFF2CC !important; 
+  color: var(--vp-blue) !important; 
+  border: 1px solid var(--vp-orange) !important; 
+  font-weight: 700 !important; 
+  border-radius: 6px;
+  cursor: pointer;
+}
 button.act { background: var(--vp-blue); color: #fff; border: 0; cursor: pointer; font-weight:bold; }
 button.act:hover { background: #003366; }
 button.excel { background: #0f9d58; color: #fff; border: 0; cursor: pointer; padding: 7px 12px; border-radius: 6px; font-weight: bold; font-family: inherit;}
@@ -102,7 +114,7 @@ button.excel:hover { background: #0b8043; }
 .box h4 { margin: 0 0 12px; font-size: 14px; color: var(--vp-blue); font-weight: 700; }
 
 svg { width: 100%; height: auto; display: block; }
-svg text { fill: var(--mut); font-family: inherit; font-size: 10px; }
+svg text { fill: var(--mut); font-family: inherit; }
 
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
 th { background: var(--vp-blue); color: #fff; padding: 10px 8px; text-align: center; font-weight: 500; }
@@ -123,7 +135,6 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 #gbar { margin: 12px 0; }
 #loading { text-align: center; padding: 60px; font-size: 15px; color: var(--vp-blue); }
 
-/* BANNER THÔNG BÁO - ĐỒNG BỘ DARK/LIGHT MODE */
 .info-banner { background: #fff8e1; border-left: 4px solid var(--vp-orange); padding: 10px 14px; border-radius: 4px; margin-bottom: 14px; color: #222; font-size: 14px; }
 .info-banner b { color: var(--vp-blue); }
 @media(prefers-color-scheme: dark) {
@@ -143,7 +154,7 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 <body>
 <header>
   <div class="brand">
-    <img src="https://i.ibb.co/84KSHt8V/logo-nhan-dien.png" alt="Vietnam Post Logo" id="brand-logo">
+    <img src="https://i.ibb.co/3sX8M8L/logo-nhan-dien.png" alt="Vietnam Post Logo" id="brand-logo">
     <div class="header-titles">
       <h1>Tổng hợp lượt ra quân đăng ký</h1>
       <small>Hệ thống đăng ký lịch ra quân bán hàng PPBL trực tuyến</small>
@@ -161,7 +172,8 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 
 <main style="display:none;" id="main-content">
 <div class="ctl" id="gbar">
-  <label><b>Ngày báo cáo ▶</b> <input class="in" type="date" id="nbc" min="2026-01-01" max="2026-12-31"></label>
+  <!-- DÙNG TYPE="TEXT" ĐỂ THƯ VIỆN FLATPICKR TIẾP QUẢN TRÁNH BỊ XUNG ĐỘT VỚI LỊCH MẶC ĐỊNH -->
+  <label><b>Ngày báo cáo ▶</b> <input class="in" type="text" id="nbc" placeholder="dd/mm/yyyy"></label>
   <span id="rng" class="note" style="font-weight: 500; font-size: 14px;"></span>
 </div>
 
@@ -209,7 +221,7 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 <!-- 3. ĐĂNG KÝ RA QUÂN -->
 <section class="pane" id="nl">
  <div class="ctl">
-  <label><b>Ngày đăng ký ▶</b> <input class="in" type="date" id="fd"></label>
+  <label><b>Ngày đăng ký ▶</b> <input class="in" type="text" id="fd" placeholder="dd/mm/yyyy"></label>
   <label><b>Đơn vị ▶</b> <select class="in" id="fu"></select></label>
   <label><b>Mã / Tên điểm ▶</b> <input class="in" id="fp" placeholder="Chọn hoặc gõ điểm..." list="pl" style="min-width:260px"></label>
   <datalist id="pl"></datalist>
@@ -239,6 +251,10 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 </section>
 </main>
 
+<!-- THƯ VIỆN LỊCH FLATPICKR -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+
 <script>
 // ==========================================
 // CÁC HÀM BẢO MẬT CHỐNG SAO CHÉP & F12
@@ -263,8 +279,26 @@ const mm = String(dNow.getMonth() + 1).padStart(2, '0');
 const dd = String(dNow.getDate()).padStart(2, '0');
 const todayStr = `${yyyy}-${mm}-${dd}`;
 
-document.getElementById('nbc').value = todayStr;
-document.getElementById('fd').value = todayStr;
+// KHỞI TẠO BỘ LỊCH TIẾNG VIỆT ĐỊNH DẠNG DD/MM/YYYY
+flatpickr("#nbc", {
+    locale: "vn",
+    dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "d/m/Y",
+    defaultDate: todayStr,
+    onChange: function() {
+        if(typeof render_db === 'function') { render_db(); render_dt(); }
+    }
+});
+
+flatpickr("#fd", {
+    locale: "vn",
+    dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "d/m/Y",
+    defaultDate: todayStr
+});
+
 
 // TẢI DỮ LIỆU BAN ĐẦU
 fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' })
@@ -438,7 +472,7 @@ function appendLogRow(lg, idx) {
   document.getElementById('lg').innerHTML += tr;
 }
 
-// KHỞI TẠO HỆ THỐNG
+// KHỞI TẠO HỆ THỐNG GIAO DIỆN
 function initSystem() {
   const $ = (s, e = document) => e.querySelector(s);
   const $$ = (s, e = document) => Array.from(e.querySelectorAll(s));
@@ -453,6 +487,10 @@ function initSystem() {
   const t0 = new Date('2025-12-26T00:00:00+07:00').getTime();
   const d0 = new Date('2026-06-26T00:00:00+07:00').getTime();
   const tongDiemBan = 8534; 
+
+  // Gắn function ra window để flatpickr gọi
+  window.render_db = render_db;
+  window.render_dt = render_dt;
 
   function buildUnitDropdowns() {
     let optHtml = '<option value="">-- Lựa chọn đơn vị --</option>';
@@ -759,7 +797,6 @@ function initSystem() {
   dp.addEventListener('change', render_dt);
   dq.addEventListener('input', render_dt);
   ds.addEventListener('change', render_dt);
-  nbc.addEventListener('change', () => { render_db(); render_dt(); });
 
   fp.addEventListener('input', () => {
     let raw = fp.value.trim().split(' - ')[0];
@@ -772,13 +809,26 @@ function initSystem() {
 
   function var_c(n) { return getComputedStyle(document.body).getPropertyValue(n).trim(); }
   
+  // HÀM VẼ BIỂU ĐỒ BẢO ĐẢM KHÔNG BỊ CẮT CHỮ
   function draw_bar(el, lb, val, col) {
-    let max = Math.max(...val, 1), h = 180, w = el.clientWidth || 300, bW = w / lb.length;
+    let max = Math.max(...val, 1);
+    let h = 190; // Nới rộng trần (Chiều cao SVG)
+    let w = el.clientWidth || 300;
+    let bW = w / lb.length;
     let p = `<svg viewBox="0 0 ${w} ${h}">`;
+    
     for (let i = 0; i < lb.length; i++) {
-      let bh = (val[i] / max) * (h - 45), xMid = i * bW + bW * 0.5;
-      p += `<rect x="${i * bW + bW * 0.15}" y="${h - 35 - bh}" width="${bW * 0.7}" height="${bh}" fill="${col}" rx="3"/>`;
-      if (bh > 12) p += `<text x="${xMid}" y="${h - 40 - bh}" text-anchor="middle" font-size="10" font-weight="bold" fill="${var_c('--ink')}">${F(val[i])}</text>`;
+      // Dành ra khoảng trống 50px phía trên và 40px phía dưới 
+      let bh = (val[i] / max) * (h - 90); 
+      let xMid = i * bW + bW * 0.5;
+      let yRect = h - 45 - bh;
+      
+      p += `<rect x="${i * bW + bW * 0.15}" y="${yRect}" width="${bW * 0.7}" height="${bh}" fill="${col}" rx="3"/>`;
+      
+      // Số liệu không bao giờ bị cắt nhờ khoảng trống an toàn
+      if (val[i] > 0 || val[i] === 0) {
+        p += `<text x="${xMid}" y="${yRect - 5}" text-anchor="middle" font-size="10" font-weight="bold" fill="${var_c('--ink')}">${F(val[i])}</text>`;
+      }
       
       let name = lb[i];
       let parts = name.split(' ');
@@ -786,10 +836,10 @@ function initSystem() {
           let mid = Math.ceil(parts.length / 2);
           let line1 = parts.slice(0, mid).join(' ');
           let line2 = parts.slice(mid).join(' ');
-          p += `<text x="${xMid}" y="${h - 18}" text-anchor="middle" font-size="10">${line1}</text>`;
-          p += `<text x="${xMid}" y="${h - 5}" text-anchor="middle" font-size="10">${line2}</text>`;
+          p += `<text x="${xMid}" y="${h - 25}" text-anchor="middle" font-size="10">${line1}</text>`;
+          p += `<text x="${xMid}" y="${h - 10}" text-anchor="middle" font-size="10">${line2}</text>`;
       } else {
-          p += `<text x="${xMid}" y="${h - 12}" text-anchor="middle" font-size="10">${name}</text>`;
+          p += `<text x="${xMid}" y="${h - 15}" text-anchor="middle" font-size="10">${name}</text>`;
       }
     }
     el.innerHTML = p + '</svg>';
