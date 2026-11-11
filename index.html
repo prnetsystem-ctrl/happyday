@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<!-- TÍCH HỢP BỘ LỊCH FLATPICKR (ÉP ĐỊNH DẠNG DD/MM/YYYY & TIẾNG VIỆT) -->
+<!-- TÍCH HỢP BỘ LỊCH FLATPICKR -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
 /* BỘ NHẬN DIỆN THƯƠNG HIỆU VIETNAM POST */
@@ -30,7 +30,6 @@
 }
 * { box-sizing: border-box; }
 
-/* FONT CHỮ VÀ CHỐNG BÔI ĐEN SAO CHÉP */
 body {
   margin: 0;
   font-family: 'Roboto', Arial, sans-serif;
@@ -81,8 +80,6 @@ input, select, button.act {
   font-family: inherit; padding: 7px 10px; border: 1px solid var(--line);
   border-radius: 6px; background: var(--card); color: var(--ink);
 }
-
-/* HIỆU CHỈNH LẠI Ô CHỌN NGÀY VÀ SELECT */
 input.in, select.in, .flatpickr-input[readonly] { 
   background: #FFF2CC !important; 
   color: var(--vp-blue) !important; 
@@ -154,7 +151,7 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 <body>
 <header>
   <div class="brand">
-    <img src="https://i.ibb.co/KzBdMKJG/Logo-Vietnam-Post.png" alt="Vietnam Post Logo" id="brand-logo">
+    <img src="https://i.ibb.co/3sX8M8L/logo-nhan-dien.png" alt="Vietnam Post Logo" id="brand-logo">
     <div class="header-titles">
       <h1>Tổng hợp lượt ra quân đăng ký</h1>
       <small>Hệ thống đăng ký lịch ra quân bán hàng PPBL trực tuyến</small>
@@ -172,7 +169,6 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 
 <main style="display:none;" id="main-content">
 <div class="ctl" id="gbar">
-  <!-- DÙNG TYPE="TEXT" ĐỂ THƯ VIỆN FLATPICKR TIẾP QUẢN TRÁNH BỊ XUNG ĐỘT VỚI LỊCH MẶC ĐỊNH -->
   <label><b>Ngày báo cáo ▶</b> <input class="in" type="text" id="nbc" placeholder="dd/mm/yyyy"></label>
   <span id="rng" class="note" style="font-weight: 500; font-size: 14px;"></span>
 </div>
@@ -251,20 +247,16 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 </section>
 </main>
 
-<!-- THƯ VIỆN LỊCH FLATPICKR -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 
 <script>
-// ==========================================
-// CÁC HÀM BẢO MẬT CHỐNG SAO CHÉP & F12
-// ==========================================
 document.addEventListener('contextmenu', event => event.preventDefault());
 document.addEventListener('keydown', function(e) {
-  if (e.keyCode === 123 || // F12
-     (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || // Ctrl+Shift+I / J
-     (e.ctrlKey && e.keyCode === 85) || // Ctrl+U
-     (e.ctrlKey && e.keyCode === 67)) { // Ctrl+C
+  if (e.keyCode === 123 || 
+     (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || 
+     (e.ctrlKey && e.keyCode === 85) || 
+     (e.ctrlKey && e.keyCode === 67)) { 
       e.preventDefault();
       return false;
   }
@@ -279,7 +271,6 @@ const mm = String(dNow.getMonth() + 1).padStart(2, '0');
 const dd = String(dNow.getDate()).padStart(2, '0');
 const todayStr = `${yyyy}-${mm}-${dd}`;
 
-// KHỞI TẠO BỘ LỊCH TIẾNG VIỆT ĐỊNH DẠNG DD/MM/YYYY
 flatpickr("#nbc", {
     locale: "vn",
     dateFormat: "Y-m-d",
@@ -298,7 +289,6 @@ flatpickr("#fd", {
     altFormat: "d/m/Y",
     defaultDate: todayStr
 });
-
 
 // TẢI DỮ LIỆU BAN ĐẦU
 fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' })
@@ -374,8 +364,11 @@ document.getElementById('add').addEventListener('click', function() {
             DB.A[maDiemNhap][0].push(soNgayCachBiet);
           }
 
+          // Định dạng ngày thành DD/MM/YYYY cho Bảng Lịch sử
+          let displayDate = `${String(dObj.getDate()).padStart(2, '0')}/${String(dObj.getMonth() + 1).padStart(2, '0')}/${dObj.getFullYear()}`;
+
           let logItem = {
-            ngay: ngayNhap, thu: thuStr, donvi: tenDonVi, madiem: maDiemNhap,
+            ngay: displayDate, thu: thuStr, donvi: tenDonVi, madiem: maDiemNhap,
             tendiem: tenDiemHienThi, tuan: `Tuần ${tuanNum}`, thang: `Tháng ${thangNum}`, quy: `Quý ${quyNum}`
           };
           saveLogToLocal(logItem);
@@ -401,7 +394,7 @@ document.getElementById('add').addEventListener('click', function() {
   });
 });
 
-// XUẤT EXCEL TẠI CHI TIẾT ĐƠN VỊ
+// XUẤT EXCEL CÓ THÊM DOANH THU
 document.getElementById('exportExcel').addEventListener('click', function() {
   const uid = document.getElementById('du').value;
   if (!uid) { alert("Vui lòng chọn đơn vị trước khi tải dữ liệu!"); return; }
@@ -411,7 +404,7 @@ document.getElementById('exportExcel').addEventListener('click', function() {
   let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
   
   let csvContent = "\uFEFF"; 
-  csvContent += "STT,Ngày,Thứ,Đơn vị,Mã điểm,Tên điểm,Tuần,Tháng,Quý\n";
+  csvContent += "STT,Ngày,Thứ,Đơn vị,Mã điểm,Tên điểm,Tuần,Tháng,Quý,Doanh thu\n";
   
   const t0 = new Date('2025-12-26T00:00:00+07:00').getTime();
   const d0 = new Date('2026-06-26T00:00:00+07:00').getTime();
@@ -421,6 +414,8 @@ document.getElementById('exportExcel').addEventListener('click', function() {
 
   pts.forEach(p => {
     let act = (DB.A && DB.A[p[0]]) ? DB.A[p[0]][0] : [];
+    let revs = (DB.A && DB.A[p[0]]) ? DB.A[p[0]][1] : [];
+    
     act.forEach(idx => {
         let dTime = d0 + idx * 86400000;
         let dObj = new Date(dTime);
@@ -433,7 +428,13 @@ document.getElementById('exportExcel').addEventListener('click', function() {
         let thangNum = dObj.getMonth() + 1;
         let quyNum = Math.floor((thangNum - 1) / 3) + 1;
         
-        records.push({ timestamp: dTime, ngay: ngayStr, thu: thuStr, donvi: tenDonVi, madiem: p[0], tendiem: p[1], tuan: `Tuần ${tuanNum}`, thang: `Tháng ${thangNum}`, quy: `Quý ${quyNum}` });
+        let dt = 0;
+        let revIdx = revs.indexOf(idx);
+        if (revIdx > -1) {
+            dt = revs[revIdx + 1];
+        }
+        
+        records.push({ timestamp: dTime, ngay: ngayStr, thu: thuStr, donvi: tenDonVi, madiem: p[0], tendiem: p[1], tuan: `Tuần ${tuanNum}`, thang: `Tháng ${thangNum}`, quy: `Quý ${quyNum}`, doanhthu: dt });
     });
   });
 
@@ -441,7 +442,7 @@ document.getElementById('exportExcel').addEventListener('click', function() {
 
   records.sort((a,b) => b.timestamp - a.timestamp);
   records.forEach((rec, i) => {
-    csvContent += `"${i+1}","${rec.ngay}","${rec.thu}","${rec.donvi}","${rec.madiem}","${rec.tendiem}","${rec.tuan}","${rec.thang}","${rec.quy}"\n`;
+    csvContent += `"${i+1}","${rec.ngay}","${rec.thu}","${rec.donvi}","${rec.madiem}","${rec.tendiem}","${rec.tuan}","${rec.thang}","${rec.quy}","${rec.doanhthu}"\n`;
   });
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -488,7 +489,6 @@ function initSystem() {
   const d0 = new Date('2026-06-26T00:00:00+07:00').getTime();
   const tongDiemBan = 8534; 
 
-  // Gắn function ra window để flatpickr gọi
   window.render_db = render_db;
   window.render_dt = render_dt;
 
@@ -655,8 +655,9 @@ function initSystem() {
     let s_day = [...u_arr].sort((a, b) => b.dk_d - a.dk_d).slice(0, 10);
     draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.dk_d), var_c('--vp-blue'));
     
-    let s_month = [...u_arr].sort((a, b) => b.pm - a.pm).slice(0, 10);
-    draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.pm), var_c('--vp-orange'));
+    // Cập nhật biểu đồ Top 10 Tháng xếp hạng theo Số lượng lượt (ps_m)
+    let s_month = [...u_arr].sort((a, b) => b.ps_m - a.ps_m).slice(0, 10);
+    draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.ps_m), var_c('--vp-orange'));
 
     let th = '<tr><th>Mã</th><th>Đơn vị</th><th>ĐK ngày</th><th>KH tuần</th><th>ĐK tuần</th><th>Lượt tuần</th><th>% Tuần</th><th>Lượt tháng</th><th>% Tháng</th></tr>';
     let tb = '<tbody>';
@@ -809,23 +810,20 @@ function initSystem() {
 
   function var_c(n) { return getComputedStyle(document.body).getPropertyValue(n).trim(); }
   
-  // HÀM VẼ BIỂU ĐỒ BẢO ĐẢM KHÔNG BỊ CẮT CHỮ
   function draw_bar(el, lb, val, col) {
     let max = Math.max(...val, 1);
-    let h = 190; // Nới rộng trần (Chiều cao SVG)
+    let h = 190; 
     let w = el.clientWidth || 300;
     let bW = w / lb.length;
     let p = `<svg viewBox="0 0 ${w} ${h}">`;
     
     for (let i = 0; i < lb.length; i++) {
-      // Dành ra khoảng trống 50px phía trên và 40px phía dưới 
       let bh = (val[i] / max) * (h - 90); 
       let xMid = i * bW + bW * 0.5;
       let yRect = h - 45 - bh;
       
       p += `<rect x="${i * bW + bW * 0.15}" y="${yRect}" width="${bW * 0.7}" height="${bh}" fill="${col}" rx="3"/>`;
       
-      // Số liệu không bao giờ bị cắt nhờ khoảng trống an toàn
       if (val[i] > 0 || val[i] === 0) {
         p += `<text x="${xMid}" y="${yRect - 5}" text-anchor="middle" font-size="10" font-weight="bold" fill="${var_c('--ink')}">${F(val[i])}</text>`;
       }
