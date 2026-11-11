@@ -18,7 +18,7 @@ button.act{background:var(--navy);color:#fff;border:0;cursor:pointer}
 .card{border:1px solid var(--line);border-top:5px solid var(--c);border-radius:8px;padding:10px 14px}
 .card h3{margin:0;font-size:11px;color:var(--mut);letter-spacing:.4px}.card b{font-size:30px;color:var(--c);display:block}
 .card small{display:block;color:var(--mut);font-size:12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:16px}
 .box{border:1px solid var(--line);border-radius:8px;padding:12px}.box h4{margin:0 0 10px;font-size:13px;color:var(--navy)}
 svg{width:100%;height:auto;display:block}svg text{fill:var(--mut);font-size:10px}
 table{border-collapse:collapse;width:100%;font-size:13px}th{background:var(--navy);color:#fff;padding:8px;text-align:center}
@@ -44,11 +44,8 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
  <div class="cards" id="cards"></div>
  <div class="grid">
   <div class="box"><h4>Lượt ra quân 7 ngày qua</h4><div id="c1"></div></div>
-  <div class="box"><h4>08 tuần gần nhất</h4><div id="c2"></div></div>
   <div class="box"><h4>Top 10 đơn vị theo Ngày</h4><div id="c10_d"></div></div>
-  <div class="box"><h4>Top 10 đơn vị theo Tuần</h4><div id="c10_w"></div></div>
   <div class="box"><h4>Top 10 đơn vị theo Tháng</h4><div id="c4"></div></div>
-  <div class="box"><h4>06 tháng gần nhất</h4><div id="c3"></div></div>
  </div>
  <div class="box"><h4 id="title_tb_50">Bảng tổng hợp 50 đơn vị</h4><div class="wrap"><table id="tb"></table></div></div>
 </section>
@@ -72,7 +69,7 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
 <!-- 3. ĐĂNG KÝ RA QUÂN -->
 <section class="pane" id="nl">
  <div class="ctl">
-  <label><b>Ngày ▶</b> <input class="in" type="date" id="fd"></label>
+  <label><b>Ngày đăng ký ▶</b> <input class="in" type="date" id="fd"></label>
   <label><b>Đơn vị ▶</b> <select class="in" id="fu"></select></label>
   <label><b>Mã / Tên điểm ▶</b> <input class="in" id="fp" placeholder="Chọn hoặc gõ điểm..." list="pl" style="min-width:260px"></label>
   <datalist id="pl"></datalist>
@@ -177,7 +174,8 @@ document.getElementById('add').addEventListener('click', function() {
     try {
         let resData = JSON.parse(resTxt);
         if (resData.status === "success") {
-          alert(resData.message);
+          // Bật thông báo tùy chỉnh cho thành công
+          alert("Đã đăng ký thành công. Chúc các anh/chị triển khai tốt");
           
           if (!DB.A[maDiemNhap]) DB.A[maDiemNhap] = [[], []];
           if (!DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
@@ -243,6 +241,8 @@ function initSystem() {
   const T = d => Math.floor((D(d) - D('2025-12-26')) / (7 * 864e5)) + 1;
   const Q = m => Math.floor((m - 1) / 3) + 1;
   const ngayGoc = D('2026-06-26');
+  const t0 = new Date('2025-12-26T00:00:00+07:00').getTime();
+  const d0 = new Date('2026-06-26T00:00:00+07:00').getTime();
 
   function buildUnitDropdowns() {
     let optHtml = '<option value="">-- Lựa chọn đơn vị --</option>';
@@ -297,34 +297,13 @@ function initSystem() {
       d_vals.push(DB.D && DB.D[ds] ? DB.D[ds] : 0);
       dd.setDate(dd.getDate() + 1);
     }
-    draw_bar($('#c1'), days, d_vals, var_c('--teal'), false);
-
-    let w_lb = [], w_val = [];
-    for (let i = Math.max(1, w - 7); i <= w; i++) {
-      w_lb.push('W' + i);
-      let vw = 0;
-      if (DB.U) DB.U.forEach(x => vw += ((x[4] && x[4][i - 27]) || 0));
-      w_val.push(vw);
-    }
-    draw_bar($('#c2'), w_lb, w_val, var_c('--blue'), false);
-
-    let m_lb = [], m_val = [];
-    for (let i = Math.max(1, m - 5); i <= m; i++) {
-      m_lb.push('T' + i);
-      let vm = 0;
-      if (DB.U) DB.U.forEach(x => vm += ((x[5] && x[5][i - 6]) || 0));
-      m_val.push(vm);
-    }
-    draw_bar($('#c3'), m_lb, m_val, var_c('--orange'), false);
+    draw_bar($('#c1'), days, d_vals, var_c('--teal'));
 
     let s_day = [...u_arr].sort((a, b) => b.dk_d - a.dk_d).slice(0, 10);
-    draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.dk_d), var_c('--teal'), true);
-    
-    let s_week = [...u_arr].sort((a, b) => b.pw - a.pw).slice(0, 10);
-    draw_bar($('#c10_w'), s_week.map(x => cleanName(x.nm)), s_week.map(x => x.pw), var_c('--blue'), true);
+    draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.dk_d), var_c('--teal'));
     
     let s_month = [...u_arr].sort((a, b) => b.pm - a.pm).slice(0, 10);
-    draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.pm), var_c('--gold'), true);
+    draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.pm), var_c('--gold'));
 
     let th = '<tr><th>Mã</th><th>Đơn vị</th><th>ĐK ngày</th><th>KH tuần</th><th>ĐK tuần</th><th>Lượt tuần</th><th>% Tuần</th><th>Lượt tháng</th><th>% Tháng</th></tr>';
     let tb = '<tbody>';
@@ -387,10 +366,18 @@ function initSystem() {
       let st = tt > 0 ? 1 : (dk > 0 ? 2 : 3);
       if (s && st.toString() !== s) return;
 
+      // Tính thống kê tuần đã đăng ký (W...)
+      let weeks = a1.map(idx => {
+          let dTime = d0 + idx * 86400000;
+          return Math.floor((dTime - t0) / (7 * 86400000)) + 1;
+      });
+      let uniqueWeeks = [...new Set(weeks)].sort((a,b)=>a-b);
+      let weekStr = uniqueWeeks.length > 0 ? uniqueWeeks.map(w => 'W'+w).join(', ') : '-';
+
       let kh_d = p === 'Ngày' ? 1 : (p === 'Tuần' ? 1 : Math.round(day_arr.length / 7));
       let kh_dt = kh_d * 5;
       sum[0] += dk; sum[1] += tt; sum[2] += kh_dt; sum[3] += dt; if (dk > 0) sum[4]++;
-      p_arr.push({ id: pid, nm: pnm, ct: pt[2] || 1, dk: dk, tt: tt, kh_d: kh_d, dt: dt, st: st });
+      p_arr.push({ id: pid, nm: pnm, ct: pt[2] || 1, dk: dk, tt: tt, kh_d: kh_d, dt: dt, st: st, weekStr: weekStr });
     });
 
     $('#dcards').innerHTML = `
@@ -400,12 +387,12 @@ function initSystem() {
     `;
     $('#dn').innerText = `Đang hiển thị ${p_arr.length} điểm`;
 
-    let th = `<tr><th>Mã</th><th>Tên điểm</th><th>Chỉ tiêu lượt</th><th>Lượt ĐK</th><th>Lượt PSDT</th><th>Doanh thu</th><th>Trạng thái</th></tr>`;
+    let th = `<tr><th>Mã</th><th>Tên điểm</th><th>Chỉ tiêu lượt</th><th>Lượt ĐK</th><th>Lượt PSDT</th><th>Doanh thu</th><th>Trạng thái</th><th>Tuần đã ĐK</th></tr>`;
     let tb = '<tbody>';
     p_arr.forEach(x => {
       let p_cl = x.st === 1 ? 'p1' : (x.st === 2 ? 'p2' : 'p3');
       let p_tx = x.st === 1 ? 'Có DT' : (x.st === 2 ? 'ĐK, 0 DT' : 'Chưa ĐK');
-      tb += `<tr><td>${x.id}</td><td>${x.nm}</td><td class="n">${x.kh_d}</td><td class="n ${x.dk < x.kh_d ? 'err' : ''}">${x.dk}</td><td class="n ${x.tt < x.dk ? 'err' : 'ok'}">${x.tt}</td><td class="n">${F(x.dt)}</td><td style="text-align:center"><span class="pill ${p_cl}">${p_tx}</span></td></tr>`;
+      tb += `<tr><td>${x.id}</td><td>${x.nm}</td><td class="n">${x.kh_d}</td><td class="n ${x.dk < x.kh_d ? 'err' : ''}">${x.dk}</td><td class="n ${x.tt < x.dk ? 'err' : 'ok'}">${x.tt}</td><td class="n">${F(x.dt)}</td><td style="text-align:center"><span class="pill ${p_cl}">${p_tx}</span></td><td style="text-align:center;font-size:11px;color:var(--navy)">${x.weekStr}</td></tr>`;
     });
     $('#dtb').innerHTML = th + tb;
   }
@@ -419,7 +406,6 @@ function initSystem() {
     window.updateHistoryTable(uid);
   }
 
-  // Khai báo Toàn cục (Global) để update gọi sau khi fetch thành công
   window.updateHistoryTable = function(uid) {
     let tbody = document.getElementById('his_body');
     if (!uid) {
@@ -428,14 +414,11 @@ function initSystem() {
     }
     let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
     let html = '', count = 0;
-    const t0 = new Date('2025-12-26T00:00:00+07:00').getTime();
-    const d0 = new Date('2026-06-26T00:00:00+07:00').getTime();
 
     pts.forEach(p => {
       let act = (DB.A && DB.A[p[0]]) ? DB.A[p[0]][0] : [];
       if (act.length > 0) {
         count++;
-        // Quy đổi ra các Tuần đã đăng ký
         let weeks = act.map(idx => {
             let dTime = d0 + idx * 86400000;
             return Math.floor((dTime - t0) / (7 * 86400000)) + 1;
@@ -443,7 +426,7 @@ function initSystem() {
         let uniqueWeeks = [...new Set(weeks)].sort((a,b)=>a-b);
         let weekStr = uniqueWeeks.map(w => 'W'+w).join(', ');
 
-        html += `<tr><td>${p[0]}</td><td>${p[1]}</td><td><span class="pill p1">Đã ĐK (${act.length} kỳ)</span></td><td>${weekStr}</td></tr>`;
+        html += `<tr><td>${p[0]}</td><td>${p[1]}</td><td><span class="pill p1">Đã ĐK (${act.length} kỳ)</span></td><td><b style="color:var(--navy);font-size:12px">${weekStr}</b></td></tr>`;
       }
     });
     if (count === 0) {
@@ -469,15 +452,27 @@ function initSystem() {
   });
 
   function var_c(n) { return getComputedStyle(document.body).getPropertyValue(n).trim(); }
-  function draw_bar(el, lb, val, col, rotate = false) {
+  
+  // Hàm vẽ SVG thông minh, bẻ chữ làm 2 dòng nếu tên quá dài
+  function draw_bar(el, lb, val, col) {
     let max = Math.max(...val, 1), h = 180, w = el.clientWidth || 320, bW = w / lb.length;
     let p = `<svg viewBox="0 0 ${w} ${h}">`;
     for (let i = 0; i < lb.length; i++) {
       let bh = (val[i] / max) * (h - 45), xMid = i * bW + bW * 0.5;
-      p += `<rect x="${i * bW + bW * 0.15}" y="${h - 30 - bh}" width="${bW * 0.7}" height="${bh}" fill="${col}" rx="3"/>`;
-      if (bh > 12) p += `<text x="${xMid}" y="${h - 35 - bh}" text-anchor="middle" font-size="9" font-weight="bold" fill="${var_c('--ink')}">${val[i]}</text>`;
-      if (rotate) p += `<text transform="translate(${xMid}, ${h - 12}) rotate(-35)" text-anchor="end" font-size="8.5">${lb[i]}</text>`;
-      else p += `<text x="${xMid}" y="${h - 12}" text-anchor="middle" font-size="9">${lb[i]}</text>`;
+      p += `<rect x="${i * bW + bW * 0.15}" y="${h - 35 - bh}" width="${bW * 0.7}" height="${bh}" fill="${col}" rx="3"/>`;
+      if (bh > 12) p += `<text x="${xMid}" y="${h - 40 - bh}" text-anchor="middle" font-size="9" font-weight="bold" fill="${var_c('--ink')}">${val[i]}</text>`;
+      
+      let name = lb[i];
+      let parts = name.split(' ');
+      if (parts.length >= 2) {
+          let mid = Math.ceil(parts.length / 2);
+          let line1 = parts.slice(0, mid).join(' ');
+          let line2 = parts.slice(mid).join(' ');
+          p += `<text x="${xMid}" y="${h - 18}" text-anchor="middle" font-size="9">${line1}</text>`;
+          p += `<text x="${xMid}" y="${h - 5}" text-anchor="middle" font-size="9">${line2}</text>`;
+      } else {
+          p += `<text x="${xMid}" y="${h - 12}" text-anchor="middle" font-size="9">${name}</text>`;
+      }
     }
     el.innerHTML = p + '</svg>';
   }
