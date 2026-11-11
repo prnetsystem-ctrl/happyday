@@ -4,24 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Happy Day 2026 – Tổng hợp lượt ra quân</title>
+<!-- TÍCH HỢP FONT ROBOTO -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 /* BỘ NHẬN DIỆN THƯƠNG HIỆU VIETNAM POST */
 :root {
-  --vp-blue: #004588;   /* Pantone 288C - Xanh dương đậm */
-  --vp-orange: #FBAF17; /* Pantone 130C - Vàng cam */
+  --vp-blue: #004588;   
+  --vp-orange: #FBAF17; 
   --vp-dark: #333333;
   --bg: #f4f6fa;
   --ink: #222222;
   --mut: #6b7280;
   --card: #ffffff;
   --line: #e3e7ee;
-  /* Bảng màu thẻ Dashboard theo ảnh đính kèm */
-  --card-bg-dark: #20242D;
-  --card-text-light: #B4B9C2;
-  --card-blue: #4B6EAF;
-  --card-teal: #2F7C73;
-  --card-orange: #CC651C;
-  --card-border: #3A404D;
 }
 @media(prefers-color-scheme: dark) {
   :root {
@@ -31,16 +28,16 @@
 }
 * { box-sizing: border-box; }
 
-/* FONT CHỮ ARIAL TRUYỀN THỐNG */
+/* SỬ DỤNG FONT ROBOTO CHO TOÀN BỘ WEBSITE */
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', Arial, sans-serif;
   background: var(--bg);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
 }
 
-/* HEADER VỚI LOGO */
+/* HEADER VỚI LOGO TÙY CHỈNH */
 header {
   background: var(--card);
   border-bottom: 3px solid var(--vp-blue);
@@ -56,9 +53,10 @@ header {
   align-items: center;
   gap: 15px;
 }
-.brand svg {
-  height: 40px;
+.brand img {
+  height: 45px; /* Chiều cao cố định, tự động scale width (auto resize) */
   width: auto;
+  object-fit: contain;
 }
 .header-titles {
   display: flex;
@@ -78,86 +76,41 @@ header {
 
 /* NAV VÀ TABS */
 nav {
-  display: flex;
-  gap: 4px;
-  padding: 15px 22px 0;
-  background: var(--vp-blue);
+  display: flex; gap: 4px; padding: 15px 22px 0; background: var(--vp-blue);
 }
 nav button {
-  border: 0;
-  padding: 10px 20px;
-  border-radius: 8px 8px 0 0;
-  background: rgba(255,255,255,0.2);
-  color: #fff;
-  cursor: pointer;
-  font-weight: 700;
-  font-family: inherit;
-  font-size: 14px;
-  transition: all 0.2s;
+  border: 0; padding: 10px 20px; border-radius: 8px 8px 0 0; background: rgba(255,255,255,0.2);
+  color: #fff; cursor: pointer; font-weight: 700; font-family: inherit; font-size: 14px; transition: all 0.2s;
 }
 nav button:hover { background: rgba(255,255,255,0.4); }
-nav button.on {
-  background: var(--bg);
-  color: var(--vp-blue);
-  border-top: 3px solid var(--vp-orange);
-}
+nav button.on { background: var(--bg); color: var(--vp-blue); border-top: 3px solid var(--vp-orange); }
 
 main { padding: 0 22px 30px; margin-top: 15px; }
-.pane { display: none; }
-.pane.on { display: block; }
-.ctl {
-  display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 14px;
-}
+.pane { display: none; } .pane.on { display: block; }
+.ctl { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
 input, select, button.act {
   font-family: inherit; padding: 7px 10px; border: 1px solid var(--line);
   border-radius: 6px; background: var(--card); color: var(--ink);
 }
-input.in, select.in {
-  background: #FFF2CC; color: var(--vp-blue); border-color: var(--vp-orange); font-weight: 700;
-}
+input.in, select.in { background: #FFF2CC; color: var(--vp-blue); border-color: var(--vp-orange); font-weight: 700; }
 button.act { background: var(--vp-blue); color: #fff; border: 0; cursor: pointer; font-weight:bold; }
 button.act:hover { background: #003366; }
 button.excel { background: #0f9d58; color: #fff; border: 0; cursor: pointer; padding: 7px 12px; border-radius: 6px; font-weight: bold; font-family: inherit;}
 button.excel:hover { background: #0b8043; }
 
-/* THẺ HIỂN THỊ (CARDS) TRÊN DASHBOARD (DARK MODE) */
+/* THẺ HIỂN THỊ (CARDS) TRÊN DASHBOARD (Đồng bộ nền sáng) */
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 20px; }
-.card-dark {
-  background: var(--card-bg-dark);
-  border: 1px solid var(--card-border);
-  border-top: 5px solid var(--c);
-  border-radius: 6px;
-  padding: 16px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  color: #fff;
+.card {
+  background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
+  border-radius: 8px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
-.card-dark h3 { 
-  margin: 0 0 8px 0; 
-  font-size: 13px; 
-  color: var(--card-text-light); 
-  text-transform: uppercase; 
-  font-weight: 600;
-}
-.card-dark b { 
-  font-size: 34px; 
-  color: var(--c); 
-  display: block; 
-  margin-bottom: 10px; 
-}
-.card-dark .stat-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 13px;
-  color: var(--card-text-light);
-}
-.card-dark .stat-row span {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.trend-down { color: #E74C3C; }
-.trend-up { color: #2ECC71; }
+.card h3 { margin: 0 0 8px 0; font-size: 12px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700;}
+.card b { font-size: 32px; color: var(--c); display: block; margin-bottom: 8px; }
+.card .dt-hl { color: var(--vp-orange); font-size: 20px; font-weight: 700; }
+.card .stat-row { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--mut); }
+.card .stat-row span { display: flex; align-items: center; gap: 4px; }
+.trend-down { color: #E74C3C; font-weight: bold;}
+.trend-up { color: #2ECC71; font-weight: bold;}
 
 /* BỐ CỤC KHỐI (BOX) */
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 16px; }
@@ -174,7 +127,7 @@ td { padding: 8px; border-bottom: 1px solid var(--line); }
 td.n { text-align: right; }
 .bar { height: 8px; border-radius: 4px; background: var(--vp-blue); min-width: 1px; }
 .ok { color: #00803C; font-weight: 700; } .err { color: #C00000; font-weight: 700; }
-.note { color: var(--mut); font-size: 12px; }
+.note { color: var(--mut); font-size: 13px; }
 .wrap { max-height: 450px; overflow: auto; }
 .wrap th { position: sticky; top: 0; z-index: 1; }
 th[data-k] { cursor: pointer; user-select: none; }
@@ -203,28 +156,9 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 <body>
 <header>
   <div class="brand">
-    <svg viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
-      <g transform="translate(0, 15)">
-        <polygon fill="#FBAF17" points="108.9,2.8 178.6,2.8 165.7,11.2 96,11.2"/>
-        <polygon fill="#FBAF17" points="98.3,16.8 168.1,16.8 155.1,25.2 85.5,25.2"/>
-        <polygon fill="#FBAF17" points="87.8,30.8 157.5,30.8 144.6,39.2 74.9,39.2"/>
-        <polygon fill="#FBAF17" points="77.2,44.8 147,44.8 134,53.2 64.4,53.2"/>
-        <path fill="#FBAF17" d="M123.5,67.2H61.6l-13.6-18.4L20,29.3L2,41.2l39,36.5l20.5,0h62L123.5,67.2z M58.5,56l-10.9-15l-19,12.7l9.4,8.8L58.5,56z"/>
-      </g>
-      <g fill="#004588" transform="translate(2, 105) scale(1.1)">
-        <path d="M0,0h4.5l6,14.5L16.5,0H21l-8.5,20H8L0,0z"/>
-        <path d="M25,0h4v20h-4V0z"/>
-        <path d="M33,0h14v3.5H37V8h8.5v3.5H37V16.5h10V20H33V0z"/>
-        <path d="M51,3.5h-5.5V0h15v3.5H55V20h-4V3.5z"/>
-        <path d="M64,0h4.5l9,14.5V0h4v20h-4.5L68,5.5V20h-4V0z"/>
-        <path d="M96.5,16.5l-2.5-6H85.5l-2.5,6H79l8.5-20h5l8.5,20H96.5z M91,7L87,16h4L91,7z"/>
-        <path d="M103,0h5.5l5.5,13.5L119.5,0h5.5v20h-4V5.5l-6,14.5h-2l-6-14.5V20h-4V0z"/>
-        <path d="M138,0h9.5c5.5,0,8.5,3,8.5,7.5c0,4.5-3,7.5-8.5,7.5h-5.5V20H138V0z M147,11.5c3,0,4.5-1.5,4.5-4c0-2.5-1.5-4-4.5-4h-5v8H147z"/>
-        <path d="M159,10c0-6,4-10.5,10.5-10.5S180,4,180,10c0,6-4,10.5-10.5,10.5S159,16,159,10z M176,10c0-4-2.5-7-6.5-7s-6.5,3-6.5,7s2.5,7,6.5,7S176,14,176,10z"/>
-        <path d="M184,15.5l3-2.5c2.5,2,5.5,3.5,8.5,3.5c2.5,0,4-1,4-2.5c0-1.5-1.5-2-5-3c-5-1-8.5-3-8.5-7.5c0-4.5,4-7.5,9-7.5c4,0,7.5,1.5,10,4l-3,3c-2-1.5-4.5-3-7-3c-2.5,0-4,1-4,2.5c0,1.5,1.5,2,5.5,3c4.5,1,8,3,8,7.5c0,4.5-4,7.5-9.5,7.5C189.5,20.5,186,18.5,184,15.5z"/>
-        <path d="M211,3.5h-5.5V0h15v3.5H215V20h-4V3.5z"/>
-      </g>
-    </svg>
+    <!-- LINK ẢNH LOGO (AUTO RESIZE) -->
+    <!-- BẠN DÁN LINK ẢNH LOGO CỦA BẠN VÀO THUỘC TÍNH SRC DƯỚI ĐÂY -->
+    <img src="https://i.ibb.co/3sX8M8L/logo-nhan-dien.png" alt="Vietnam Post Logo" id="brand-logo">
     <div class="header-titles">
       <h1>Tổng hợp lượt ra quân đăng ký</h1>
       <small>Hệ thống đăng ký lịch ra quân bán hàng PPBL trực tuyến</small>
@@ -243,7 +177,7 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 <main style="display:none;" id="main-content">
 <div class="ctl" id="gbar">
   <label><b>Ngày báo cáo ▶</b> <input class="in" type="date" id="nbc" min="2026-01-01" max="2026-12-31"></label>
-  <span id="rng" class="note"></span>
+  <span id="rng" class="note" style="font-weight: 500; font-size: 14px;"></span>
 </div>
 
 <!-- 1. DASHBOARD -->
@@ -314,6 +248,7 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 </main>
 
 <script>
+// CẬP NHẬT LINK WEB APP MỚI NHẤT
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzN8OHHO5NJiifPE96V1Zvq2CWEkdwaV5h7PLD-xab21jRnaERMXjWGlrA-quLbvxK3/exec";
 let DB = { U: [], D: {}, P: {}, S: [], A: {} };
 
@@ -540,19 +475,49 @@ function initSystem() {
   function render_db() {
     let d_str = nbc.value, d = D(d_str), w = T(d_str), m = d.getMonth() + 1, q = Q(m);
     let dy_idx = Math.floor((d - ngayGoc) / 864e5);
-    $('#rng').innerText = `Tuần ${w} (Tháng ${m} - Quý ${q})`;
+    
+    // TÍNH TOÁN CHI TIẾT NGÀY THÁNG ĐỂ HIỂN THỊ CẠNH Ô CHỌN NGÀY
+    let w_startDate = new Date(t0 + (w - 1) * 7 * 864e5);
+    let w_endDate = new Date(w_startDate.getTime() + 6 * 864e5);
+    let fmtD = (dt) => `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}`;
+    let yearStr = w_endDate.getFullYear();
+    $('#rng').innerText = `Tuần ${w} : ${fmtD(w_startDate)} – ${fmtD(w_endDate)}/${yearStr} · Tháng ${m} · Quý ${q}`;
+    
     $('#title_tb_50').innerText = `Bảng tổng hợp 50 đơn vị trong tháng ${m}`;
 
     let sum = [0, 0, 0, 0, 0, 0, 0, 0], u_arr = [];
     
+    // TÍNH DOANH THU THỰC TẾ CÁC KỲ
     let s_w_d = (w - 27) * 7;
     let e_w_d = s_w_d + 6;
-    let firstDay = new Date(d.getFullYear(), m - 1, 1);
-    let lastDay = new Date(d.getFullYear(), m, 0);
-    let s_m_d = Math.floor((firstDay - ngayGoc) / 864e5);
-    let e_m_d = Math.floor((lastDay - ngayGoc) / 864e5);
+    let firstDayM = new Date(d.getFullYear(), m - 1, 1);
+    let lastDayM = new Date(d.getFullYear(), m, 0);
+    let s_m_d = Math.floor((firstDayM - ngayGoc) / 864e5);
+    let e_m_d = Math.floor((lastDayM - ngayGoc) / 864e5);
     
-    // Giả lập dữ liệu kỳ trước cho mục đích minh họa
+    let sm = (q - 1) * 3;
+    let firstDayQ = new Date(d.getFullYear(), sm, 1);
+    let lastDayQ = new Date(d.getFullYear(), sm + 3, 0);
+    let s_q_d = Math.floor((firstDayQ - ngayGoc) / 864e5);
+    let e_q_d = Math.floor((lastDayQ - ngayGoc) / 864e5);
+
+    let dt_d_sum = 0, dt_w_sum = 0, dt_m_sum = 0, dt_q_sum = 0;
+
+    if (DB.A) {
+        Object.keys(DB.A).forEach(key => {
+            let revArr = DB.A[key][1] || [];
+            for(let i=0; i<revArr.length; i+=2) {
+                let dy = revArr[i];
+                let rev = revArr[i+1];
+                if(dy === dy_idx) dt_d_sum += rev;
+                if(dy >= s_w_d && dy <= e_w_d) dt_w_sum += rev;
+                if(dy >= s_m_d && dy <= e_m_d) dt_m_sum += rev;
+                if(dy >= s_q_d && dy <= e_q_d) dt_q_sum += rev;
+            }
+        });
+    }
+
+    // Giả lập dữ liệu kỳ trước 
     let prev_d_sum = 0, prev_w_sum = 0, prev_m_sum = 0, prev_q_sum = 0;
     let luot_d = 0, luot_w = 0, luot_m = 0, luot_q = 0;
     let u_d_count = 0, u_w_count = 0, u_m_count = 0, u_q_count = 0;
@@ -574,7 +539,7 @@ function initSystem() {
                 if(act.includes(s_d+i)) { dk_w++; has_w = true; }
             }
             if(ps_m > 0) has_m = true;
-            if(ps_m > 0) has_q = true; // Giản lược cho Quý
+            if(ps_m > 0) has_q = true; 
         });
 
         if(has_d) u_d_count++;
@@ -585,7 +550,7 @@ function initSystem() {
         luot_d += dk_d;
         luot_w += ps_w + dk_w; 
         luot_m += ps_m;
-        luot_q += ps_m * 2.5; // Giản lược cho Quý
+        luot_q += ps_m * 2.5; 
         
         prev_d_sum += (dk_d > 0 ? dk_d - 1 : 0);
         prev_w_sum += (ps_w > 0 ? ps_w - 5 : 0);
@@ -598,20 +563,19 @@ function initSystem() {
       });
     }
 
-    // Bố cục lại 4 thẻ Dashboard theo Dark Theme Image[cite: 212]
     $('#cards').innerHTML = `
-      <div class="card-dark" style="--c: var(--card-blue);">
-        <h3>LƯỢT RA QUÂN – NGÀY ${d.getDate().toString().padStart(2, '0')}/${(d.getMonth()+1).toString().padStart(2, '0')}/${d.getFullYear()}</h3>
-        <b>${F(luot_d)}</b>
+      <div class="card" style="--c: var(--vp-blue);">
+        <h3>LƯỢT RA QUÂN – NGÀY ${String(d.getDate()).padStart(2, '0')}/${String(m).padStart(2, '0')}/${d.getFullYear()}</h3>
+        <b>${F(luot_d)} <span class="dt-hl">(${F(Math.round(dt_d_sum/1e6))} Tr)</span></b>
         <div class="stat-row">
             ${getTrendHtml(luot_d, prev_d_sum)}
             <span>Lượt / điểm bán: ${(luot_d / tongDiemBan).toFixed(2)}</span>
         </div>
       </div>
       
-      <div class="card-dark" style="--c: var(--card-blue);">
+      <div class="card" style="--c: var(--vp-blue);">
         <h3>LƯỢT RA QUÂN – TUẦN W${w}</h3>
-        <b>${F(luot_w)}</b>
+        <b>${F(luot_w)} <span class="dt-hl">(${F(Math.round(dt_w_sum/1e6))} Tr)</span></b>
         <div class="stat-row">
             ${getTrendHtml(luot_w, prev_w_sum)}
             <span>Đơn vị có ra quân: ${u_w_count}/50</span>
@@ -619,9 +583,9 @@ function initSystem() {
         </div>
       </div>
 
-      <div class="card-dark" style="--c: var(--card-teal);">
+      <div class="card" style="--c: var(--vp-orange);">
         <h3>LƯỢT RA QUÂN – THÁNG ${m}/${d.getFullYear()}</h3>
-        <b>${F(luot_m)}</b>
+        <b>${F(luot_m)} <span class="dt-hl">(${F(Math.round(dt_m_sum/1e6))} Tr)</span></b>
         <div class="stat-row">
             ${getTrendHtml(luot_m, prev_m_sum)}
             <span>Đơn vị có ra quân: ${u_m_count}/50</span>
@@ -629,9 +593,9 @@ function initSystem() {
         </div>
       </div>
 
-      <div class="card-dark" style="--c: var(--card-orange);">
+      <div class="card" style="--c: var(--vp-orange);">
         <h3>LƯỢT RA QUÂN – QUÝ ${q}/${d.getFullYear()}</h3>
-        <b>${F(luot_q)}</b>
+        <b>${F(luot_q)} <span class="dt-hl">(${F(Math.round(dt_q_sum/1e6))} Tr)</span></b>
         <div class="stat-row">
             ${getTrendHtml(luot_q, prev_q_sum)}
             <span>Đơn vị có ra quân: ${u_q_count}/50</span>
@@ -648,18 +612,18 @@ function initSystem() {
       d_vals.push(DB.D && DB.D[ds] ? DB.D[ds] : 0);
       dd.setDate(dd.getDate() + 1);
     }
-    draw_bar($('#c1'), days, d_vals, var_c('--card-teal'));
+    draw_bar($('#c1'), days, d_vals, var_c('--vp-blue'));
 
     let s_day = [...u_arr].sort((a, b) => b.dk_d - a.dk_d).slice(0, 10);
-    draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.dk_d), var_c('--card-blue'));
+    draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.dk_d), var_c('--vp-blue'));
     
     let s_month = [...u_arr].sort((a, b) => b.pm - a.pm).slice(0, 10);
-    draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.pm), var_c('--card-orange'));
+    draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.pm), var_c('--vp-orange'));
 
     let th = '<tr><th>Mã</th><th>Đơn vị</th><th>ĐK ngày</th><th>KH tuần</th><th>ĐK tuần</th><th>Lượt tuần</th><th>% Tuần</th><th>Lượt tháng</th><th>% Tháng</th></tr>';
     let tb = '<tbody>';
     u_arr.sort((a, b) => b.pw - a.pw).forEach(x => {
-      tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n ${x.dk_d<1?'err':'ok'}">${F(x.dk_d)}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%; background:var(--card-blue)"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--card-orange)"></div>${x.pm}%</td></tr>`;
+      tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n ${x.dk_d<1?'err':'ok'}">${F(x.dk_d)}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%; background:var(--vp-blue)"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--vp-orange)"></div>${x.pm}%</td></tr>`;
     });
     tb += `<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">${F(sum[7])}</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[3], sum[0])}%</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[4], sum[5])}%</td></tr></tbody>`;
     $('#tb').innerHTML = th + tb;
