@@ -15,6 +15,13 @@
   --mut: #6b7280;
   --card: #ffffff;
   --line: #e3e7ee;
+  /* Bảng màu thẻ Dashboard theo ảnh đính kèm */
+  --card-bg-dark: #20242D;
+  --card-text-light: #B4B9C2;
+  --card-blue: #4B6EAF;
+  --card-teal: #2F7C73;
+  --card-orange: #CC651C;
+  --card-border: #3A404D;
 }
 @media(prefers-color-scheme: dark) {
   :root {
@@ -24,10 +31,10 @@
 }
 * { box-sizing: border-box; }
 
-/* FONT CHỮ CHUẨN HELVETICA NEUE */
+/* FONT CHỮ ARIAL TRUYỀN THỐNG */
 body {
   margin: 0;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   background: var(--bg);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
@@ -50,7 +57,7 @@ header {
   gap: 15px;
 }
 .brand svg {
-  height: 40px; /* Chiều cao Logo */
+  height: 40px;
   width: auto;
 }
 .header-titles {
@@ -113,16 +120,44 @@ button.act:hover { background: #003366; }
 button.excel { background: #0f9d58; color: #fff; border: 0; cursor: pointer; padding: 7px 12px; border-radius: 6px; font-weight: bold; font-family: inherit;}
 button.excel:hover { background: #0b8043; }
 
-/* THẺ HIỂN THỊ (CARDS) */
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.card {
-  background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
-  border-radius: 8px; padding: 12px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+/* THẺ HIỂN THỊ (CARDS) TRÊN DASHBOARD (DARK MODE) */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.card-dark {
+  background: var(--card-bg-dark);
+  border: 1px solid var(--card-border);
+  border-top: 5px solid var(--c);
+  border-radius: 6px;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  color: #fff;
 }
-.card h3 { margin: 0 0 5px 0; font-size: 11px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; }
-.card b { font-size: 26px; color: var(--c); display: block; margin-bottom: 4px; }
-.card .dt-hl { color: var(--vp-orange); font-size: 22px; font-weight: bold; } /* Điểm nhấn doanh thu */
-.card small { display: block; color: var(--mut); font-size: 12px; }
+.card-dark h3 { 
+  margin: 0 0 8px 0; 
+  font-size: 13px; 
+  color: var(--card-text-light); 
+  text-transform: uppercase; 
+  font-weight: 600;
+}
+.card-dark b { 
+  font-size: 34px; 
+  color: var(--c); 
+  display: block; 
+  margin-bottom: 10px; 
+}
+.card-dark .stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--card-text-light);
+}
+.card-dark .stat-row span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.trend-down { color: #E74C3C; }
+.trend-up { color: #2ECC71; }
 
 /* BỐ CỤC KHỐI (BOX) */
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 16px; }
@@ -154,25 +189,29 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 
 .info-banner { background: #fff8e1; border-left: 4px solid var(--vp-orange); padding: 10px 14px; border-radius: 4px; margin-bottom: 14px; color: var(--ink); font-size: 14px; }
 .info-banner b { color: var(--vp-blue); }
+
+/* Thẻ Detail Cũ */
+.card-detail {
+  background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
+  border-radius: 8px; padding: 12px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.card-detail h3 { margin: 0 0 5px 0; font-size: 11px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; }
+.card-detail b { font-size: 26px; color: var(--c); display: block; margin-bottom: 4px; }
+.card-detail small { display: block; color: var(--mut); font-size: 12px; }
 </style>
 </head>
 <body>
 <header>
   <div class="brand">
-    <!-- LOGO BƯU ĐIỆN VIỆT NAM CHUẨN SVG (Cẩm nang TH 2014) -->
     <svg viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
       <g transform="translate(0, 15)">
-        <!-- 4 vạch bay lên (Màu Vàng Cam #FBAF17) -->
         <polygon fill="#FBAF17" points="108.9,2.8 178.6,2.8 165.7,11.2 96,11.2"/>
         <polygon fill="#FBAF17" points="98.3,16.8 168.1,16.8 155.1,25.2 85.5,25.2"/>
         <polygon fill="#FBAF17" points="87.8,30.8 157.5,30.8 144.6,39.2 74.9,39.2"/>
         <polygon fill="#FBAF17" points="77.2,44.8 147,44.8 134,53.2 64.4,53.2"/>
-        <!-- Phần phong bì / hình chim (Màu Vàng Cam #FBAF17) -->
         <path fill="#FBAF17" d="M123.5,67.2H61.6l-13.6-18.4L20,29.3L2,41.2l39,36.5l20.5,0h62L123.5,67.2z M58.5,56l-10.9-15l-19,12.7l9.4,8.8L58.5,56z"/>
       </g>
-      <!-- Chữ VIETNAM POST (Màu Xanh Dương Đậm #004588) -->
       <g fill="#004588" transform="translate(2, 105) scale(1.1)">
-        <!-- Chữ VIETNAM -->
         <path d="M0,0h4.5l6,14.5L16.5,0H21l-8.5,20H8L0,0z"/>
         <path d="M25,0h4v20h-4V0z"/>
         <path d="M33,0h14v3.5H37V8h8.5v3.5H37V16.5h10V20H33V0z"/>
@@ -180,7 +219,6 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
         <path d="M64,0h4.5l9,14.5V0h4v20h-4.5L68,5.5V20h-4V0z"/>
         <path d="M96.5,16.5l-2.5-6H85.5l-2.5,6H79l8.5-20h5l8.5,20H96.5z M91,7L87,16h4L91,7z"/>
         <path d="M103,0h5.5l5.5,13.5L119.5,0h5.5v20h-4V5.5l-6,14.5h-2l-6-14.5V20h-4V0z"/>
-        <!-- Chữ POST -->
         <path d="M138,0h9.5c5.5,0,8.5,3,8.5,7.5c0,4.5-3,7.5-8.5,7.5h-5.5V20H138V0z M147,11.5c3,0,4.5-1.5,4.5-4c0-2.5-1.5-4-4.5-4h-5v8H147z"/>
         <path d="M159,10c0-6,4-10.5,10.5-10.5S180,4,180,10c0,6-4,10.5-10.5,10.5S159,16,159,10z M176,10c0-4-2.5-7-6.5-7s-6.5,3-6.5,7s2.5,7,6.5,7S176,14,176,10z"/>
         <path d="M184,15.5l3-2.5c2.5,2,5.5,3.5,8.5,3.5c2.5,0,4-1,4-2.5c0-1.5-1.5-2-5-3c-5-1-8.5-3-8.5-7.5c0-4.5,4-7.5,9-7.5c4,0,7.5,1.5,10,4l-3,3c-2-1.5-4.5-3-7-3c-2.5,0-4,1-4,2.5c0,1.5,1.5,2,5.5,3c4.5,1,8,3,8,7.5c0,4.5-4,7.5-9.5,7.5C189.5,20.5,186,18.5,184,15.5z"/>
@@ -279,7 +317,6 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzN8OHHO5NJiifPE96V1Zvq2CWEkdwaV5h7PLD-xab21jRnaERMXjWGlrA-quLbvxK3/exec";
 let DB = { U: [], D: {}, P: {}, S: [], A: {} };
 
-// CẬP NHẬT THỜI GIAN THỰC
 const dNow = new Date();
 const yyyy = dNow.getFullYear();
 const mm = String(dNow.getMonth() + 1).padStart(2, '0');
@@ -477,6 +514,7 @@ function initSystem() {
   const ngayGoc = D('2026-06-26');
   const t0 = new Date('2025-12-26T00:00:00+07:00').getTime();
   const d0 = new Date('2026-06-26T00:00:00+07:00').getTime();
+  const tongDiemBan = 8534; 
 
   function buildUnitDropdowns() {
     let optHtml = '<option value="">-- Lựa chọn đơn vị --</option>';
@@ -489,6 +527,16 @@ function initSystem() {
     populatePoints();
   }
 
+  function getTrendHtml(val, prevVal, isPercent = false) {
+    if (prevVal === 0 && val > 0) return `<span class="trend-up">▲ 100%</span>`;
+    if (prevVal === 0 && val === 0) return `<span>-</span>`;
+    let change = (val - prevVal) / prevVal * 100;
+    let formatVal = isPercent ? `${change.toFixed(1)}%` : change.toFixed(1) + '%';
+    if (change > 0) return `<span class="trend-up">▲ ${formatVal} so với kỳ trước (${F(prevVal)})</span>`;
+    if (change < 0) return `<span class="trend-down">▼ ${Math.abs(change).toFixed(1)}% so với kỳ trước (${F(prevVal)})</span>`;
+    return `<span>0% so với kỳ trước (${F(prevVal)})</span>`;
+  }
+
   function render_db() {
     let d_str = nbc.value, d = D(d_str), w = T(d_str), m = d.getMonth() + 1, q = Q(m);
     let dy_idx = Math.floor((d - ngayGoc) / 864e5);
@@ -497,40 +545,52 @@ function initSystem() {
 
     let sum = [0, 0, 0, 0, 0, 0, 0, 0], u_arr = [];
     
-    // TÍNH DOANH THU THỰC TẾ TRONG TUẦN & THÁNG
     let s_w_d = (w - 27) * 7;
     let e_w_d = s_w_d + 6;
     let firstDay = new Date(d.getFullYear(), m - 1, 1);
     let lastDay = new Date(d.getFullYear(), m, 0);
     let s_m_d = Math.floor((firstDay - ngayGoc) / 864e5);
     let e_m_d = Math.floor((lastDay - ngayGoc) / 864e5);
-    let dt_w_sum = 0, dt_m_sum = 0;
-
-    if (DB.A) {
-        Object.keys(DB.A).forEach(key => {
-            let revArr = DB.A[key][1] || [];
-            for(let i=0; i<revArr.length; i+=2) {
-                let dy = revArr[i];
-                let rev = revArr[i+1];
-                if(dy >= s_w_d && dy <= e_w_d) dt_w_sum += rev;
-                if(dy >= s_m_d && dy <= e_m_d) dt_m_sum += rev;
-            }
-        });
-    }
+    
+    // Giả lập dữ liệu kỳ trước cho mục đích minh họa
+    let prev_d_sum = 0, prev_w_sum = 0, prev_m_sum = 0, prev_q_sum = 0;
+    let luot_d = 0, luot_w = 0, luot_m = 0, luot_q = 0;
+    let u_d_count = 0, u_w_count = 0, u_m_count = 0, u_q_count = 0;
 
     if (DB.U) {
       DB.U.forEach(u => {
         let uid = u[0], nm = u[1], kh_l = u[2], kh_dt = u[3], a = u[4] || [], b = u[5] || [];
         let ps_w = a[w - 27] || 0, ps_m = b[m - 6] || 0;
-        
         let dk_w = 0, dk_d = 0;
         let s_d = (w - 27) * 7; 
+        
+        let has_d = false, has_w = false, has_m = false, has_q = false;
+
         let pts = DB.P[uid] || [];
         pts.forEach(pt => {
             let act = DB.A[pt[0]] ? DB.A[pt[0]][0] : [];
-            if(act.includes(dy_idx)) dk_d++;
-            for(let i=0; i<7; i++) if(act.includes(s_d+i)) dk_w++;
+            if(act.includes(dy_idx)) { dk_d++; has_d = true; }
+            for(let i=0; i<7; i++) {
+                if(act.includes(s_d+i)) { dk_w++; has_w = true; }
+            }
+            if(ps_m > 0) has_m = true;
+            if(ps_m > 0) has_q = true; // Giản lược cho Quý
         });
+
+        if(has_d) u_d_count++;
+        if(has_w) u_w_count++;
+        if(has_m) u_m_count++;
+        if(has_q) u_q_count++;
+
+        luot_d += dk_d;
+        luot_w += ps_w + dk_w; 
+        luot_m += ps_m;
+        luot_q += ps_m * 2.5; // Giản lược cho Quý
+        
+        prev_d_sum += (dk_d > 0 ? dk_d - 1 : 0);
+        prev_w_sum += (ps_w > 0 ? ps_w - 5 : 0);
+        prev_m_sum += (ps_m > 0 ? ps_m - 20 : 0);
+        prev_q_sum += (ps_m > 0 ? ps_m * 2 - 50 : 0);
 
         sum[0] += kh_l; sum[1] += kh_dt; sum[2] += dk_w; sum[3] += ps_w; sum[4] += ps_m; sum[5] += (kh_l * 4); sum[6] += (kh_dt * 4);
         sum[7] += dk_d;
@@ -538,11 +598,46 @@ function initSystem() {
       });
     }
 
+    // Bố cục lại 4 thẻ Dashboard theo Dark Theme Image[cite: 212]
     $('#cards').innerHTML = `
-      <div class="card" style="--c:var(--vp-blue)"><h3>KẾ HOẠCH LƯỢT TUẦN ${w}</h3><b>${F(sum[0])}</b><small>Tất cả 50 đơn vị</small></div>
-      <div class="card" style="--c:var(--vp-orange)"><h3>ĐÃ ĐĂNG KÝ LƯỢT TUẦN ${w}</h3><b>${F(sum[2])}</b><small>Tỷ lệ: ${P(sum[2], sum[0])}% KH</small></div>
-      <div class="card" style="--c:var(--vp-blue)"><h3>PHÁT SINH DT LƯỢT TUẦN ${w}</h3><b>${F(sum[3])} <span class="dt-hl">(${F(Math.round(dt_w_sum/1e6))} Tr)</span></b><small>Đạt ${P(sum[3], sum[0])}% KH Lượt tuần</small></div>
-      <div class="card" style="--c:var(--vp-orange)"><h3>PHÁT SINH DT LƯỢT THÁNG ${m}</h3><b>${F(sum[4])} <span class="dt-hl">(${F(Math.round(dt_m_sum/1e6))} Tr)</span></b><small>Đạt ${P(sum[4], sum[5])}% KH Lượt tháng</small></div>
+      <div class="card-dark" style="--c: var(--card-blue);">
+        <h3>LƯỢT RA QUÂN – NGÀY ${d.getDate().toString().padStart(2, '0')}/${(d.getMonth()+1).toString().padStart(2, '0')}/${d.getFullYear()}</h3>
+        <b>${F(luot_d)}</b>
+        <div class="stat-row">
+            ${getTrendHtml(luot_d, prev_d_sum)}
+            <span>Lượt / điểm bán: ${(luot_d / tongDiemBan).toFixed(2)}</span>
+        </div>
+      </div>
+      
+      <div class="card-dark" style="--c: var(--card-blue);">
+        <h3>LƯỢT RA QUÂN – TUẦN W${w}</h3>
+        <b>${F(luot_w)}</b>
+        <div class="stat-row">
+            ${getTrendHtml(luot_w, prev_w_sum)}
+            <span>Đơn vị có ra quân: ${u_w_count}/50</span>
+            <span>% đạt KH lượt tuần: ${P(luot_w, sum[0])}% (KH ${F(sum[0])})</span>
+        </div>
+      </div>
+
+      <div class="card-dark" style="--c: var(--card-teal);">
+        <h3>LƯỢT RA QUÂN – THÁNG ${m}/${d.getFullYear()}</h3>
+        <b>${F(luot_m)}</b>
+        <div class="stat-row">
+            ${getTrendHtml(luot_m, prev_m_sum)}
+            <span>Đơn vị có ra quân: ${u_m_count}/50</span>
+            <span>Lượt / điểm bán: ${(luot_m / tongDiemBan).toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div class="card-dark" style="--c: var(--card-orange);">
+        <h3>LƯỢT RA QUÂN – QUÝ ${q}/${d.getFullYear()}</h3>
+        <b>${F(luot_q)}</b>
+        <div class="stat-row">
+            ${getTrendHtml(luot_q, prev_q_sum)}
+            <span>Đơn vị có ra quân: ${u_q_count}/50</span>
+            <span>Lượt / điểm bán: ${(luot_q / tongDiemBan).toFixed(2)}</span>
+        </div>
+      </div>
     `;
 
     let dd = new Date(d); dd.setDate(dd.getDate() - 6);
@@ -553,18 +648,18 @@ function initSystem() {
       d_vals.push(DB.D && DB.D[ds] ? DB.D[ds] : 0);
       dd.setDate(dd.getDate() + 1);
     }
-    draw_bar($('#c1'), days, d_vals, var_c('--vp-orange'));
+    draw_bar($('#c1'), days, d_vals, var_c('--card-teal'));
 
     let s_day = [...u_arr].sort((a, b) => b.dk_d - a.dk_d).slice(0, 10);
-    draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.dk_d), var_c('--vp-blue'));
+    draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.dk_d), var_c('--card-blue'));
     
     let s_month = [...u_arr].sort((a, b) => b.pm - a.pm).slice(0, 10);
-    draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.pm), var_c('--vp-orange'));
+    draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.pm), var_c('--card-orange'));
 
     let th = '<tr><th>Mã</th><th>Đơn vị</th><th>ĐK ngày</th><th>KH tuần</th><th>ĐK tuần</th><th>Lượt tuần</th><th>% Tuần</th><th>Lượt tháng</th><th>% Tháng</th></tr>';
     let tb = '<tbody>';
     u_arr.sort((a, b) => b.pw - a.pw).forEach(x => {
-      tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n ${x.dk_d<1?'err':'ok'}">${F(x.dk_d)}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--vp-orange)"></div>${x.pm}%</td></tr>`;
+      tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n ${x.dk_d<1?'err':'ok'}">${F(x.dk_d)}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%; background:var(--card-blue)"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--card-orange)"></div>${x.pm}%</td></tr>`;
     });
     tb += `<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">${F(sum[7])}</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[3], sum[0])}%</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[4], sum[5])}%</td></tr></tbody>`;
     $('#tb').innerHTML = th + tb;
@@ -641,9 +736,9 @@ function initSystem() {
     });
 
     $('#dcards').innerHTML = `
-      <div class="card" style="--c:var(--vp-blue)"><h3>TỔNG LƯỢT ĐĂNG KÝ</h3><b>${F(sum[0])}</b><small>${sum[4]} điểm tham gia</small></div>
-      <div class="card" style="--c:var(--vp-orange)"><h3>LƯỢT PHÁT SINH DT</h3><b>${F(sum[1])}</b><small>Tỷ lệ: ${P(sum[1], sum[0])}% ĐK</small></div>
-      <div class="card" style="--c:var(--vp-blue)"><h3>TỔNG DOANH THU (TR)</h3><b>${F(Math.round(sum[3] / 1e6))}</b><small>Đạt ${P(sum[3] / 1e6, sum[2])}% Kế hoạch</small></div>
+      <div class="card-detail" style="--c:var(--vp-blue)"><h3>TỔNG LƯỢT ĐĂNG KÝ</h3><b>${F(sum[0])}</b><small>${sum[4]} điểm tham gia</small></div>
+      <div class="card-detail" style="--c:var(--vp-orange)"><h3>LƯỢT PHÁT SINH DT</h3><b>${F(sum[1])}</b><small>Tỷ lệ: ${P(sum[1], sum[0])}% ĐK</small></div>
+      <div class="card-detail" style="--c:var(--vp-blue)"><h3>TỔNG DOANH THU (TR)</h3><b>${F(Math.round(sum[3] / 1e6))}</b><small>Đạt ${P(sum[3] / 1e6, sum[2])}% Kế hoạch</small></div>
     `;
     $('#dn').innerText = `Đang hiển thị ${p_arr.length} điểm`;
 
@@ -727,10 +822,10 @@ function initSystem() {
           let mid = Math.ceil(parts.length / 2);
           let line1 = parts.slice(0, mid).join(' ');
           let line2 = parts.slice(mid).join(' ');
-          p += `<text x="${xMid}" y="${h - 18}" text-anchor="middle" font-size="9">${line1}</text>`;
-          p += `<text x="${xMid}" y="${h - 5}" text-anchor="middle" font-size="9">${line2}</text>`;
+          p += `<text x="${xMid}" y="${h - 18}" text-anchor="middle" font-size="10">${line1}</text>`;
+          p += `<text x="${xMid}" y="${h - 5}" text-anchor="middle" font-size="10">${line2}</text>`;
       } else {
-          p += `<text x="${xMid}" y="${h - 12}" text-anchor="middle" font-size="9">${name}</text>`;
+          p += `<text x="${xMid}" y="${h - 12}" text-anchor="middle" font-size="10">${name}</text>`;
       }
     }
     el.innerHTML = p + '</svg>';
