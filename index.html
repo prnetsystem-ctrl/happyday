@@ -80,11 +80,8 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
   <button class="act" id="add">+ Thêm dòng</button>
  </div>
  <div class="box" style="margin-bottom:14px;">
-  <h4>Các điểm đã đăng ký của đơn vị này:</h4>
-  <div class="wrap" style="max-height:180px;"><table id="his_tb"><thead><tr><th>Mã điểm</th><th>Tên điểm</th><th>Trạng thái</th></tr></thead><tbody id="his_body"><tr><td colspan="3" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr></tbody></table></div>
- </div>
- <div class="wrap">
-  <table><thead><tr><th>#</th><th>Ngày</th><th>Thứ</th><th>Đơn vị</th><th>Mã điểm</th><th>Tên điểm</th><th>Tuần</th><th>Tháng</th><th>Quý</th><th>Kiểm tra</th></tr></thead><tbody id="lg"></tbody></table>
+  <h4>Các điểm ĐÃ ĐĂNG KÝ của ĐƠN VỊ TRÊN:</h4>
+  <div class="wrap" style="max-height:300px;"><table id="his_tb"><thead><tr><th>Mã điểm</th><th>Tên điểm</th><th>Trạng thái đăng ký</th></tr></thead><tbody id="his_body"><tr><td colspan="3" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr></tbody></table></div>
  </div>
 </section>
 </main>
@@ -109,7 +106,6 @@ fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' })
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
     initSystem();
-    loadLocalLogs();
   })
   .catch(err => {
     console.error(err);
@@ -122,8 +118,6 @@ document.getElementById('add').addEventListener('click', function() {
   const donViVal = document.getElementById('fu').value;
   if (!donViVal) { alert("Vui lòng chọn Đơn vị!"); return; }
 
-  const selU = document.getElementById('fu');
-  const tenDonVi = selU.options[selU.selectedIndex].text;
   let rawPoint = document.getElementById('fp').value.trim();
   if (!rawPoint || !ngayNhap) { alert("Vui lòng nhập Ngày và chọn Điểm!"); return; }
 
@@ -135,56 +129,43 @@ document.getElementById('add').addEventListener('click', function() {
 
   const D = d => new Date(d + 'T00:00:00+07:00');
   const dObj = D(ngayNhap);
-  const thuNames = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
-  const thuStr = thuNames[dObj.getDay()];
-
-  const T = d => Math.floor((D(d) - D('2025-12-26')) / (7 * 864e5)) + 1;
-  const tuanNum = T(ngayNhap);
-  const thangNum = dObj.getMonth() + 1;
-  const quyNum = Math.floor((thangNum - 1) / 3) + 1;
-
-  let tenDiemHienThi = maDiemNhap;
-  let ptsList = (DB.P && DB.P[donViVal]) ? DB.P[donViVal] : [];
-  let foundPt = ptsList.find(p => p[0].toString() === maDiemNhap);
-  if (foundPt) tenDiemHienThi = foundPt[1];
-
   const ngayGoc = D('2026-06-26');
   const soNgayCachBiet = Math.floor((dObj - ngayGoc) / 864e5);
   const tenCotSheet = "Kỳ " + soNgayCachBiet;
 
   const payload = { ngay: tenCotSheet, donVi: donViVal, maDiem: maDiemNhap };
 
+  // Dùng Text thay vì JSON để tránh lỗi fetch chặn CORS khi trả về chuỗi JSON bị lỗi
   fetch(SCRIPT_URL, {
     method: 'POST', redirect: 'follow',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
   })
-  .then(res => res.json())
-  .then(resData => {
-    if (resData.status === "success") {
-      alert(resData.message);
-      if (!DB.A[maDiemNhap]) DB.A[maDiemNhap] = [[], []];
-      if (!DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
-        DB.A[maDiemNhap][0].push(soNgayCachBiet);
-      }
-
-      let logItem = {
-        ngay: ngayNhap, thu: thuStr, donvi: tenDonVi, madiem: maDiemNhap,
-        tendiem: tenDiemHienThi, tuan: `Tuần ${tuanNum}`, thang: `Tháng ${thangNum}`, quy: `Quý ${quyNum}`
-      };
-      saveLogToLocal(logItem);
-      appendLogRow(logItem, document.getElementById('lg').children.length + 1);
-      updateHistoryTable(donViVal);
-
-      // Làm mới toàn bộ màn hình
-      window.refreshDashboardUI();
-    } else {
-      alert("Lỗi: " + resData.message);
+  .then(res => res.text()) // Nhận chuỗi thô để dễ bắt lỗi
+  .then(resTxt => {
+    try {
+        let resData = JSON.parse(resTxt);
+        if (resData.status === "success") {
+          alert(resData.message);
+          // Cập nhật mảng tĩnh trên giao diện
+          if (!DB.A[maDiemNhap]) DB.A[maDiemNhap] = [[], []];
+          if (!DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
+            DB.A[maDiemNhap][0].push(soNgayCachBiet);
+          }
+          // Vẽ lại 
+          window.updateHistoryTable(donViVal);
+          window.refreshDashboardUI();
+        } else {
+          alert("Lỗi server: " + resData.message);
+        }
+    } catch (e) {
+        alert("Thêm thành công nhưng phản hồi từ máy chủ bị lỗi hiển thị. Vui lòng tải lại trang.");
+        window.location.reload();
     }
   })
   .catch(err => {
     console.error(err);
-    alert("Lỗi kết nối tới máy chủ Google!");
+    alert("Máy chủ không phản hồi. Lỗi mạng hoặc Google từ chối truy cập.");
   })
   .finally(() => {
     btnAdd.innerText = "+ Thêm dòng";
@@ -192,23 +173,6 @@ document.getElementById('add').addEventListener('click', function() {
   });
 });
 
-function saveLogToLocal(item) {
-  let logs = JSON.parse(localStorage.getItem('happyday_logs') || '[]');
-  logs.push(item);
-  localStorage.setItem('happyday_logs', JSON.stringify(logs));
-}
-function loadLocalLogs() {
-  let logs = JSON.parse(localStorage.getItem('happyday_logs') || '[]');
-  let html = '';
-  logs.forEach((lg, idx) => {
-    html += `<tr><td>${idx+1}</td><td>${lg.ngay}</td><td>${lg.thu}</td><td>${lg.donvi}</td><td>${lg.madiem}</td><td>${lg.tendiem}</td><td>${lg.tuan}</td><td>${lg.thang}</td><td>${lg.quy}</td><td class="ok">OK</td></tr>`;
-  });
-  document.getElementById('lg').innerHTML = html;
-}
-function appendLogRow(lg, idx) {
-  let tr = `<tr><td>${idx}</td><td>${lg.ngay}</td><td>${lg.thu}</td><td>${lg.donvi}</td><td>${lg.madiem}</td><td>${lg.tendiem}</td><td>${lg.tuan}</td><td>${lg.thang}</td><td>${lg.quy}</td><td class="ok">OK</td></tr>`;
-  document.getElementById('lg').innerHTML += tr;
-}
 
 // KHỞI TẠO VÀ ĐỒNG BỘ TOÀN BỘ GIAO DIỆN
 function initSystem() {
@@ -223,28 +187,22 @@ function initSystem() {
   const P = (a, b) => b ? Math.round(a / b * 100) : 0;
   const T = d => Math.floor((D(d) - D('2025-12-26')) / (7 * 864e5)) + 1;
   const Q = m => Math.floor((m - 1) / 3) + 1;
+  const ngayGoc = D('2026-06-26');
 
-  // Xây dựng danh sách Dropdown Đơn vị
   function buildUnitDropdowns() {
     let optHtml = '<option value="">-- Lựa chọn đơn vị --</option>';
     if (DB.U && DB.U.length > 0) {
-      DB.U.forEach(u => {
-        optHtml += `<option value="${u[0]}">${u[0]} - ${u[1]}</option>`;
-      });
+      DB.U.forEach(u => { optHtml += `<option value="${u[0]}">${u[0]} - ${u[1]}</option>`; });
     }
-    du.innerHTML = optHtml;
-    fu.innerHTML = optHtml;
-
-    // Chọn đơn vị đầu tiên cho tab Chi tiết
-    if (DB.U && DB.U.length > 0) {
-      du.value = DB.U[0][0];
-    }
+    du.innerHTML = optHtml; fu.innerHTML = optHtml;
+    if (DB.U && DB.U.length > 0) { du.value = DB.U[0][0]; }
     fu.value = "";
     populatePoints();
   }
 
   function render_db() {
     let d_str = nbc.value, d = D(d_str), w = T(d_str), m = d.getMonth() + 1, q = Q(m);
+    let dy_idx = Math.floor((d - ngayGoc) / 864e5);
     $('#rng').innerText = `Tuần ${w} (Tháng ${m} - Quý ${q})`;
 
     let sum = [0, 0, 0, 0, 0, 0, 0], u_arr = [];
@@ -252,9 +210,19 @@ function initSystem() {
       DB.U.forEach(u => {
         let uid = u[0], nm = u[1], kh_l = u[2], kh_dt = u[3], a = u[4] || [], b = u[5] || [];
         let ps_w = a[w - 27] || 0, ps_m = b[m - 6] || 0;
-        let dk_w = ps_w + 3; // Lượt đăng ký
+        
+        // Tính ĐK Tuần và ĐK Ngày cho Đơn vị
+        let dk_w = 0, dk_d = 0;
+        let s_d = (w - 27) * 7; 
+        let pts = DB.P[uid] || [];
+        pts.forEach(pt => {
+            let act = DB.A[pt[0]] ? DB.A[pt[0]][0] : [];
+            if(act.includes(dy_idx)) dk_d++;
+            for(let i=0; i<7; i++) if(act.includes(s_d+i)) dk_w++;
+        });
+
         sum[0] += kh_l; sum[1] += kh_dt; sum[2] += dk_w; sum[3] += ps_w; sum[4] += ps_m; sum[5] += (kh_l * 4); sum[6] += (kh_dt * 4);
-        u_arr.push({ id: uid, nm: nm, kh_l: kh_l, kh_dt: kh_dt, dk_w: dk_w, ps_w: ps_w, ps_m: ps_m, pw: P(ps_w, kh_l), pm: P(ps_m, kh_l * 4) });
+        u_arr.push({ id: uid, nm: nm, kh_l: kh_l, kh_dt: kh_dt, dk_w: dk_w, dk_d: dk_d, ps_w: ps_w, ps_m: ps_m, pw: P(ps_w, kh_l), pm: P(ps_m, kh_l * 4) });
       });
     }
 
@@ -296,38 +264,33 @@ function initSystem() {
     }
     draw_bar($('#c3'), m_lb, m_val, var_c('--orange'), false);
 
-    // 4. Top 10 đơn vị theo Ngày, Tuần, Tháng (Bóc tách trực tiếp từ u_arr)
+    // 4. Top 10 đơn vị
     let s_day = [...u_arr].sort((a, b) => b.ps_w - a.ps_w).slice(0, 10);
     draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.ps_w), var_c('--teal'), true);
-
     let s_week = [...u_arr].sort((a, b) => b.pw - a.pw).slice(0, 10);
     draw_bar($('#c10_w'), s_week.map(x => cleanName(x.nm)), s_week.map(x => x.pw), var_c('--blue'), true);
-
     let s_month = [...u_arr].sort((a, b) => b.pm - a.pm).slice(0, 10);
     draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.pm), var_c('--gold'), true);
 
-    // Bảng 50 đơn vị
-    let th = '<tr><th>Mã</th><th>Đơn vị</th><th>KH tuần</th><th>ĐK tuần</th><th>Lượt tuần</th><th>% Tuần</th><th>Lượt tháng</th><th>% Tháng</th></tr>';
+    // Bảng 50 đơn vị (Thêm KH Ngày và ĐK Ngày)
+    let th = '<tr><th>Mã</th><th>Đơn vị</th><th>KH ngày</th><th>ĐK ngày</th><th>KH tuần</th><th>ĐK tuần</th><th>Lượt tuần</th><th>% Tuần</th><th>Lượt tháng</th><th>% Tháng</th></tr>';
     let tb = '<tbody>';
-    s_week.forEach(x => {
-      tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--orange)"></div>${x.pm}%</td></tr>`;
+    u_arr.sort((a, b) => b.pw - a.pw).forEach(x => {
+      tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n">1</td><td class="n ${x.dk_d<1?'err':'ok'}">${F(x.dk_d)}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--orange)"></div>${x.pm}%</td></tr>`;
     });
-    tb += `<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[3], sum[0])}%</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[4], sum[5])}%</td></tr></tbody>`;
+    tb += `<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">50</td><td class="n">-</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[3], sum[0])}%</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[4], sum[5])}%</td></tr></tbody>`;
     $('#tb').innerHTML = th + tb;
   }
 
-  // TÍNH TOÁN KỲ XEM TẠI TAB CHI TIẾT ĐƠN VỊ
   function render_dt() {
     let uid = du.value;
     if (!uid) return;
     let p = dp.value, q = dq.value.toLowerCase().trim(), s = ds.value;
     let d_str = nbc.value, d = D(d_str), w = T(d_str), m = d.getMonth() + 1, qy = Q(m);
-
     let u = DB.U ? DB.U.find(x => x[0].toString() === uid.toString()) : null;
     let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
     let day_arr = [];
 
-    const ngayGoc = D('2026-06-26');
     if (p === 'Ngày') {
       let idx = Math.floor((d - ngayGoc) / 864e5);
       day_arr = [idx];
@@ -350,12 +313,10 @@ function initSystem() {
       let s_d = Math.floor((firstDay - ngayGoc) / 864e5);
       let e_d = Math.floor((lastDay - ngayGoc) / 864e5);
       for (let i = s_d; i <= e_d; i++) day_arr.push(i);
-      $('#drng').innerText = `Quý ${qy}/2026 (Tháng ${sm + 1} - ${sm + 3})`;
+      $('#drng').innerText = `Quý ${qy}/2026`;
     }
 
-    let sum = [0, 0, 0, 0, 0];
-    let p_arr = [];
-
+    let sum = [0, 0, 0, 0, 0], p_arr = [];
     pts.forEach(pt => {
       let pid = pt[0].toString(), pnm = pt[1];
       if (q && !pid.includes(q) && !pnm.toLowerCase().includes(q)) return;
@@ -396,21 +357,17 @@ function initSystem() {
     $('#dtb').innerHTML = th + tb;
   }
 
-  // ĐIỀN DANH SÁCH ĐIỂM KHI CHỌN ĐƠN VỊ TẠI TAB NHẬP LIỆU
   function populatePoints() {
     let uid = fu.value;
     let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
     let h = '';
-    pts.forEach(p => {
-      h += `<option value="${p[0]} - ${p[1]}">`;
-    });
-    pl.innerHTML = h;
-    fp.value = '';
-    pn.innerText = '';
-    updateHistoryTable(uid);
+    pts.forEach(p => { h += `<option value="${p[0]} - ${p[1]}">`; });
+    pl.innerHTML = h; fp.value = ''; pn.innerText = '';
+    window.updateHistoryTable(uid);
   }
 
-  function updateHistoryTable(uid) {
+  // Tự động nạp Lịch sử Đồng bộ từ Database
+  window.updateHistoryTable = function(uid) {
     let tbody = document.getElementById('his_body');
     if (!uid) {
       tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--mut)">Chưa chọn đơn vị</td></tr>`;
@@ -422,14 +379,14 @@ function initSystem() {
       let act = (DB.A && DB.A[p[0]]) ? DB.A[p[0]][0] : [];
       if (act.length > 0) {
         count++;
-        html += `<tr><td>${p[0]}</td><td>${p[1]}</td><td><span class="pill p1">Đã đăng ký (${act.length} lượt)</span></td></tr>`;
+        html += `<tr><td>${p[0]}</td><td>${p[1]}</td><td><span class="pill p1">Đã đăng ký (${act.length} kỳ)</span></td></tr>`;
       }
     });
     if (count === 0) {
       html = `<tr><td colspan="3" style="text-align:center;color:var(--mut)">Đơn vị này chưa có điểm nào đăng ký ra quân</td></tr>`;
     }
     tbody.innerHTML = html;
-  }
+  };
 
   fu.addEventListener('change', populatePoints);
   du.addEventListener('change', render_dt);
@@ -447,38 +404,22 @@ function initSystem() {
     else pn.innerText = '';
   });
 
-  // HÀM VẼ BIỂU ĐỒ NÂNG CAO (Không chồng chéo nhãn)
+  function var_c(n) { return getComputedStyle(document.body).getPropertyValue(n).trim(); }
   function draw_bar(el, lb, val, col, rotate = false) {
-    let max = Math.max(...val, 1), h = 180, w = el.clientWidth || 320;
-    let bW = w / lb.length;
+    let max = Math.max(...val, 1), h = 180, w = el.clientWidth || 320, bW = w / lb.length;
     let p = `<svg viewBox="0 0 ${w} ${h}">`;
-
     for (let i = 0; i < lb.length; i++) {
-      let bh = (val[i] / max) * (h - 45);
-      let xMid = i * bW + bW * 0.5;
-      let barX = i * bW + bW * 0.15;
-      let barWidth = bW * 0.7;
-
-      p += `<rect x="${barX}" y="${h - 30 - bh}" width="${barWidth}" height="${bh}" fill="${col}" rx="3"/>`;
-      if (bh > 12) {
-        p += `<text x="${xMid}" y="${h - 35 - bh}" text-anchor="middle" font-size="9" font-weight="bold" fill="${var_c('--ink')}">${val[i]}</text>`;
-      }
-      if (rotate) {
-        p += `<text transform="translate(${xMid}, ${h - 12}) rotate(-35)" text-anchor="end" font-size="8.5">${lb[i]}</text>`;
-      } else {
-        p += `<text x="${xMid}" y="${h - 12}" text-anchor="middle" font-size="9">${lb[i]}</text>`;
-      }
+      let bh = (val[i] / max) * (h - 45), xMid = i * bW + bW * 0.5;
+      p += `<rect x="${i * bW + bW * 0.15}" y="${h - 30 - bh}" width="${bW * 0.7}" height="${bh}" fill="${col}" rx="3"/>`;
+      if (bh > 12) p += `<text x="${xMid}" y="${h - 35 - bh}" text-anchor="middle" font-size="9" font-weight="bold" fill="${var_c('--ink')}">${val[i]}</text>`;
+      if (rotate) p += `<text transform="translate(${xMid}, ${h - 12}) rotate(-35)" text-anchor="end" font-size="8.5">${lb[i]}</text>`;
+      else p += `<text x="${xMid}" y="${h - 12}" text-anchor="middle" font-size="9">${lb[i]}</text>`;
     }
     el.innerHTML = p + '</svg>';
   }
 
-  function cleanName(nm) {
-    return nm.replace('Bưu điện ', '').replace('Trung tâm ', 'TT ').replace('TT ', '');
-  }
+  function cleanName(nm) { return nm.replace('Bưu điện ', '').replace('Trung tâm ', 'TT ').replace('TT ', ''); }
 
-  function var_c(n) { return getComputedStyle(document.body).getPropertyValue(n).trim(); }
-
-  // Đổi tab
   $$('nav button').forEach(b => b.addEventListener('click', e => {
     $$('.pane').forEach(x => x.classList.remove('on'));
     $$('nav button').forEach(x => x.classList.remove('on'));
@@ -491,14 +432,10 @@ function initSystem() {
   }));
 
   window.goDetail = function(uid) {
-    du.value = uid;
-    $$('nav button')[1].click();
-    render_dt();
+    du.value = uid; $$('nav button')[1].click(); render_dt();
   };
-
   window.refreshDashboardUI = function() {
-    render_db();
-    render_dt();
+    render_db(); render_dt();
   };
 
   buildUnitDropdowns();
