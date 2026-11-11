@@ -14,6 +14,8 @@ main{padding:0 22px 30px}.pane{display:none;background:var(--card);padding:18px;
 input,select,button.act{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
 input.in,select.in{background:#FFF2CC;color:#0000FF;border-color:#e6c75a;font-weight:700}
 button.act{background:var(--navy);color:#fff;border:0;cursor:pointer}
+button.excel{background:#0f9d58;color:#fff;border:0;cursor:pointer;padding:7px 12px;border-radius:6px;font-weight:bold;}
+button.excel:hover{background:#0b8043;}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
 .card{border:1px solid var(--line);border-top:5px solid var(--c);border-radius:8px;padding:10px 14px}
 .card h3{margin:0;font-size:11px;color:var(--mut);letter-spacing:.4px}.card b{font-size:30px;color:var(--c);display:block}
@@ -30,6 +32,8 @@ tr.rw{cursor:pointer}tr.rw:hover td{background:rgba(255,192,0,.18)}
 .pill{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}.p1{background:#d7f0e0;color:#00693a}.p2{background:#ffe9c7;color:#8a5200}.p3{background:var(--line);color:var(--mut)}
 tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
 #loading{text-align:center;padding:50px;font-size:16px;color:var(--navy)}
+.info-banner{background:#fff8e1;border-left:4px solid var(--gold);padding:10px 14px;border-radius:4px;margin-bottom:14px;color:var(--ink);font-size:14px;}
+.info-banner b{color:var(--navy);}
 </style></head><body>
 <header><h1>HAPPY DAY 2026 – TỔNG HỢP LƯỢT RA QUÂN ĐĂNG KÝ</h1><small>Hệ thống đăng ký lịch ra quân bán hàng PPBL trực tuyến</small></header>
 <nav><button class="on" data-t="db">Dashboard</button><button data-t="dt">Chi tiết đơn vị</button><button data-t="nl">Đăng ký ra quân</button></nav>
@@ -55,8 +59,12 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
  <div class="ctl">
   <label><b>Đơn vị ▶</b> <select class="in" id="du"></select></label>
   <label>Kỳ xem <select class="in" id="dp"><option>Ngày</option><option selected>Tuần</option><option>Tháng</option><option>Quý</option></select></label>
-  <span id="drng" class="note"></span>
  </div>
+ 
+ <div class="info-banner" id="dt_banner">
+  Đang xem tổng hợp ra quân của <b id="dt_unit_name">...</b> trong <b id="dt_period_name">...</b>
+ </div>
+
  <div class="cards" id="dcards"></div>
  <div class="ctl">
   <input id="dq" placeholder="Tìm mã / tên điểm…" style="min-width:220px">
@@ -78,7 +86,10 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
  </div>
  
  <div class="box" style="margin-bottom:14px;">
-  <h4>Các điểm ĐÃ ĐĂNG KÝ của ĐƠN VỊ TRÊN:</h4>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <h4 style="margin:0;">Các điểm ĐÃ ĐĂNG KÝ của ĐƠN VỊ TRÊN:</h4>
+    <button class="excel" id="exportExcel">Tải danh sách Excel</button>
+  </div>
   <div class="wrap" style="max-height:280px;">
    <table id="his_tb">
     <thead><tr><th>Mã điểm</th><th>Tên điểm</th><th>Trạng thái đăng ký</th><th>Tuần đã đăng ký</th></tr></thead>
@@ -174,7 +185,6 @@ document.getElementById('add').addEventListener('click', function() {
     try {
         let resData = JSON.parse(resTxt);
         if (resData.status === "success") {
-          // Bật thông báo tùy chỉnh cho thành công
           alert("Đã đăng ký thành công. Chúc các anh/chị triển khai tốt");
           
           if (!DB.A[maDiemNhap]) DB.A[maDiemNhap] = [[], []];
@@ -207,6 +217,49 @@ document.getElementById('add').addEventListener('click', function() {
     btnAdd.innerText = "Đăng ký";
     btnAdd.disabled = false;
   });
+});
+
+// HỖ TRỢ EXPORT EXCEL DANH SÁCH ĐÃ ĐĂNG KÝ
+document.getElementById('exportExcel').addEventListener('click', function() {
+  const uid = document.getElementById('fu').value;
+  if (!uid) { alert("Vui lòng chọn đơn vị trước khi tải dữ liệu!"); return; }
+  
+  let selU = document.getElementById('fu');
+  let tenDonVi = selU.options[selU.selectedIndex].text;
+  let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
+  
+  let csvContent = "\uFEFF"; // BOM cho UTF-8
+  csvContent += "Mã điểm,Tên điểm,Trạng thái,Số kỳ đăng ký,Các tuần đã đăng ký\n";
+  
+  let hasData = false;
+  const t0 = new Date('2025-12-26T00:00:00+07:00').getTime();
+  const d0 = new Date('2026-06-26T00:00:00+07:00').getTime();
+
+  pts.forEach(p => {
+    let act = (DB.A && DB.A[p[0]]) ? DB.A[p[0]][0] : [];
+    if (act.length > 0) {
+      hasData = true;
+      let weeks = act.map(idx => {
+          let dTime = d0 + idx * 86400000;
+          return Math.floor((dTime - t0) / (7 * 86400000)) + 1;
+      });
+      let uniqueWeeks = [...new Set(weeks)].sort((a,b)=>a-b);
+      let weekStr = uniqueWeeks.map(w => 'W'+w).join('; ');
+      
+      csvContent += `"${p[0]}","${p[1]}","Đã đăng ký","${act.length}","${weekStr}"\n`;
+    }
+  });
+
+  if(!hasData){ alert("Đơn vị này chưa có điểm nào đăng ký để tải!"); return; }
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", `Lich_su_dang_ky_${uid}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 });
 
 function saveLogToLocal(item) {
@@ -323,21 +376,23 @@ function initSystem() {
     let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
     let day_arr = [];
 
+    // Cập nhật thẻ hiển thị thông tin Kỳ Xem
+    let perName = "";
     if (p === 'Ngày') {
       let idx = Math.floor((d - ngayGoc) / 864e5);
       day_arr = [idx];
-      $('#drng').innerText = `Ngày ${d_str}`;
+      perName = `Ngày ${d_str}`;
     } else if (p === 'Tuần') {
       let s_d = (w - 27) * 7;
       for (let i = 0; i < 7; i++) day_arr.push(s_d + i);
-      $('#drng').innerText = `Tuần ${w}`;
+      perName = `Tuần ${w}`;
     } else if (p === 'Tháng') {
       let firstDay = new Date(2026, m - 1, 1);
       let lastDay = new Date(2026, m, 0);
       let s_d = Math.floor((firstDay - ngayGoc) / 864e5);
       let e_d = Math.floor((lastDay - ngayGoc) / 864e5);
       for (let i = s_d; i <= e_d; i++) day_arr.push(i);
-      $('#drng').innerText = `Tháng ${m}/2026`;
+      perName = `Tháng ${m}/2026`;
     } else {
       let sm = (qy - 1) * 3;
       let firstDay = new Date(2026, sm, 1);
@@ -345,8 +400,13 @@ function initSystem() {
       let s_d = Math.floor((firstDay - ngayGoc) / 864e5);
       let e_d = Math.floor((lastDay - ngayGoc) / 864e5);
       for (let i = s_d; i <= e_d; i++) day_arr.push(i);
-      $('#drng').innerText = `Quý ${qy}/2026`;
+      perName = `Quý ${qy}/2026`;
     }
+    
+    // Gán dữ liệu vào khung Banner vàng
+    let uName = u ? u[1] : "Tất cả";
+    document.getElementById('dt_unit_name').innerText = uName;
+    document.getElementById('dt_period_name').innerText = perName;
 
     let sum = [0, 0, 0, 0, 0], p_arr = [];
     pts.forEach(pt => {
@@ -366,7 +426,6 @@ function initSystem() {
       let st = tt > 0 ? 1 : (dk > 0 ? 2 : 3);
       if (s && st.toString() !== s) return;
 
-      // Tính thống kê tuần đã đăng ký (W...)
       let weeks = a1.map(idx => {
           let dTime = d0 + idx * 86400000;
           return Math.floor((dTime - t0) / (7 * 86400000)) + 1;
@@ -453,9 +512,8 @@ function initSystem() {
 
   function var_c(n) { return getComputedStyle(document.body).getPropertyValue(n).trim(); }
   
-  // Hàm vẽ SVG thông minh, bẻ chữ làm 2 dòng nếu tên quá dài
   function draw_bar(el, lb, val, col) {
-    let max = Math.max(...val, 1), h = 180, w = el.clientWidth || 320, bW = w / lb.length;
+    let max = Math.max(...val, 1), h = 180, w = el.clientWidth || 300, bW = w / lb.length;
     let p = `<svg viewBox="0 0 ${w} ${h}">`;
     for (let i = 0; i < lb.length; i++) {
       let bh = (val[i] / max) * (h - 45), xMid = i * bW + bW * 0.5;
