@@ -54,7 +54,7 @@ header {
   gap: 15px;
 }
 .brand img {
-  height: 45px; /* Chiều cao cố định, tự động scale width (auto resize) */
+  height: 45px; 
   width: auto;
   object-fit: contain;
 }
@@ -148,7 +148,7 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
   background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
   border-radius: 8px; padding: 12px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
-.card-detail h3 { margin: 0 0 5px 0; font-size: 11px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; }
+.card-detail h3 { margin: 0 0 5px 0; font-size: 11px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700;}
 .card-detail b { font-size: 26px; color: var(--c); display: block; margin-bottom: 4px; }
 .card-detail small { display: block; color: var(--mut); font-size: 12px; }
 </style>
@@ -156,9 +156,7 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 <body>
 <header>
   <div class="brand">
-    <!-- LINK ẢNH LOGO (AUTO RESIZE) -->
-    <!-- BẠN DÁN LINK ẢNH LOGO CỦA BẠN VÀO THUỘC TÍNH SRC DƯỚI ĐÂY -->
-    <img src="https://ibb.co/rf71VNyJ" alt="Vietnam Post Logo" id="brand-logo">
+    <img src="https://i.ibb.co/3sX8M8L/logo-nhan-dien.png" alt="Vietnam Post Logo" id="brand-logo">
     <div class="header-titles">
       <h1>Tổng hợp lượt ra quân đăng ký</h1>
       <small>Hệ thống đăng ký lịch ra quân bán hàng PPBL trực tuyến</small>
@@ -196,7 +194,14 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
  <div class="ctl" style="justify-content: space-between;">
   <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
    <label><b>Đơn vị ▶</b> <select class="in" id="du"></select></label>
-   <label>Kỳ xem <select class="in" id="dp"><option>Ngày</option><option selected>Tuần</option><option>Tháng</option><option>Quý</option></select></label>
+   <label>Kỳ xem 
+    <select class="in" id="dp">
+     <option>Ngày</option>
+     <option>Tuần</option>
+     <option selected>Tháng</option>
+     <option>Quý</option>
+    </select>
+   </label>
   </div>
   <button class="excel" id="exportExcel">Tải danh sách Excel</button>
  </div>
@@ -248,10 +253,11 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 </main>
 
 <script>
-// CẬP NHẬT LINK WEB APP MỚI NHẤT
+// LINK API MỚI NHẤT
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzN8OHHO5NJiifPE96V1Zvq2CWEkdwaV5h7PLD-xab21jRnaERMXjWGlrA-quLbvxK3/exec";
 let DB = { U: [], D: {}, P: {}, S: [], A: {} };
 
+// LẤY NGÀY HIỆN TẠI
 const dNow = new Date();
 const yyyy = dNow.getFullYear();
 const mm = String(dNow.getMonth() + 1).padStart(2, '0');
@@ -438,12 +444,12 @@ function initSystem() {
   const $ = (s, e = document) => e.querySelector(s);
   const $$ = (s, e = document) => Array.from(e.querySelectorAll(s));
 
-  let nbc = $('#nbc'), du = $('#du'), dp = $('#dp'), dq = $('#dq'), ds = $('#ds');
-  let fu = $('#fu'), fp = $('#fp'), pl = $('#pl'), pn = $('#pn');
-
   const D = d => new Date(d + 'T00:00:00+07:00');
-  const F = n => new Intl.NumberFormat('vi').format(n);
+  
+  // HÀM LÀM TRÒN SỐ VỀ HÀNG ĐƠN VỊ VÀ ĐỊNH DẠNG HÀNG NGHÌN
+  const F = n => new Intl.NumberFormat('vi-VN').format(Math.round(n)); 
   const P = (a, b) => b ? Math.round(a / b * 100) : 0;
+  
   const T = d => Math.floor((D(d) - D('2025-12-26')) / (7 * 864e5)) + 1;
   const Q = m => Math.floor((m - 1) / 3) + 1;
   const ngayGoc = D('2026-06-26');
@@ -463,7 +469,7 @@ function initSystem() {
   }
 
   function getTrendHtml(val, prevVal, isPercent = false) {
-    if (prevVal === 0 && val > 0) return `<span class="trend-up">▲ 100%</span>`;
+    if (prevVal === 0 && val > 0) return `<span class="trend-up">▲ 100% so với kỳ trước (0)</span>`;
     if (prevVal === 0 && val === 0) return `<span>-</span>`;
     let change = (val - prevVal) / prevVal * 100;
     let formatVal = isPercent ? `${change.toFixed(1)}%` : change.toFixed(1) + '%';
@@ -550,12 +556,12 @@ function initSystem() {
         luot_d += dk_d;
         luot_w += ps_w + dk_w; 
         luot_m += ps_m;
-        luot_q += ps_m * 2.5; 
+        luot_q += Math.round(ps_m * 2.5); 
         
         prev_d_sum += (dk_d > 0 ? dk_d - 1 : 0);
         prev_w_sum += (ps_w > 0 ? ps_w - 5 : 0);
         prev_m_sum += (ps_m > 0 ? ps_m - 20 : 0);
-        prev_q_sum += (ps_m > 0 ? ps_m * 2 - 50 : 0);
+        prev_q_sum += Math.round(ps_m > 0 ? ps_m * 2 - 50 : 0);
 
         sum[0] += kh_l; sum[1] += kh_dt; sum[2] += dk_w; sum[3] += ps_w; sum[4] += ps_m; sum[5] += (kh_l * 4); sum[6] += (kh_dt * 4);
         sum[7] += dk_d;
@@ -563,10 +569,11 @@ function initSystem() {
       });
     }
 
+    // Bố cục lại 4 thẻ Dashboard theo Theme Sáng và hiển thị doanh thu
     $('#cards').innerHTML = `
       <div class="card" style="--c: var(--vp-blue);">
         <h3>LƯỢT RA QUÂN – NGÀY ${String(d.getDate()).padStart(2, '0')}/${String(m).padStart(2, '0')}/${d.getFullYear()}</h3>
-        <b>${F(luot_d)} <span class="dt-hl">(${F(Math.round(dt_d_sum/1e6))} Tr)</span></b>
+        <b>${F(luot_d)} <span class="dt-hl">(${F(dt_d_sum/1e6)} Tr)</span></b>
         <div class="stat-row">
             ${getTrendHtml(luot_d, prev_d_sum)}
             <span>Lượt / điểm bán: ${(luot_d / tongDiemBan).toFixed(2)}</span>
@@ -575,7 +582,7 @@ function initSystem() {
       
       <div class="card" style="--c: var(--vp-blue);">
         <h3>LƯỢT RA QUÂN – TUẦN W${w}</h3>
-        <b>${F(luot_w)} <span class="dt-hl">(${F(Math.round(dt_w_sum/1e6))} Tr)</span></b>
+        <b>${F(luot_w)} <span class="dt-hl">(${F(dt_w_sum/1e6)} Tr)</span></b>
         <div class="stat-row">
             ${getTrendHtml(luot_w, prev_w_sum)}
             <span>Đơn vị có ra quân: ${u_w_count}/50</span>
@@ -585,7 +592,7 @@ function initSystem() {
 
       <div class="card" style="--c: var(--vp-orange);">
         <h3>LƯỢT RA QUÂN – THÁNG ${m}/${d.getFullYear()}</h3>
-        <b>${F(luot_m)} <span class="dt-hl">(${F(Math.round(dt_m_sum/1e6))} Tr)</span></b>
+        <b>${F(luot_m)} <span class="dt-hl">(${F(dt_m_sum/1e6)} Tr)</span></b>
         <div class="stat-row">
             ${getTrendHtml(luot_m, prev_m_sum)}
             <span>Đơn vị có ra quân: ${u_m_count}/50</span>
@@ -595,7 +602,7 @@ function initSystem() {
 
       <div class="card" style="--c: var(--vp-orange);">
         <h3>LƯỢT RA QUÂN – QUÝ ${q}/${d.getFullYear()}</h3>
-        <b>${F(luot_q)} <span class="dt-hl">(${F(Math.round(dt_q_sum/1e6))} Tr)</span></b>
+        <b>${F(luot_q)} <span class="dt-hl">(${F(dt_q_sum/1e6)} Tr)</span></b>
         <div class="stat-row">
             ${getTrendHtml(luot_q, prev_q_sum)}
             <span>Đơn vị có ra quân: ${u_q_count}/50</span>
@@ -642,7 +649,7 @@ function initSystem() {
     if (p === 'Ngày') {
       let idx = Math.floor((d - ngayGoc) / 864e5);
       day_arr = [idx];
-      perName = `Ngày ${d.getDate()}/${m}/${d.getFullYear()}`;
+      perName = `Ngày ${String(d.getDate()).padStart(2,'0')}/${String(m).padStart(2,'0')}/${d.getFullYear()}`;
     } else if (p === 'Tuần') {
       let s_d = (w - 27) * 7;
       for (let i = 0; i < 7; i++) day_arr.push(s_d + i);
@@ -702,7 +709,7 @@ function initSystem() {
     $('#dcards').innerHTML = `
       <div class="card-detail" style="--c:var(--vp-blue)"><h3>TỔNG LƯỢT ĐĂNG KÝ</h3><b>${F(sum[0])}</b><small>${sum[4]} điểm tham gia</small></div>
       <div class="card-detail" style="--c:var(--vp-orange)"><h3>LƯỢT PHÁT SINH DT</h3><b>${F(sum[1])}</b><small>Tỷ lệ: ${P(sum[1], sum[0])}% ĐK</small></div>
-      <div class="card-detail" style="--c:var(--vp-blue)"><h3>TỔNG DOANH THU (TR)</h3><b>${F(Math.round(sum[3] / 1e6))}</b><small>Đạt ${P(sum[3] / 1e6, sum[2])}% Kế hoạch</small></div>
+      <div class="card-detail" style="--c:var(--vp-blue)"><h3>TỔNG DOANH THU (TR)</h3><b>${F(sum[3] / 1e6)}</b><small>Đạt ${P(sum[3] / 1e6, sum[2])}% Kế hoạch</small></div>
     `;
     $('#dn').innerText = `Đang hiển thị ${p_arr.length} điểm`;
 
@@ -778,7 +785,7 @@ function initSystem() {
     for (let i = 0; i < lb.length; i++) {
       let bh = (val[i] / max) * (h - 45), xMid = i * bW + bW * 0.5;
       p += `<rect x="${i * bW + bW * 0.15}" y="${h - 35 - bh}" width="${bW * 0.7}" height="${bh}" fill="${col}" rx="3"/>`;
-      if (bh > 12) p += `<text x="${xMid}" y="${h - 40 - bh}" text-anchor="middle" font-size="10" font-weight="bold" fill="${var_c('--ink')}">${val[i]}</text>`;
+      if (bh > 12) p += `<text x="${xMid}" y="${h - 40 - bh}" text-anchor="middle" font-size="10" font-weight="bold" fill="${var_c('--ink')}">${F(val[i])}</text>`;
       
       let name = lb[i];
       let parts = name.split(' ');
