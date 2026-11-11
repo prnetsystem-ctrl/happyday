@@ -41,7 +41,7 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
 <div id="loading">Đang kết nối để tải dữ liệu, vui lòng đợi...</div>
 
 <main style="display:none;" id="main-content">
-<div class="ctl" id="gbar"><label><b>Ngày báo cáo ▶</b> <input class="in" type="date" id="nbc" min="2026-01-01" max="2026-12-31"></label><span id="rng" class="note"></span></div>
+<div class="ctl" id="gbar"><label><b>Ngày báo cáo ▶</b> <input class="in" type="date" id="nbc"></label><span id="rng" class="note"></span></div>
 
 <!-- 1. DASHBOARD -->
 <section class="pane on" id="db">
@@ -114,7 +114,13 @@ tr.tot td{font-weight:700;background:#DDEBF7;color:#1F3864}#gbar{margin:12px 0}
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzN8OHHO5NJiifPE96V1Zvq2CWEkdwaV5h7PLD-xab21jRnaERMXjWGlrA-quLbvxK3/exec";
 let DB = { U: [], D: {}, P: {}, S: [], A: {} };
 
-const todayStr = "2026-11-10";
+// CẬP NHẬT NGÀY HIỆN TẠI (THỜI GIAN THỰC)
+const dNow = new Date();
+const yyyy = dNow.getFullYear();
+const mm = String(dNow.getMonth() + 1).padStart(2, '0');
+const dd = String(dNow.getDate()).padStart(2, '0');
+const todayStr = `${yyyy}-${mm}-${dd}`;
+
 document.getElementById('nbc').value = todayStr;
 document.getElementById('fd').value = todayStr;
 
@@ -219,7 +225,7 @@ document.getElementById('add').addEventListener('click', function() {
   });
 });
 
-// HỖ TRỢ EXPORT EXCEL DANH SÁCH ĐÃ ĐĂNG KÝ TẠI TAB CHI TIẾT ĐƠN VỊ
+// HỖ TRỢ EXPORT EXCEL CHI TIẾT TẠI TAB CHI TIẾT ĐƠN VỊ
 document.getElementById('exportExcel').addEventListener('click', function() {
   const uid = document.getElementById('du').value;
   if (!uid) { alert("Vui lòng chọn đơn vị trước khi tải dữ liệu!"); return; }
@@ -229,34 +235,58 @@ document.getElementById('exportExcel').addEventListener('click', function() {
   let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
   
   let csvContent = "\uFEFF"; // BOM cho UTF-8
-  csvContent += "Mã điểm,Tên điểm,Trạng thái,Số kỳ đăng ký,Các tuần đã đăng ký\n";
+  csvContent += "STT,Ngày,Thứ,Đơn vị,Mã điểm,Tên điểm,Tuần,Tháng,Quý\n";
   
-  let hasData = false;
   const t0 = new Date('2025-12-26T00:00:00+07:00').getTime();
   const d0 = new Date('2026-06-26T00:00:00+07:00').getTime();
+  const thuNames = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+
+  let records = [];
 
   pts.forEach(p => {
     let act = (DB.A && DB.A[p[0]]) ? DB.A[p[0]][0] : [];
-    if (act.length > 0) {
-      hasData = true;
-      let weeks = act.map(idx => {
-          let dTime = d0 + idx * 86400000;
-          return Math.floor((dTime - t0) / (7 * 86400000)) + 1;
-      });
-      let uniqueWeeks = [...new Set(weeks)].sort((a,b)=>a-b);
-      let weekStr = uniqueWeeks.map(w => 'W'+w).join('; ');
-      
-      csvContent += `"${p[0]}","${p[1]}","Đã đăng ký","${act.length}","${weekStr}"\n`;
-    }
+    act.forEach(idx => {
+        let dTime = d0 + idx * 86400000;
+        let dObj = new Date(dTime);
+        
+        let yy = dObj.getFullYear();
+        let mm = String(dObj.getMonth() + 1).padStart(2, '0');
+        let dd = String(dObj.getDate()).padStart(2, '0');
+        let ngayStr = `${dd}/${mm}/${yy}`;
+        
+        let thuStr = thuNames[dObj.getDay()];
+        let tuanNum = Math.floor((dTime - t0) / (7 * 86400000)) + 1;
+        let thangNum = dObj.getMonth() + 1;
+        let quyNum = Math.floor((thangNum - 1) / 3) + 1;
+        
+        records.push({
+           timestamp: dTime,
+           ngay: ngayStr,
+           thu: thuStr,
+           donvi: tenDonVi,
+           madiem: p[0],
+           tendiem: p[1],
+           tuan: `Tuần ${tuanNum}`,
+           thang: `Tháng ${thangNum}`,
+           quy: `Quý ${quyNum}`
+        });
+    });
   });
 
-  if(!hasData){ alert("Đơn vị này chưa có điểm nào đăng ký để tải!"); return; }
+  if(records.length === 0){ alert("Đơn vị này chưa có điểm nào đăng ký để tải!"); return; }
+
+  // Sắp xếp các bản ghi mới nhất lên đầu
+  records.sort((a,b) => b.timestamp - a.timestamp);
+
+  records.forEach((rec, i) => {
+    csvContent += `"${i+1}","${rec.ngay}","${rec.thu}","${rec.donvi}","${rec.madiem}","${rec.tendiem}","${rec.tuan}","${rec.thang}","${rec.quy}"\n`;
+  });
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
   link.setAttribute("href", url);
-  link.setAttribute("download", `Lich_su_dang_ky_${uid}.csv`);
+  link.setAttribute("download", `Chi_tiet_dang_ky_${uid}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -315,6 +345,29 @@ function initSystem() {
     $('#title_tb_50').innerText = `Bảng tổng hợp 50 đơn vị trong tháng ${m}`;
 
     let sum = [0, 0, 0, 0, 0, 0, 0, 0], u_arr = [];
+    
+    // Tính khoảng thời gian quét Doanh Thu
+    let s_w_d = (w - 27) * 7;
+    let e_w_d = s_w_d + 6;
+    let firstDay = new Date(d.getFullYear(), m - 1, 1);
+    let lastDay = new Date(d.getFullYear(), m, 0);
+    let s_m_d = Math.floor((firstDay - ngayGoc) / 864e5);
+    let e_m_d = Math.floor((lastDay - ngayGoc) / 864e5);
+    let dt_w_sum = 0, dt_m_sum = 0;
+
+    // Quét tổng doanh thu toàn mạng lưới
+    if (DB.A) {
+        Object.keys(DB.A).forEach(key => {
+            let revArr = DB.A[key][1] || [];
+            for(let i=0; i<revArr.length; i+=2) {
+                let dy = revArr[i];
+                let rev = revArr[i+1];
+                if(dy >= s_w_d && dy <= e_w_d) dt_w_sum += rev;
+                if(dy >= s_m_d && dy <= e_m_d) dt_m_sum += rev;
+            }
+        });
+    }
+
     if (DB.U) {
       DB.U.forEach(u => {
         let uid = u[0], nm = u[1], kh_l = u[2], kh_dt = u[3], a = u[4] || [], b = u[5] || [];
@@ -338,8 +391,8 @@ function initSystem() {
     $('#cards').innerHTML = `
       <div class="card" style="--c:var(--navy)"><h3>KẾ HOẠCH LƯỢT TUẦN ${w}</h3><b>${F(sum[0])}</b><small>Tất cả 50 đơn vị</small></div>
       <div class="card" style="--c:var(--orange)"><h3>ĐÃ ĐĂNG KÝ LƯỢT TUẦN ${w}</h3><b>${F(sum[2])}</b><small>Tỷ lệ: ${P(sum[2], sum[0])}% KH</small></div>
-      <div class="card" style="--c:var(--teal)"><h3>PHÁT SINH DT LƯỢT TUẦN ${w}</h3><b>${F(sum[3])}</b><small>Tỷ lệ: ${P(sum[3], sum[0])}% KH</small></div>
-      <div class="card" style="--c:var(--blue)"><h3>PHÁT SINH DT LƯỢT THÁNG ${m}</h3><b>${F(sum[4])}</b><small>Tỷ lệ: ${P(sum[4], sum[5])}% KH</small></div>
+      <div class="card" style="--c:var(--teal)"><h3>PHÁT SINH DT LƯỢT TUẦN ${w}</h3><b>${F(sum[3])}</b><small>DT: ${F(Math.round(dt_w_sum/1e6))} Tr | Đạt ${P(sum[3], sum[0])}% KH</small></div>
+      <div class="card" style="--c:var(--blue)"><h3>PHÁT SINH DT LƯỢT THÁNG ${m}</h3><b>${F(sum[4])}</b><small>DT: ${F(Math.round(dt_m_sum/1e6))} Tr | Đạt ${P(sum[4], sum[5])}% KH</small></div>
     `;
 
     let dd = new Date(d); dd.setDate(dd.getDate() - 6);
