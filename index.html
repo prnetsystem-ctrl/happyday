@@ -144,20 +144,17 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 
 .card-detail {
   background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
-  border-radius: 8px; padding: 12px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  border-radius: 8px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
-.card-detail h3 { margin: 0 0 5px 0; font-size: 11px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700;}
-.card-detail b { font-size: 26px; color: var(--c); display: block; margin-bottom: 4px; }
-.card-detail small { display: block; color: var(--mut); font-size: 12px; }
+.card-detail h3 { margin: 0 0 8px 0; font-size: 12px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700;}
+.card-detail b { font-size: 32px; color: var(--c); display: block; margin-bottom: 8px; }
+.card-detail .dt-hl { color: var(--vp-orange); font-size: 20px; font-weight: 700; }
+.card-detail .stat-row { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--mut); }
+.card-detail .stat-row span { display: flex; align-items: center; gap: 4px; }
 
 footer {
-  text-align: center;
-  padding: 20px;
-  color: var(--mut);
-  font-size: 13px;
-  border-top: 1px solid var(--line);
-  margin-top: 20px;
-  background: var(--card);
+  text-align: center; padding: 20px; color: var(--mut); font-size: 13px;
+  border-top: 1px solid var(--line); margin-top: 20px; background: var(--card);
 }
 </style>
 </head>
@@ -268,6 +265,9 @@ footer {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 
 <script>
+// ==========================================
+// CÁC HÀM BẢO MẬT CHỐNG SAO CHÉP & F12
+// ==========================================
 document.addEventListener('contextmenu', event => event.preventDefault());
 document.addEventListener('keydown', function(e) {
   if (e.keyCode === 123 || 
@@ -342,10 +342,12 @@ document.getElementById('add').addEventListener('click', function() {
   const ngayGoc = D('2026-06-26');
   const soNgayCachBiet = Math.floor((dObj - ngayGoc) / 864e5);
   
-  // KIỂM TRA CHỐNG ĐĂNG KÝ TRÙNG LẶP TRONG CÙNG 1 NGÀY
+  // KIỂM TRA CHỐNG ĐĂNG KÝ TRÙNG LẶP TRONG CÙNG 1 NGÀY VÀ DỪNG LỆNH NGAY LẬP TỨC
   if (DB.A[maDiemNhap] && DB.A[maDiemNhap][0] && DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
-      alert("Điểm này đã được anh/chị đăng ký trong ngày này!");
-      return;
+      alert("Điểm này đã được anh/chị đăng ký trong ngày này! Vui lòng chọn ngày khác.");
+      let fpInstance = document.getElementById('fd')._flatpickr;
+      if(fpInstance) fpInstance.clear(); // Xóa trắng ô ngày
+      return; // CẮT ĐỨT QUÁ TRÌNH, KHÔNG FETCH, KHÔNG LƯU LOCAL LOG
   }
 
   const btnAdd = document.getElementById('add');
@@ -368,7 +370,6 @@ document.getElementById('add').addEventListener('click', function() {
   if (foundPt) tenDiemHienThi = foundPt[1];
 
   const tenCotSheet = "Kỳ " + soNgayCachBiet;
-
   const payload = { ngay: tenCotSheet, donVi: donViVal, maDiem: maDiemNhap };
 
   fetch(SCRIPT_URL, {
@@ -417,7 +418,7 @@ document.getElementById('add').addEventListener('click', function() {
   });
 });
 
-// XUẤT EXCEL CÓ THÊM DOANH THU
+// XUẤT EXCEL CÓ THÊM CỘT DOANH THU TẠI CHI TIẾT ĐƠN VỊ
 document.getElementById('exportExcel').addEventListener('click', function() {
   const uid = document.getElementById('du').value;
   if (!uid) { alert("Vui lòng chọn đơn vị trước khi tải dữ liệu!"); return; }
@@ -427,7 +428,7 @@ document.getElementById('exportExcel').addEventListener('click', function() {
   let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
   
   let csvContent = "\uFEFF"; 
-  csvContent += "STT,Ngày,Thứ,Đơn vị,Mã điểm,Tên điểm,Tuần,Tháng,Quý,Doanh thu\n";
+  csvContent += "STT,Ngày,Thứ,Đơn vị,Mã điểm,Tên điểm,Tuần,Tháng,Quý,Doanh thu (VNĐ)\n";
   
   const t0 = new Date('2025-12-26T00:00:00+07:00').getTime();
   const d0 = new Date('2026-06-26T00:00:00+07:00').getTime();
@@ -548,18 +549,27 @@ function initSystem() {
     
     $('#title_tb_50').innerText = `Bảng tổng hợp 50 đơn vị trong tháng ${m}`;
 
-    let sum = [0, 0, 0, 0, 0, 0, 0, 0], u_arr = [];
+    let sum = [0, 0, 0, 0, 0, 0, 0, 0, 0], u_arr = [];
     
     let s_w_d = (w - 27) * 7;
     let e_w_d = s_w_d + 6;
-    let firstDayM = new Date(d.getFullYear(), m - 1, 1);
-    let lastDayM = new Date(d.getFullYear(), m, 0);
+    let mStr = String(m).padStart(2, '0');
+    let yStr = d.getFullYear();
+    let firstDayM = D(`${yStr}-${mStr}-01`);
+    let next_m = m === 12 ? 1 : m + 1;
+    let next_y = m === 12 ? yStr + 1 : yStr;
+    let firstDayNextM = D(`${next_y}-${String(next_m).padStart(2, '0')}-01`);
+    let lastDayM = new Date(firstDayNextM.getTime() - 864e5);
     let s_m_d = Math.floor((firstDayM - ngayGoc) / 864e5);
     let e_m_d = Math.floor((lastDayM - ngayGoc) / 864e5);
     
-    let sm = (q - 1) * 3;
-    let firstDayQ = new Date(d.getFullYear(), sm, 1);
-    let lastDayQ = new Date(d.getFullYear(), sm + 3, 0);
+    let sm = (q - 1) * 3 + 1;
+    let firstDayQ = D(`${yStr}-${String(sm).padStart(2, '0')}-01`);
+    let next_q_m = sm + 3;
+    let next_q_y = yStr;
+    if (next_q_m > 12) { next_q_m -= 12; next_q_y++; }
+    let firstDayNextQ = D(`${next_q_y}-${String(next_q_m).padStart(2, '0')}-01`);
+    let lastDayQ = new Date(firstDayNextQ.getTime() - 864e5);
     let s_q_d = Math.floor((firstDayQ - ngayGoc) / 864e5);
     let e_q_d = Math.floor((lastDayQ - ngayGoc) / 864e5);
 
@@ -628,8 +638,8 @@ function initSystem() {
         prev_q_sum += (dk_q > 0 ? dk_q - 50 : 0);
 
         sum[0] += kh_l; sum[1] += kh_dt; sum[2] += dk_w; sum[3] += ps_w; sum[4] += ps_m; sum[5] += (kh_l * 4); sum[6] += (kh_dt * 4);
-        sum[7] += dk_d;
-        u_arr.push({ id: uid, nm: nm, kh_l: kh_l, kh_dt: kh_dt, dk_w: dk_w, dk_d: dk_d, ps_w: ps_w, ps_m: ps_m, pw: P(ps_w, kh_l), pm: P(ps_m, kh_l * 4) });
+        sum[7] += dk_d; sum[8] += dk_m;
+        u_arr.push({ id: uid, nm: nm, kh_l: kh_l, kh_dt: kh_dt, dk_w: dk_w, dk_d: dk_d, dk_m: dk_m, ps_w: ps_w, ps_m: ps_m, pw: P(ps_w, kh_l), pm: P(ps_m, kh_l * 4) });
       });
     }
 
@@ -674,6 +684,7 @@ function initSystem() {
       </div>
     `;
 
+    // Quét biểu đồ Lượt 7 Ngày đảm bảo đồng bộ với Data
     let dd = new Date(d); dd.setDate(dd.getDate() - 6);
     let days = [], d_vals = [];
     for (let i = 0; i < 7; i++) {
@@ -693,15 +704,16 @@ function initSystem() {
     let s_day = [...u_arr].sort((a, b) => b.dk_d - a.dk_d).slice(0, 10);
     draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.dk_d), var_c('--vp-blue'));
     
-    let s_month = [...u_arr].sort((a, b) => b.ps_m - a.ps_m).slice(0, 10);
-    draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.ps_m), var_c('--vp-orange'));
+    // Top 10 Tháng xếp hạng theo Số Lượt Đăng Ký Tháng (dk_m)
+    let s_month = [...u_arr].sort((a, b) => b.dk_m - a.dk_m).slice(0, 10);
+    draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.dk_m), var_c('--vp-orange'));
 
-    let th = '<tr><th>Mã</th><th>Đơn vị</th><th>ĐK ngày</th><th>KH tuần</th><th>ĐK tuần</th><th>Lượt tuần</th><th>% Tuần</th><th>Lượt tháng</th><th>% Tháng</th></tr>';
+    let th = '<tr><th>Mã</th><th>Đơn vị</th><th>ĐK ngày</th><th>KH tuần</th><th>ĐK tuần</th><th>Lượt tuần</th><th>% Tuần</th><th>ĐK tháng</th><th>Lượt tháng</th><th>% Tháng</th></tr>';
     let tb = '<tbody>';
     u_arr.sort((a, b) => b.pw - a.pw).forEach(x => {
-      tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n ${x.dk_d<1?'err':'ok'}">${F(x.dk_d)}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%; background:var(--vp-blue)"></div>${x.pw}%</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--vp-orange)"></div>${x.pm}%</td></tr>`;
+      tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n ${x.dk_d<1?'err':'ok'}">${F(x.dk_d)}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%; background:var(--vp-blue)"></div>${x.pw}%</td><td class="n">${F(x.dk_m)}</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--vp-orange)"></div>${x.pm}%</td></tr>`;
     });
-    tb += `<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">${F(sum[7])}</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[3], sum[0])}%</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[4], sum[5])}%</td></tr></tbody>`;
+    tb += `<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">${F(sum[7])}</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[3], sum[0])}%</td><td class="n">${F(sum[8])}</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[4], sum[5])}%</td></tr></tbody>`;
     $('#tb').innerHTML = th + tb;
   }
 
@@ -727,29 +739,40 @@ function initSystem() {
       for (let i = 0; i < 7; i++) { day_arr.push(s_d + i); prev_day_arr.push(s_d + i - 7); }
       perName = `Tuần ${w}`;
     } else if (p === 'Tháng') {
-      let firstDay = new Date(d.getFullYear(), m - 1, 1);
-      let lastDay = new Date(d.getFullYear(), m, 0);
-      let s_d = Math.floor((firstDay - ngayGoc) / 864e5);
-      let e_d = Math.floor((lastDay - ngayGoc) / 864e5);
+      let mStr = String(m).padStart(2, '0');
+      let yStr = d.getFullYear();
+      let firstDayM = D(`${yStr}-${mStr}-01`);
+      let next_m = m === 12 ? 1 : m + 1;
+      let next_y = m === 12 ? yStr + 1 : yStr;
+      let firstDayNextM = D(`${next_y}-${String(next_m).padStart(2, '0')}-01`);
+      let lastDayM = new Date(firstDayNextM.getTime() - 864e5);
+      let s_d = Math.floor((firstDayM - ngayGoc) / 864e5);
+      let e_d = Math.floor((lastDayM - ngayGoc) / 864e5);
       for (let i = s_d; i <= e_d; i++) day_arr.push(i);
       
-      let p_m = m - 1; let p_y = d.getFullYear(); if(p_m === 0){ p_m = 12; p_y--; }
-      let p_firstDay = new Date(p_y, p_m - 1, 1);
-      let p_lastDay = new Date(p_y, p_m, 0);
+      let p_m = m === 1 ? 12 : m - 1; let p_y = m === 1 ? d.getFullYear() - 1 : d.getFullYear();
+      let p_firstDay = D(`${p_y}-${String(p_m).padStart(2, '0')}-01`);
+      let p_firstDayNext = D(`${yStr}-${mStr}-01`);
+      let p_lastDay = new Date(p_firstDayNext.getTime() - 864e5);
       for (let i = Math.floor((p_firstDay - ngayGoc) / 864e5); i <= Math.floor((p_lastDay - ngayGoc) / 864e5); i++) prev_day_arr.push(i);
       perName = `Tháng ${m}/${d.getFullYear()}`;
     } else {
-      let sm = (qy - 1) * 3;
-      let firstDay = new Date(d.getFullYear(), sm, 1);
-      let lastDay = new Date(d.getFullYear(), sm + 3, 0);
-      let s_d = Math.floor((firstDay - ngayGoc) / 864e5);
-      let e_d = Math.floor((lastDay - ngayGoc) / 864e5);
+      let sm = (qy - 1) * 3 + 1;
+      let yStr = d.getFullYear();
+      let firstDayQ = D(`${yStr}-${String(sm).padStart(2, '0')}-01`);
+      let next_q_m = sm + 3; let next_q_y = yStr;
+      if (next_q_m > 12) { next_q_m -= 12; next_q_y++; }
+      let firstDayNextQ = D(`${next_q_y}-${String(next_q_m).padStart(2, '0')}-01`);
+      let lastDayQ = new Date(firstDayNextQ.getTime() - 864e5);
+      let s_d = Math.floor((firstDayQ - ngayGoc) / 864e5);
+      let e_d = Math.floor((lastDayQ - ngayGoc) / 864e5);
       for (let i = s_d; i <= e_d; i++) day_arr.push(i);
       
-      let p_q = qy - 1; let p_y = d.getFullYear(); if(p_q === 0){ p_q = 4; p_y--; }
-      let p_sm = (p_q - 1) * 3;
-      let p_firstDay = new Date(p_y, p_sm, 1);
-      let p_lastDay = new Date(p_y, p_sm + 3, 0);
+      let p_q = qy === 1 ? 4 : qy - 1; let p_y = qy === 1 ? d.getFullYear() - 1 : d.getFullYear();
+      let p_sm = (p_q - 1) * 3 + 1;
+      let p_firstDay = D(`${p_y}-${String(p_sm).padStart(2, '0')}-01`);
+      let p_firstDayNext = D(`${yStr}-${String(sm).padStart(2, '0')}-01`);
+      let p_lastDay = new Date(p_firstDayNext.getTime() - 864e5);
       for (let i = Math.floor((p_firstDay - ngayGoc) / 864e5); i <= Math.floor((p_lastDay - ngayGoc) / 864e5); i++) prev_day_arr.push(i);
       perName = `Quý ${qy}/${d.getFullYear()}`;
     }
