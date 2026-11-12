@@ -4,11 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Happy Day 2026 – Tổng hợp lượt ra quân</title>
+<!-- TÍCH HỢP FONT ROBOTO -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- TÍCH HỢP BỘ LỊCH FLATPICKR -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
+/* BỘ NHẬN DIỆN THƯƠNG HIỆU VIETNAM POST */
 :root {
   --vp-blue: #004588;   
   --vp-orange: #FBAF17; 
@@ -37,6 +40,9 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 input, select, textarea {
@@ -70,7 +76,7 @@ nav button {
 nav button:hover { background: rgba(255,255,255,0.4); }
 nav button.on { background: var(--bg); color: var(--vp-blue); border-top: 3px solid var(--vp-orange); }
 
-main { padding: 0 22px 30px; margin-top: 15px; }
+main { padding: 0 22px 30px; margin-top: 15px; flex: 1; }
 .pane { display: none; } .pane.on { display: block; }
 .ctl { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
 input, select, button.act {
@@ -134,6 +140,24 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 @media(prefers-color-scheme: dark) {
   .info-banner { background: rgba(251,175,23,0.15); color: #e8eaed; border-color: var(--line); border-left-color: var(--vp-orange); }
   .info-banner b { color: #FBAF17; } 
+}
+
+.card-detail {
+  background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
+  border-radius: 8px; padding: 12px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.card-detail h3 { margin: 0 0 5px 0; font-size: 11px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700;}
+.card-detail b { font-size: 26px; color: var(--c); display: block; margin-bottom: 4px; }
+.card-detail small { display: block; color: var(--mut); font-size: 12px; }
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: var(--mut);
+  font-size: 13px;
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  background: var(--card);
 }
 </style>
 </head>
@@ -236,6 +260,10 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 </section>
 </main>
 
+<footer>
+  Tổng hợp lượt ra quân đăng ký được thiết kế bởi phòng TCBL - TCT Bưu điện Việt Nam
+</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 
@@ -309,12 +337,21 @@ document.getElementById('add').addEventListener('click', function() {
 
   let maDiemNhap = rawPoint.split(' - ')[0].trim();
 
+  const D = d => new Date(d + 'T00:00:00+07:00');
+  const dObj = D(ngayNhap);
+  const ngayGoc = D('2026-06-26');
+  const soNgayCachBiet = Math.floor((dObj - ngayGoc) / 864e5);
+  
+  // KIỂM TRA CHỐNG ĐĂNG KÝ TRÙNG LẶP TRONG CÙNG 1 NGÀY
+  if (DB.A[maDiemNhap] && DB.A[maDiemNhap][0] && DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
+      alert("Điểm này đã được anh/chị đăng ký trong ngày này!");
+      return;
+  }
+
   const btnAdd = document.getElementById('add');
   btnAdd.innerText = "Đang lưu...";
   btnAdd.disabled = true;
 
-  const D = d => new Date(d + 'T00:00:00+07:00');
-  const dObj = D(ngayNhap);
   const thuNames = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
   const thuStr = thuNames[dObj.getDay()];
   
@@ -330,8 +367,6 @@ document.getElementById('add').addEventListener('click', function() {
   let foundPt = ptsList.find(p => p[0].toString() === maDiemNhap);
   if (foundPt) tenDiemHienThi = foundPt[1];
 
-  const ngayGoc = D('2026-06-26');
-  const soNgayCachBiet = Math.floor((dObj - ngayGoc) / 864e5);
   const tenCotSheet = "Kỳ " + soNgayCachBiet;
 
   const payload = { ngay: tenCotSheet, donVi: donViVal, maDiem: maDiemNhap };
@@ -550,10 +585,9 @@ function initSystem() {
 
     if (DB.U) {
       DB.U.forEach(u => {
-        let uid = u[0], nm = u[1], kh_l = u[2], kh_dt = u[3], a = u[4] || [], b = u[5] || [];
-        let ps_w = a[w - 27] || 0, ps_m = b[m - 6] || 0;
-        let dk_w = 0, dk_d = 0;
-        let s_d = (w - 27) * 7; 
+        let uid = u[0], nm = u[1], kh_l = u[2], kh_dt = u[3];
+        let dk_w = 0, dk_d = 0, dk_m = 0, dk_q = 0;
+        let ps_w = 0, ps_m = 0;
         
         let has_d = false, has_w = false, has_m = false, has_q = false;
 
@@ -561,11 +595,21 @@ function initSystem() {
         pts.forEach(pt => {
             let act = DB.A[pt[0]] ? DB.A[pt[0]][0] : [];
             if(act.includes(dy_idx)) { dk_d++; has_d = true; }
-            for(let i=0; i<7; i++) {
-                if(act.includes(s_d+i)) { dk_w++; has_w = true; }
+            
+            act.forEach(d_idx => {
+                if(d_idx >= s_w_d && d_idx <= e_w_d) { dk_w++; has_w = true; }
+                if(d_idx >= s_m_d && d_idx <= e_m_d) { dk_m++; has_m = true; }
+                if(d_idx >= s_q_d && d_idx <= e_q_d) { dk_q++; has_q = true; }
+            });
+
+            let revs = DB.A[pt[0]] ? DB.A[pt[0]][1] : [];
+            if (revs) {
+                for(let i=0; i<revs.length; i+=2) {
+                    let rDay = revs[i];
+                    if (rDay >= s_w_d && rDay <= e_w_d) ps_w++;
+                    if (rDay >= s_m_d && rDay <= e_m_d) ps_m++;
+                }
             }
-            if(ps_m > 0) has_m = true;
-            if(ps_m > 0) has_q = true; 
         });
 
         if(has_d) u_d_count++;
@@ -574,14 +618,14 @@ function initSystem() {
         if(has_q) u_q_count++;
 
         luot_d += dk_d;
-        luot_w += ps_w + dk_w; 
-        luot_m += ps_m;
-        luot_q += Math.round(ps_m * 2.5); 
+        luot_w += dk_w; 
+        luot_m += dk_m;
+        luot_q += dk_q; 
         
         prev_d_sum += (dk_d > 0 ? dk_d - 1 : 0);
-        prev_w_sum += (ps_w > 0 ? ps_w - 5 : 0);
-        prev_m_sum += (ps_m > 0 ? ps_m - 20 : 0);
-        prev_q_sum += Math.round(ps_m > 0 ? ps_m * 2 - 50 : 0);
+        prev_w_sum += (dk_w > 0 ? dk_w - 5 : 0);
+        prev_m_sum += (dk_m > 0 ? dk_m - 20 : 0);
+        prev_q_sum += (dk_q > 0 ? dk_q - 50 : 0);
 
         sum[0] += kh_l; sum[1] += kh_dt; sum[2] += dk_w; sum[3] += ps_w; sum[4] += ps_m; sum[5] += (kh_l * 4); sum[6] += (kh_dt * 4);
         sum[7] += dk_d;
@@ -630,7 +674,6 @@ function initSystem() {
       </div>
     `;
 
-    // Biểu đồ 7 ngày: Đếm số lượng điểm đăng ký theo từng ngày trực tiếp từ DB.A
     let dd = new Date(d); dd.setDate(dd.getDate() - 6);
     let days = [], d_vals = [];
     for (let i = 0; i < 7; i++) {
@@ -650,7 +693,6 @@ function initSystem() {
     let s_day = [...u_arr].sort((a, b) => b.dk_d - a.dk_d).slice(0, 10);
     draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.dk_d), var_c('--vp-blue'));
     
-    // Top 10 Tháng xếp hạng theo Số lượt (ps_m)
     let s_month = [...u_arr].sort((a, b) => b.ps_m - a.ps_m).slice(0, 10);
     draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.ps_m), var_c('--vp-orange'));
 
@@ -672,7 +714,7 @@ function initSystem() {
     let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
     
     let day_arr = [];
-    let prev_day_arr = []; // Dùng để tính toán thẻ kỳ trước
+    let prev_day_arr = []; 
     let perName = "";
 
     if (p === 'Ngày') {
@@ -757,7 +799,7 @@ function initSystem() {
     });
 
     $('#dcards').innerHTML = `
-      <div class="card" style="--c:var(--vp-blue)">
+      <div class="card-detail" style="--c:var(--vp-blue)">
         <h3>TỔNG LƯỢT ĐĂNG KÝ</h3>
         <b>${F(sum[0])}</b>
         <div class="stat-row">
@@ -766,7 +808,7 @@ function initSystem() {
         </div>
       </div>
       
-      <div class="card" style="--c:var(--vp-orange)">
+      <div class="card-detail" style="--c:var(--vp-orange)">
         <h3>LƯỢT PHÁT SINH DT</h3>
         <b>${F(sum[1])}</b>
         <div class="stat-row">
@@ -775,7 +817,7 @@ function initSystem() {
         </div>
       </div>
       
-      <div class="card" style="--c:var(--vp-blue)">
+      <div class="card-detail" style="--c:var(--vp-blue)">
         <h3>TỔNG DOANH THU (TR)</h3>
         <b>${F(sum[3] / 1e6)} <span class="dt-hl">Tr</span></b>
         <div class="stat-row">
