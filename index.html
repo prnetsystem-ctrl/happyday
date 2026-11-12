@@ -142,16 +142,6 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
   .info-banner b { color: #FBAF17; } 
 }
 
-.card-detail {
-  background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
-  border-radius: 8px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-.card-detail h3 { margin: 0 0 8px 0; font-size: 12px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700;}
-.card-detail b { font-size: 32px; color: var(--c); display: block; margin-bottom: 8px; }
-.card-detail .dt-hl { color: var(--vp-orange); font-size: 20px; font-weight: 700; }
-.card-detail .stat-row { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--mut); }
-.card-detail .stat-row span { display: flex; align-items: center; gap: 4px; }
-
 footer {
   text-align: center; padding: 20px; color: var(--mut); font-size: 13px;
   border-top: 1px solid var(--line); margin-top: 20px; background: var(--card);
@@ -276,8 +266,7 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// ĐÃ SỬ DỤNG LINK APP CỦA BẠN (TRONG FILE TRƯỚC ĐÓ BẠN CUNG CẤP LÀ ĐUÔI Q4Q)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUoVH70qvkn3CYgcn-c_LP_yAZFHzmfezxJY-TuDNJckQRvRleCd32kNi2EjO7BofJ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwBqWBMDxd73nRZJvQI4IdXmk_P9Qd-kcvY_NFNazciGN0ghmPR1kwO0MC0mFFrcL4Q/exec";
 let DB = { U: [], D: {}, P: {}, S: [], A: {} };
 
 const dNow = new Date();
@@ -324,7 +313,7 @@ fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' })
     document.getElementById('loading').innerHTML = `<span class="err">Không thể nạp dữ liệu. Vui lòng kiểm tra kết nối mạng hoặc link Web App.</span>`;
   });
 
-// XỬ LÝ LƯU ĐĂNG KÝ
+// XỬ LÝ LƯU ĐĂNG KÝ (NÂNG CẤP XỬ LÝ NGẦM, KHÔNG TẢI LẠI TRANG)
 document.getElementById('add').addEventListener('click', function() {
   const ngayNhap = document.getElementById('fd').value;
   const donViVal = document.getElementById('fu').value;
@@ -340,12 +329,12 @@ document.getElementById('add').addEventListener('click', function() {
   const ngayGoc = D('2026-06-26');
   const soNgayCachBiet = Math.floor((dObj - ngayGoc) / 864e5);
   
-  // CHỐNG TRÙNG LẶP: DỪNG TOÀN BỘ CODE NẾU ĐÃ TỒN TẠI
+  // KIỂM TRA CHỐNG ĐĂNG KÝ TRÙNG LẶP TRONG CÙNG 1 NGÀY 
   if (DB.A[maDiemNhap] && DB.A[maDiemNhap][0] && DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
       alert("Điểm này đã được anh/chị đăng ký trong ngày này! Vui lòng chọn ngày khác.");
       let fpInstance = document.getElementById('fd')._flatpickr;
       if(fpInstance) fpInstance.clear(); 
-      return; // Dừng lại ở đây, không gửi data, không ghi lịch sử
+      return; 
   }
 
   const btnAdd = document.getElementById('add');
@@ -367,51 +356,42 @@ document.getElementById('add').addEventListener('click', function() {
   let foundPt = ptsList.find(p => p[0].toString() === maDiemNhap);
   if (foundPt) tenDiemHienThi = foundPt[1];
 
-  let displayDate = `${String(dObj.getDate()).padStart(2, '0')}/${String(dObj.getMonth() + 1).padStart(2, '0')}/${dObj.getFullYear()}`;
-  const payload = { ngay: displayDate, kyIndex: soNgayCachBiet, donVi: donViVal, maDiem: maDiemNhap };
+  // 1. CẬP NHẬT GIAO DIỆN VÀ LOCAL STORAGE LẬP TỨC
+  if (!DB.A[maDiemNhap]) DB.A[maDiemNhap] = [[], []];
+  DB.A[maDiemNhap][0].push(soNgayCachBiet);
 
+  let displayDate = `${String(dObj.getDate()).padStart(2, '0')}/${String(dObj.getMonth() + 1).padStart(2, '0')}/${dObj.getFullYear()}`;
+
+  let logItem = {
+    ngay: displayDate, thu: thuStr, donvi: tenDonVi, madiem: maDiemNhap,
+    tendiem: tenDiemHienThi, tuan: `Tuần ${tuanNum}`, thang: `Tháng ${thangNum}`, quy: `Quý ${quyNum}`
+  };
+  
+  saveLogToLocal(logItem);
+  appendLogRow(logItem, document.getElementById('lg').children.length + 1);
+  
+  window.updateHistoryTable(donViVal);
+  window.refreshDashboardUI();
+  
+  alert("Đã đăng ký thành công. Chúc các anh/chị triển khai tốt");
+  
+  // Xóa trắng input để tiện lợi đăng ký điểm khác
+  let fpInstance = document.getElementById('fd')._flatpickr;
+  if(fpInstance) fpInstance.clear(); 
+  document.getElementById('fp').value = '';
+  document.getElementById('pn').innerText = '';
+
+  btnAdd.innerText = "Đăng ký";
+  btnAdd.disabled = false;
+
+  // 2. GỬI DỮ LIỆU ĐỒNG BỘ NGẦM LÊN GOOGLE SHEETS BẰNG no-cors
+  const payload = { ngay: displayDate, kyIndex: soNgayCachBiet, donVi: donViVal, maDiem: maDiemNhap };
   fetch(SCRIPT_URL, {
-    method: 'POST', redirect: 'follow',
+    method: 'POST',
+    mode: 'no-cors', // Bỏ qua cơ chế đợi JSON parse để không bị khựng hoặc lỗi trình duyệt
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
-  })
-  .then(res => res.text())
-  .then(resTxt => {
-    try {
-        let resData = JSON.parse(resTxt);
-        if (resData.status === "success") {
-          alert("Đã đăng ký thành công. Chúc các anh/chị triển khai tốt");
-          
-          if (!DB.A[maDiemNhap]) DB.A[maDiemNhap] = [[], []];
-          if (!DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
-            DB.A[maDiemNhap][0].push(soNgayCachBiet);
-          }
-
-          let logItem = {
-            ngay: displayDate, thu: thuStr, donvi: tenDonVi, madiem: maDiemNhap,
-            tendiem: tenDiemHienThi, tuan: `Tuần ${tuanNum}`, thang: `Tháng ${thangNum}`, quy: `Quý ${quyNum}`
-          };
-          saveLogToLocal(logItem);
-          appendLogRow(logItem, document.getElementById('lg').children.length + 1);
-          
-          window.updateHistoryTable(donViVal);
-          window.refreshDashboardUI();
-        } else {
-          alert("Lỗi server: " + resData.message);
-        }
-    } catch (e) {
-        alert("Đã lưu thành công. Vui lòng tải lại trang để cập nhật số liệu.");
-        window.location.reload();
-    }
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Máy chủ không phản hồi. Vui lòng thử lại sau.");
-  })
-  .finally(() => {
-    btnAdd.innerText = "Đăng ký";
-    btnAdd.disabled = false;
-  });
+  }).catch(e => console.log("Lỗi mạng đồng bộ ngầm: ", e));
 });
 
 document.getElementById('exportExcel').addEventListener('click', function() {
@@ -632,9 +612,12 @@ function initSystem() {
         prev_m_sum += (dk_m > 0 ? dk_m - 20 : 0);
         prev_q_sum += (dk_q > 0 ? dk_q - 50 : 0);
 
-        sum[0] += kh_l; sum[1] += kh_dt; sum[2] += dk_w; sum[3] += ps_w; sum[4] += ps_m; sum[5] += (kh_l * 4); sum[6] += (kh_dt * 4);
+        let kh_m = Math.round((kh_l / 7) * (e_m_d - s_m_d + 1));
+        
+        sum[0] += kh_l; sum[1] += kh_dt; sum[2] += dk_w; sum[3] += ps_w; sum[4] += ps_m; sum[5] += kh_m; sum[6] += (kh_dt * 4);
         sum[7] += dk_d; sum[8] += dk_m;
-        u_arr.push({ id: uid, nm: nm, kh_l: kh_l, kh_dt: kh_dt, dk_w: dk_w, dk_d: dk_d, dk_m: dk_m, ps_w: ps_w, ps_m: ps_m, pw: P(dk_w, kh_l), pm: P(dk_m, kh_l * 4) });
+        
+        u_arr.push({ id: uid, nm: nm, kh_l: kh_l, kh_dt: kh_dt, dk_w: dk_w, dk_d: dk_d, dk_m: dk_m, ps_w: ps_w, ps_m: ps_m, pw: P(dk_w, kh_l), pm: P(dk_m, kh_m) });
       });
     }
 
@@ -812,7 +795,7 @@ function initSystem() {
     });
 
     $('#dcards').innerHTML = `
-      <div class="card-detail" style="--c:var(--vp-blue)">
+      <div class="card" style="--c:var(--vp-blue)">
         <h3>TỔNG LƯỢT ĐĂNG KÝ</h3>
         <b>${F(sum[0])}</b>
         <div class="stat-row">
@@ -821,7 +804,7 @@ function initSystem() {
         </div>
       </div>
       
-      <div class="card-detail" style="--c:var(--vp-orange)">
+      <div class="card" style="--c:var(--vp-orange)">
         <h3>LƯỢT PHÁT SINH DT</h3>
         <b>${F(sum[1])}</b>
         <div class="stat-row">
@@ -830,7 +813,7 @@ function initSystem() {
         </div>
       </div>
       
-      <div class="card-detail" style="--c:var(--vp-blue)">
+      <div class="card" style="--c:var(--vp-blue)">
         <h3>TỔNG DOANH THU (TR)</h3>
         <b>${F(sum[3] / 1e6)} <span class="dt-hl">Tr</span></b>
         <div class="stat-row">
