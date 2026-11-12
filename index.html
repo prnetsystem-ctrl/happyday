@@ -4,14 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Happy Day 2026 – Tổng hợp lượt ra quân</title>
-<!-- TÍCH HỢP FONT ROBOTO -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<!-- TÍCH HỢP BỘ LỊCH FLATPICKR -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
-/* BỘ NHẬN DIỆN THƯƠNG HIỆU VIETNAM POST */
 :root {
   --vp-blue: #004588;   
   --vp-orange: #FBAF17; 
@@ -138,20 +135,12 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
   .info-banner { background: rgba(251,175,23,0.15); color: #e8eaed; border-color: var(--line); border-left-color: var(--vp-orange); }
   .info-banner b { color: #FBAF17; } 
 }
-
-.card-detail {
-  background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
-  border-radius: 8px; padding: 12px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-.card-detail h3 { margin: 0 0 5px 0; font-size: 11px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700;}
-.card-detail b { font-size: 26px; color: var(--c); display: block; margin-bottom: 4px; }
-.card-detail small { display: block; color: var(--mut); font-size: 12px; }
 </style>
 </head>
 <body>
 <header>
   <div class="brand">
-    <img src="https://i.ibb.co/KzBdMKJG/Logo-Vietnam-Post.png" alt="Vietnam Post Logo" id="brand-logo">
+    <img src="https://i.ibb.co/3sX8M8L/logo-nhan-dien.png" alt="Vietnam Post Logo" id="brand-logo">
     <div class="header-titles">
       <h1>Tổng hợp lượt ra quân đăng ký</h1>
       <small>Hệ thống đăng ký lịch ra quân bán hàng PPBL trực tuyến</small>
@@ -364,7 +353,6 @@ document.getElementById('add').addEventListener('click', function() {
             DB.A[maDiemNhap][0].push(soNgayCachBiet);
           }
 
-          // Định dạng ngày thành DD/MM/YYYY cho Bảng Lịch sử
           let displayDate = `${String(dObj.getDate()).padStart(2, '0')}/${String(dObj.getMonth() + 1).padStart(2, '0')}/${dObj.getFullYear()}`;
 
           let logItem = {
@@ -642,12 +630,19 @@ function initSystem() {
       </div>
     `;
 
+    // Biểu đồ 7 ngày: Đếm số lượng điểm đăng ký theo từng ngày trực tiếp từ DB.A
     let dd = new Date(d); dd.setDate(dd.getDate() - 6);
     let days = [], d_vals = [];
     for (let i = 0; i < 7; i++) {
-      let ds = dd.toISOString().slice(0, 10);
-      days.push(dd.getDate() + '/' + (dd.getMonth() + 1));
-      d_vals.push(DB.D && DB.D[ds] ? DB.D[ds] : 0);
+      days.push(String(dd.getDate()).padStart(2,'0') + '/' + String(dd.getMonth() + 1).padStart(2,'0'));
+      let curr_dy_idx = Math.floor((dd - ngayGoc) / 864e5);
+      let count = 0;
+      if (DB.A) {
+         Object.values(DB.A).forEach(act => {
+            if(act[0] && act[0].includes(curr_dy_idx)) count++;
+         });
+      }
+      d_vals.push(count);
       dd.setDate(dd.getDate() + 1);
     }
     draw_bar($('#c1'), days, d_vals, var_c('--vp-blue'));
@@ -655,7 +650,7 @@ function initSystem() {
     let s_day = [...u_arr].sort((a, b) => b.dk_d - a.dk_d).slice(0, 10);
     draw_bar($('#c10_d'), s_day.map(x => cleanName(x.nm)), s_day.map(x => x.dk_d), var_c('--vp-blue'));
     
-    // Cập nhật biểu đồ Top 10 Tháng xếp hạng theo Số lượng lượt (ps_m)
+    // Top 10 Tháng xếp hạng theo Số lượt (ps_m)
     let s_month = [...u_arr].sort((a, b) => b.ps_m - a.ps_m).slice(0, 10);
     draw_bar($('#c4'), s_month.map(x => cleanName(x.nm)), s_month.map(x => x.ps_m), var_c('--vp-orange'));
 
@@ -675,16 +670,19 @@ function initSystem() {
     let d_str = nbc.value, d = D(d_str), w = T(d_str), m = d.getMonth() + 1, qy = Q(m);
     let u = DB.U ? DB.U.find(x => x[0].toString() === uid.toString()) : null;
     let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
+    
     let day_arr = [];
-
+    let prev_day_arr = []; // Dùng để tính toán thẻ kỳ trước
     let perName = "";
+
     if (p === 'Ngày') {
       let idx = Math.floor((d - ngayGoc) / 864e5);
       day_arr = [idx];
+      prev_day_arr = [idx - 1];
       perName = `Ngày ${String(d.getDate()).padStart(2,'0')}/${String(m).padStart(2,'0')}/${d.getFullYear()}`;
     } else if (p === 'Tuần') {
       let s_d = (w - 27) * 7;
-      for (let i = 0; i < 7; i++) day_arr.push(s_d + i);
+      for (let i = 0; i < 7; i++) { day_arr.push(s_d + i); prev_day_arr.push(s_d + i - 7); }
       perName = `Tuần ${w}`;
     } else if (p === 'Tháng') {
       let firstDay = new Date(d.getFullYear(), m - 1, 1);
@@ -692,6 +690,11 @@ function initSystem() {
       let s_d = Math.floor((firstDay - ngayGoc) / 864e5);
       let e_d = Math.floor((lastDay - ngayGoc) / 864e5);
       for (let i = s_d; i <= e_d; i++) day_arr.push(i);
+      
+      let p_m = m - 1; let p_y = d.getFullYear(); if(p_m === 0){ p_m = 12; p_y--; }
+      let p_firstDay = new Date(p_y, p_m - 1, 1);
+      let p_lastDay = new Date(p_y, p_m, 0);
+      for (let i = Math.floor((p_firstDay - ngayGoc) / 864e5); i <= Math.floor((p_lastDay - ngayGoc) / 864e5); i++) prev_day_arr.push(i);
       perName = `Tháng ${m}/${d.getFullYear()}`;
     } else {
       let sm = (qy - 1) * 3;
@@ -700,6 +703,12 @@ function initSystem() {
       let s_d = Math.floor((firstDay - ngayGoc) / 864e5);
       let e_d = Math.floor((lastDay - ngayGoc) / 864e5);
       for (let i = s_d; i <= e_d; i++) day_arr.push(i);
+      
+      let p_q = qy - 1; let p_y = d.getFullYear(); if(p_q === 0){ p_q = 4; p_y--; }
+      let p_sm = (p_q - 1) * 3;
+      let p_firstDay = new Date(p_y, p_sm, 1);
+      let p_lastDay = new Date(p_y, p_sm + 3, 0);
+      for (let i = Math.floor((p_firstDay - ngayGoc) / 864e5); i <= Math.floor((p_lastDay - ngayGoc) / 864e5); i++) prev_day_arr.push(i);
       perName = `Quý ${qy}/${d.getFullYear()}`;
     }
 
@@ -707,7 +716,10 @@ function initSystem() {
     document.getElementById('dt_unit_name').innerText = uName;
     document.getElementById('dt_period_name').innerText = perName;
 
-    let sum = [0, 0, 0, 0, 0], p_arr = [];
+    let sum = [0, 0, 0, 0, 0];
+    let prev_sum = [0, 0, 0, 0, 0];
+    let p_arr = [];
+    
     pts.forEach(pt => {
       let pid = pt[0].toString(), pnm = pt[1];
       if (q && !pid.includes(q) && !pnm.toLowerCase().includes(q)) return;
@@ -720,6 +732,12 @@ function initSystem() {
         if (a1.includes(dy)) dk++;
         let ix = a2.indexOf(dy);
         if (ix > -1) { tt++; dt += a2[ix + 1]; }
+      });
+
+      prev_day_arr.forEach(dy => {
+        if (a1.includes(dy)) prev_sum[0]++;
+        let ix = a2.indexOf(dy);
+        if (ix > -1) { prev_sum[1]++; prev_sum[3] += a2[ix + 1]; }
       });
 
       let st = tt > 0 ? 1 : (dk > 0 ? 2 : 3);
@@ -739,10 +757,34 @@ function initSystem() {
     });
 
     $('#dcards').innerHTML = `
-      <div class="card-detail" style="--c:var(--vp-blue)"><h3>TỔNG LƯỢT ĐĂNG KÝ</h3><b>${F(sum[0])}</b><small>${sum[4]} điểm tham gia</small></div>
-      <div class="card-detail" style="--c:var(--vp-orange)"><h3>LƯỢT PHÁT SINH DT</h3><b>${F(sum[1])}</b><small>Tỷ lệ: ${P(sum[1], sum[0])}% ĐK</small></div>
-      <div class="card-detail" style="--c:var(--vp-blue)"><h3>TỔNG DOANH THU (TR)</h3><b>${F(sum[3] / 1e6)}</b><small>Đạt ${P(sum[3] / 1e6, sum[2])}% Kế hoạch</small></div>
+      <div class="card" style="--c:var(--vp-blue)">
+        <h3>TỔNG LƯỢT ĐĂNG KÝ</h3>
+        <b>${F(sum[0])}</b>
+        <div class="stat-row">
+            ${getTrendHtml(sum[0], prev_sum[0])}
+            <span>${sum[4]} điểm tham gia</span>
+        </div>
+      </div>
+      
+      <div class="card" style="--c:var(--vp-orange)">
+        <h3>LƯỢT PHÁT SINH DT</h3>
+        <b>${F(sum[1])}</b>
+        <div class="stat-row">
+            ${getTrendHtml(sum[1], prev_sum[1])}
+            <span>Tỷ lệ: ${P(sum[1], sum[0])}% so với Đăng ký</span>
+        </div>
+      </div>
+      
+      <div class="card" style="--c:var(--vp-blue)">
+        <h3>TỔNG DOANH THU (TR)</h3>
+        <b>${F(sum[3] / 1e6)} <span class="dt-hl">Tr</span></b>
+        <div class="stat-row">
+            ${getTrendHtml(sum[3]/1e6, prev_sum[3]/1e6)}
+            <span>Đạt ${P(sum[3] / 1e6, sum[2])}% Kế hoạch</span>
+        </div>
+      </div>
     `;
+    
     $('#dn').innerText = `Đang hiển thị ${p_arr.length} điểm`;
 
     let th = `<tr><th>Mã</th><th>Tên điểm</th><th>Chỉ tiêu lượt</th><th>Lượt ĐK</th><th>Lượt PSDT</th><th>Doanh thu</th><th>Trạng thái</th><th>Tuần đã ĐK</th></tr>`;
