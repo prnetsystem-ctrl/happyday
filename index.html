@@ -96,7 +96,6 @@ button.act:hover { background: #003366; }
 button.excel { background: #0f9d58; color: #fff; border: 0; cursor: pointer; padding: 7px 12px; border-radius: 6px; font-weight: bold; font-family: inherit;}
 button.excel:hover { background: #0b8043; }
 
-/* THẺ HIỂN THỊ ĐỒNG BỘ */
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 20px; }
 .card {
   background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
@@ -142,17 +141,6 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
   .info-banner { background: rgba(251,175,23,0.15); color: #e8eaed; border-color: var(--line); border-left-color: var(--vp-orange); }
   .info-banner b { color: #FBAF17; } 
 }
-
-/* THẺ DETAIL SỬ DỤNG CHUNG STYLE CHO ĐỒNG BỘ */
-.card-detail {
-  background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
-  border-radius: 8px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-.card-detail h3 { margin: 0 0 8px 0; font-size: 12px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700;}
-.card-detail b { font-size: 32px; color: var(--c); display: block; margin-bottom: 8px; }
-.card-detail .dt-hl { color: var(--vp-orange); font-size: 20px; font-weight: 700; }
-.card-detail .stat-row { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--mut); }
-.card-detail .stat-row span { display: flex; align-items: center; gap: 4px; }
 
 footer {
   text-align: center; padding: 20px; color: var(--mut); font-size: 13px;
@@ -251,7 +239,7 @@ footer {
   <h4>Lịch sử vừa đăng ký (Lưu tạm trên máy hiện tại):</h4>
   <div class="wrap">
    <table>
-    <thead><tr><th>#</th><th>Ngày</th><th>Thứ</th><th>Đơn vị</th><th>Mã điểm</th><th>Tên điểm</th><th>Tuần</th><th>Tháng</th><th>Quý</th><th>Trạng thái</th></tr></thead>
+    <thead><tr><th>#</th><th>Ngày</th><th>Thứ</th><th>Đơn vị</th><th>Mã điểm</th><th>Tên điểm</th><th>Tuần</th><th>Tháng</th><th>Quý</th><th>Kiểm tra</th></tr></thead>
     <tbody id="lg"></tbody>
    </table>
   </div>
@@ -267,9 +255,6 @@ footer {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 
 <script>
-// ==========================================
-// CÁC HÀM BẢO MẬT CHỐNG SAO CHÉP & F12
-// ==========================================
 document.addEventListener('contextmenu', event => event.preventDefault());
 document.addEventListener('keydown', function(e) {
   if (e.keyCode === 123 || 
@@ -328,7 +313,7 @@ fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' })
     document.getElementById('loading').innerHTML = `<span class="err">Không thể nạp dữ liệu. Vui lòng kiểm tra kết nối mạng hoặc link Web App.</span>`;
   });
 
-// XỬ LÝ DATE LINH HOẠT CHỐNG LỖI HIỂN THỊ TAB CHI TIẾT
+// XỬ LÝ DATE LINH HOẠT
 const D = d_str => {
    if (!d_str) return new Date();
    if (d_str.includes('/')) {
@@ -338,7 +323,7 @@ const D = d_str => {
    return new Date(d_str + 'T00:00:00+07:00');
 };
 
-// XỬ LÝ LƯU ĐĂNG KÝ TỨC THỜI (OPTIMISTIC UI) - KHÔNG TẢI LẠI TRANG
+// XỬ LÝ LƯU ĐĂNG KÝ TỨC THỜI (OPTIMISTIC UI)
 document.getElementById('add').addEventListener('click', function() {
   const ngayNhap = document.getElementById('fd').value;
   const donViVal = document.getElementById('fu').value;
@@ -353,7 +338,7 @@ document.getElementById('add').addEventListener('click', function() {
   const ngayGoc = D('2026-06-26');
   const soNgayCachBiet = Math.floor((dObj - ngayGoc) / 864e5);
   
-  // KIỂM TRA CHỐNG ĐĂNG KÝ TRÙNG LẶP & XÓA TRẮNG KHUNG NGÀY NẾU BỊ TRÙNG
+  // KIỂM TRA CHỐNG ĐĂNG KÝ TRÙNG LẶP TRONG CÙNG 1 NGÀY 
   if (DB.A[maDiemNhap] && DB.A[maDiemNhap][0] && DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
       alert("Điểm này đã được anh/chị đăng ký trong ngày này! Vui lòng chọn ngày khác.");
       let fpInstance = document.getElementById('fd')._flatpickr;
@@ -382,7 +367,7 @@ document.getElementById('add').addEventListener('click', function() {
 
   let displayDate = `${String(dObj.getDate()).padStart(2, '0')}/${String(dObj.getMonth() + 1).padStart(2, '0')}/${dObj.getFullYear()}`;
   
-  // 1. LƯU TỨC THỜI VÀO BỘ NHỚ LOCAL & CẬP NHẬT GIAO DIỆN LẬP TỨC
+  // 1. CẬP NHẬT GIAO DIỆN VÀ LOCAL STORAGE LẬP TỨC
   if (!DB.A[maDiemNhap]) DB.A[maDiemNhap] = [[], []];
   if (!DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
     DB.A[maDiemNhap][0].push(soNgayCachBiet);
@@ -398,7 +383,7 @@ document.getElementById('add').addEventListener('click', function() {
   window.updateHistoryTable(donViVal);
   window.refreshDashboardUI();
   
-  // Xóa trắng input để tiện lợi đăng ký điểm khác
+  // Xóa trắng ô nhập liệu sau khi thành công
   let fpInstance = document.getElementById('fd')._flatpickr;
   if(fpInstance) fpInstance.clear(); 
   document.getElementById('fp').value = '';
@@ -406,19 +391,18 @@ document.getElementById('add').addEventListener('click', function() {
 
   alert("Đã đăng ký thành công. Chúc các anh/chị triển khai tốt");
   
+  // Mở khóa nút đăng ký NGAY LẬP TỨC
   btnAdd.innerText = "Đăng ký";
   btnAdd.disabled = false;
 
-  // 2. CHẠY NGẦM ĐỒNG BỘ DỮ LIỆU LÊN GOOGLE SHEETS
+  // 2. GỬI DỮ LIỆU ĐỒNG BỘ LÊN GOOGLE SHEETS
   const tenCotSheet = "Kỳ " + soNgayCachBiet;
   const payload = { ngay: tenCotSheet, donVi: donViVal, maDiem: maDiemNhap };
 
   fetch(SCRIPT_URL, {
     method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
-  }).catch(e => console.log("Lỗi đồng bộ ngầm: ", e));
+  }).catch(e => console.log("Gửi ngầm thất bại (Bỏ qua lỗi này): ", e));
 
 });
 
@@ -505,7 +489,7 @@ function initSystem() {
   const $ = (s, e = document) => e.querySelector(s);
   const $$ = (s, e = document) => Array.from(e.querySelectorAll(s));
 
-  const F = n => new Intl.NumberFormat('vi-VN').format(Math.round(n)); 
+  const F = n => new Intl.NumberFormat('vi-VN').format(Math.round(n || 0)); 
   const P = (a, b) => b ? Math.round(a / b * 100) : 0;
   
   const T = d_str => {
@@ -527,8 +511,11 @@ function initSystem() {
       DB.U.forEach(u => { optHtml += `<option value="${u[0]}">${u[0]} - ${u[1]}</option>`; });
     }
     du.innerHTML = optHtml; fu.innerHTML = optHtml;
-    if (DB.U && DB.U.length > 0) { du.value = String(DB.U[0][0]); }
-    if (!du.value && du.options.length > 1) { du.selectedIndex = 1; }
+    
+    // Nếu có đơn vị, tự động chọn đơn vị đầu tiên và render thẻ ngay lập tức
+    if (DB.U && DB.U.length > 0) { 
+        du.value = String(DB.U[0][0]); 
+    }
     fu.value = "";
     populatePoints();
   }
@@ -601,7 +588,7 @@ function initSystem() {
 
     if (DB.U) {
       DB.U.forEach(u => {
-        let uid = u[0], nm = u[1], kh_l = u[2], kh_dt = u[3];
+        let uid = u[0], nm = u[1], kh_l = Number(u[2]) || 0, kh_dt = Number(u[3]) || 0;
         let dk_w = 0, dk_d = 0, dk_m = 0, dk_q = 0;
         let ps_w = 0, ps_m = 0;
         
@@ -643,7 +630,8 @@ function initSystem() {
         prev_m_sum += (dk_m > 0 ? dk_m - 20 : 0);
         prev_q_sum += (dk_q > 0 ? dk_q - 50 : 0);
 
-        let kh_m = Math.round((kh_l / 7) * (e_m_d - s_m_d + 1));
+        let soNgayTrongThang = e_m_d - s_m_d + 1;
+        let kh_m = Math.round((kh_l / 7) * soNgayTrongThang);
         
         sum[0] += kh_l; sum[1] += kh_dt; sum[2] += dk_w; sum[3] += ps_w; sum[4] += ps_m; sum[5] += kh_m; sum[6] += (kh_dt * 4);
         sum[7] += dk_d; sum[8] += dk_m;
@@ -727,16 +715,16 @@ function initSystem() {
   function render_dt() {
     let uid = du.value;
     
-    // GIAO DIỆN KHI CHƯA CHỌN ĐƠN VỊ CHỐNG TRẮNG TRANG
-    if (!uid) {
+    // GIAO DIỆN KHI CHƯA CHỌN ĐƠN VỊ (CHỐNG LỖI MẤT THẺ DO CHƯA CÓ UID HOẶC UID SAI)
+    if (!uid || !DB.U.find(x => String(x[0]) === String(uid))) {
         $('#dcards').innerHTML = `
-          <div class="card-detail" style="--c:var(--vp-blue)">
+          <div class="card" style="--c:var(--vp-blue)">
             <h3>TỔNG LƯỢT ĐĂNG KÝ</h3><b>0</b><div class="stat-row"><span>Vui lòng chọn đơn vị</span></div>
           </div>
-          <div class="card-detail" style="--c:var(--vp-orange)">
+          <div class="card" style="--c:var(--vp-orange)">
             <h3>LƯỢT PHÁT SINH DT</h3><b>0</b><div class="stat-row"><span>Vui lòng chọn đơn vị</span></div>
           </div>
-          <div class="card-detail" style="--c:var(--vp-blue)">
+          <div class="card" style="--c:var(--vp-blue)">
             <h3>TỔNG DOANH THU (TR)</h3><b>0 <span class="dt-hl">Tr</span></b><div class="stat-row"><span>Vui lòng chọn đơn vị</span></div>
           </div>
         `;
@@ -845,8 +833,9 @@ function initSystem() {
       p_arr.push({ id: pid, nm: pnm, ct: pt[2] || 1, dk: dk, tt: tt, kh_d: kh_d, dt: dt, st: st, weekStr: weekStr });
     });
 
+    // ĐÃ ĐỒNG BỘ CSS CARD ĐỂ TO RÕ NHƯ Ở DASHBOARD
     $('#dcards').innerHTML = `
-      <div class="card-detail" style="--c:var(--vp-blue)">
+      <div class="card" style="--c:var(--vp-blue)">
         <h3>TỔNG LƯỢT ĐĂNG KÝ</h3>
         <b>${F(sum[0])}</b>
         <div class="stat-row">
@@ -855,7 +844,7 @@ function initSystem() {
         </div>
       </div>
       
-      <div class="card-detail" style="--c:var(--vp-orange)">
+      <div class="card" style="--c:var(--vp-orange)">
         <h3>LƯỢT PHÁT SINH DT</h3>
         <b>${F(sum[1])}</b>
         <div class="stat-row">
@@ -864,7 +853,7 @@ function initSystem() {
         </div>
       </div>
       
-      <div class="card-detail" style="--c:var(--vp-blue)">
+      <div class="card" style="--c:var(--vp-blue)">
         <h3>TỔNG DOANH THU (TR)</h3>
         <b>${F(sum[3] / 1e6)} <span class="dt-hl">Tr</span></b>
         <div class="stat-row">
