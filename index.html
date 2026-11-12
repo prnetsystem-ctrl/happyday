@@ -156,6 +156,16 @@ footer {
   text-align: center; padding: 20px; color: var(--mut); font-size: 13px;
   border-top: 1px solid var(--line); margin-top: 20px; background: var(--card);
 }
+
+/* THÔNG BÁO GÓC MÀN HÌNH (TOAST) */
+#toast {
+  position: fixed; bottom: 20px; right: 20px; background: var(--vp-blue); color: #fff;
+  padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999;
+  transform: translateY(100px); opacity: 0; transition: all 0.3s ease;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast.success { background: #0f9d58; }
 </style>
 </head>
 <body>
@@ -261,6 +271,9 @@ footer {
   Tổng hợp lượt ra quân đăng ký được thiết kế bởi phòng TCBL - TCT Bưu điện Việt Nam
 </footer>
 
+<!-- THÔNG BÁO TOAST -->
+<div id="toast"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 
@@ -278,6 +291,7 @@ document.addEventListener('keydown', function(e) {
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUoVH70qvkn3CYgcn-c_LP_yAZFHzmfezxJY-TuDNJckQRvRleCd32kNi2EjO7BofJ/exec";
 let DB = { U: [], D: {}, P: {}, S: [], A: {} };
+let systemInitialized = false;
 
 const dNow = new Date();
 const yyyy = dNow.getFullYear();
@@ -285,45 +299,69 @@ const mm = String(dNow.getMonth() + 1).padStart(2, '0');
 const dd = String(dNow.getDate()).padStart(2, '0');
 const todayStr = `${yyyy}-${mm}-${dd}`;
 
+function showToast(msg, isSuccess = false) {
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  if (isSuccess) t.classList.add('success'); else t.classList.remove('success');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// KHỞI TẠO LỊCH
 flatpickr("#nbc", {
-    locale: "vn",
-    dateFormat: "Y-m-d",
-    altInput: true,
-    altFormat: "d/m/Y",
-    defaultDate: todayStr,
-    onChange: function() {
-        if(typeof render_db === 'function') { render_db(); render_dt(); }
-    }
+    locale: "vn", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: todayStr,
+    onChange: function() { if(typeof window.render_db === 'function') { window.render_db(); window.render_dt(); } }
 });
+flatpickr("#fd", { locale: "vn", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: todayStr });
 
-flatpickr("#fd", {
-    locale: "vn",
-    dateFormat: "Y-m-d",
-    altInput: true,
-    altFormat: "d/m/Y",
-    defaultDate: todayStr
-});
+// ==========================================
+// CƠ CHẾ TẢI SIÊU TỐC (CACHE-FIRST)
+// ==========================================
+try {
+  const cached = localStorage.getItem('happyday_db_cache');
+  if (cached) {
+    DB = JSON.parse(cached);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    initSystem();
+    systemInitialized = true;
+    showToast("Đang đồng bộ dữ liệu mới nhất...");
+  }
+} catch(e) {}
 
-// TẢI DỮ LIỆU BAN ĐẦU
+// Fetch ngầm dữ liệu mới nhất
 fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' })
   .then(res => res.json())
   .then(data => {
     if (data.error) {
-      document.getElementById('loading').innerHTML = `<span class="err">LỖI BACKEND: ${data.error}</span><br><small>Vui lòng kiểm tra lại tên sheet trên Google Sheets.</small>`;
+      if (!systemInitialized) document.getElementById('loading').innerHTML = `<span class="err">LỖI BACKEND: ${data.error}</span><br><small>Vui lòng kiểm tra lại Google Sheets.</small>`;
       return;
     }
     DB = data;
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-    initSystem();
-    loadLocalLogs();
+    localStorage.setItem('happyday_db_cache', JSON.stringify(DB));
+    
+    if (!systemInitialized) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      initSystem();
+      systemInitialized = true;
+    } else {
+      // Cập nhật âm thầm giao diện mà không làm mất lựa chọn hiện tại
+      let currentDu = document.getElementById('du').value;
+      if (typeof window.buildUnitDropdowns === 'function') {
+         window.buildUnitDropdowns(currentDu);
+         window.render_db();
+         window.render_dt();
+      }
+      showToast("Đã đồng bộ số liệu mới nhất!", true);
+    }
   })
   .catch(err => {
     console.error(err);
-    document.getElementById('loading').innerHTML = `<span class="err">Không thể nạp dữ liệu. Vui lòng kiểm tra kết nối mạng hoặc link Web App.</span>`;
+    if (!systemInitialized) document.getElementById('loading').innerHTML = `<span class="err">Không thể nạp dữ liệu. Vui lòng kiểm tra kết nối mạng.</span>`;
   });
 
-// HÀM XỬ LÝ DATE LINH HOẠT & AN TOÀN
+
 const D = d_str => {
    if (!d_str) return new Date();
    if (d_str.includes('/')) {
@@ -333,7 +371,7 @@ const D = d_str => {
    return new Date(d_str + 'T00:00:00+07:00');
 };
 
-// XỬ LÝ LƯU ĐĂNG KÝ
+// XỬ LÝ LƯU ĐĂNG KÝ TỨC THỜI (OPTIMISTIC UI)
 document.getElementById('add').addEventListener('click', function() {
   const ngayNhap = document.getElementById('fd').value;
   const donViVal = document.getElementById('fu').value;
@@ -376,7 +414,7 @@ document.getElementById('add').addEventListener('click', function() {
 
   let displayDate = `${String(dObj.getDate()).padStart(2, '0')}/${String(dObj.getMonth() + 1).padStart(2, '0')}/${dObj.getFullYear()}`;
   
-  // 1. CẬP NHẬT GIAO DIỆN NGAY LẬP TỨC 
+  // LƯU NGAY VÀO BỘ NHỚ TẠM THỜI
   if (!DB.A[maDiemNhap]) DB.A[maDiemNhap] = [[], []];
   if (!DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
     DB.A[maDiemNhap][0].push(soNgayCachBiet);
@@ -389,8 +427,8 @@ document.getElementById('add').addEventListener('click', function() {
   saveLogToLocal(logItem);
   appendLogRow(logItem, document.getElementById('lg').children.length + 1);
   
-  window.updateHistoryTable(donViVal);
-  window.refreshDashboardUI();
+  if(typeof window.updateHistoryTable === 'function') window.updateHistoryTable(donViVal);
+  if(typeof window.render_db === 'function') { window.render_db(); window.render_dt(); }
   
   let fpInstance = document.getElementById('fd')._flatpickr;
   if(fpInstance) fpInstance.clear(); 
@@ -398,13 +436,11 @@ document.getElementById('add').addEventListener('click', function() {
   document.getElementById('pn').innerText = '';
 
   alert("Đã đăng ký thành công. Chúc các anh/chị triển khai tốt");
-  
   btnAdd.innerText = "Đăng ký";
   btnAdd.disabled = false;
 
-  // 2. GỬI DỮ LIỆU ĐỒNG BỘ NGẦM (Gửi đúng displayDate để sheet nhận dạng được)
+  // TIẾN TRÌNH CHẠY NGẦM ĐỒNG BỘ
   const payload = { ngay: displayDate, kyIndex: soNgayCachBiet, donVi: donViVal, maDiem: maDiemNhap };
-
   fetch(SCRIPT_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -447,9 +483,7 @@ document.getElementById('exportExcel').addEventListener('click', function() {
         
         let dt = 0;
         let revIdx = revs.indexOf(idx);
-        if (revIdx > -1) {
-            dt = revs[revIdx + 1];
-        }
+        if (revIdx > -1) { dt = revs[revIdx + 1]; }
         
         records.push({ timestamp: dTime, ngay: ngayStr, thu: thuStr, donvi: tenDonVi, madiem: p[0], tendiem: p[1], tuan: `Tuần ${tuanNum}`, thang: `Tháng ${thangNum}`, quy: `Quý ${quyNum}`, doanhthu: dt });
     });
@@ -490,7 +524,7 @@ function appendLogRow(lg, idx) {
   document.getElementById('lg').innerHTML += tr;
 }
 
-// KHỞI TẠO HỆ THỐNG GIAO DIỆN
+// KHỞI TẠO HỆ THỐNG
 function initSystem() {
   const $ = (s, e = document) => e.querySelector(s);
   const $$ = (s, e = document) => Array.from(e.querySelectorAll(s));
@@ -511,17 +545,39 @@ function initSystem() {
   window.render_db = render_db;
   window.render_dt = render_dt;
 
-  function buildUnitDropdowns() {
+  window.buildUnitDropdowns = function(preserveValue) {
     let optHtml = '<option value="">-- Lựa chọn đơn vị --</option>';
     if (DB.U && DB.U.length > 0) {
       DB.U.forEach(u => { optHtml += `<option value="${u[0]}">${u[0]} - ${u[1]}</option>`; });
     }
-    du.innerHTML = optHtml; fu.innerHTML = optHtml;
-    if (DB.U && DB.U.length > 0) { du.value = String(DB.U[0][0]); }
-    if (!du.value && du.options.length > 1) { du.selectedIndex = 1; }
-    fu.value = "";
-    populatePoints();
-  }
+    
+    let du = document.getElementById('du');
+    let fu = document.getElementById('fu');
+    let oldDu = preserveValue || du.value;
+    let oldFu = fu.value;
+
+    du.innerHTML = optHtml; 
+    fu.innerHTML = optHtml;
+
+    if (oldDu && DB.U.find(x => String(x[0]) === String(oldDu))) { 
+       du.value = oldDu; 
+    } else if (DB.U && DB.U.length > 0) { 
+       du.value = String(DB.U[0][0]); 
+    }
+    if (oldFu) fu.value = oldFu;
+
+    window.populatePoints();
+  };
+
+  window.populatePoints = function() {
+    let fu = document.getElementById('fu');
+    let uid = fu ? fu.value : '';
+    let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
+    let h = '';
+    pts.forEach(p => { h += `<option value="${p[0]} - ${p[1]}">`; });
+    document.getElementById('pl').innerHTML = h;
+    window.updateHistoryTable(uid);
+  };
 
   function getTrendHtml(val, prevVal, isPercent = false) {
     if (prevVal === 0 && val > 0) return `<span class="trend-up">▲ 100% so với kỳ trước (0)</span>`;
@@ -534,6 +590,8 @@ function initSystem() {
   }
 
   function render_db() {
+    let nbc = document.getElementById('nbc');
+    if(!nbc) return;
     let d_str = nbc.value, d = D(d_str), w = T(d_str), m = d.getMonth() + 1, q = Q(m);
     let dy_idx = Math.floor((d - ngayGoc) / 864e5);
     
@@ -716,9 +774,11 @@ function initSystem() {
   }
 
   function render_dt() {
+    let du = document.getElementById('du');
+    if(!du) return;
     let uid = du.value;
     
-    if (!uid || !DB.U.find(x => String(x[0]) === String(uid))) {
+    if (!uid || !DB.U || !DB.U.find(x => String(x[0]) === String(uid))) {
         $('#dcards').innerHTML = `
           <div class="card" style="--c:var(--vp-blue)">
             <h3>TỔNG LƯỢT ĐĂNG KÝ</h3><b>0</b><div class="stat-row"><span>Vui lòng chọn đơn vị</span></div>
@@ -731,14 +791,19 @@ function initSystem() {
           </div>
         `;
         $('#dtb').innerHTML = '';
-        document.getElementById('dt_unit_name').innerText = '...';
-        document.getElementById('dt_period_name').innerText = '...';
+        $('#dt_unit_name').innerText = '...';
+        $('#dt_period_name').innerText = '...';
         $('#dn').innerText = '';
         return;
     }
 
-    let p = dp.value, q = dq.value.toLowerCase().trim(), s = ds.value;
-    let d_str = nbc.value, d = D(d_str), w = T(d_str), m = d.getMonth() + 1, qy = Q(m);
+    let p = document.getElementById('dp').value;
+    let q = document.getElementById('dq').value.toLowerCase().trim();
+    let s = document.getElementById('ds').value;
+    
+    let d_str = document.getElementById('nbc').value;
+    let d = D(d_str), w = T(d_str), m = d.getMonth() + 1, qy = Q(m);
+    
     let u = DB.U.find(x => String(x[0]) === String(uid));
     let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
     
@@ -876,15 +941,6 @@ function initSystem() {
     $('#dtb').innerHTML = th + tb;
   }
 
-  function populatePoints() {
-    let uid = fu.value;
-    let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
-    let h = '';
-    pts.forEach(p => { h += `<option value="${p[0]} - ${p[1]}">`; });
-    pl.innerHTML = h; fp.value = ''; pn.innerText = '';
-    window.updateHistoryTable(uid);
-  }
-
   window.updateHistoryTable = function(uid) {
     let tbody = document.getElementById('his_body');
     if (!uid) {
@@ -914,19 +970,33 @@ function initSystem() {
     tbody.innerHTML = html;
   };
 
-  fu.addEventListener('change', populatePoints);
-  du.addEventListener('change', render_dt);
-  dp.addEventListener('change', render_dt);
-  dq.addEventListener('input', render_dt);
-  ds.addEventListener('change', render_dt);
+  function populatePoints() {
+    let fu = document.getElementById('fu');
+    if(!fu) return;
+    let uid = fu.value;
+    let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
+    let h = '';
+    pts.forEach(p => { h += `<option value="${p[0]} - ${p[1]}">`; });
+    document.getElementById('pl').innerHTML = h;
+    document.getElementById('fp').value = ''; 
+    document.getElementById('pn').innerText = '';
+    window.updateHistoryTable(uid);
+  }
 
-  fp.addEventListener('input', () => {
-    let raw = fp.value.trim().split(' - ')[0];
-    let pts = (DB.P && DB.P[fu.value]) ? DB.P[fu.value] : [];
+  document.getElementById('fu').addEventListener('change', populatePoints);
+  document.getElementById('du').addEventListener('change', render_dt);
+  document.getElementById('dp').addEventListener('change', render_dt);
+  document.getElementById('dq').addEventListener('input', render_dt);
+  document.getElementById('ds').addEventListener('change', render_dt);
+
+  document.getElementById('fp').addEventListener('input', () => {
+    let raw = document.getElementById('fp').value.trim().split(' - ')[0];
+    let uid = document.getElementById('fu').value;
+    let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
     let pt = pts.find(x => x[0].toString() === raw);
-    if (pt) pn.innerHTML = `<span class="ok">✔ ${pt[1]}</span>`;
-    else if (fp.value) pn.innerHTML = `<span class="err">✖ Chưa đúng mã</span>`;
-    else pn.innerText = '';
+    if (pt) document.getElementById('pn').innerHTML = `<span class="ok">✔ ${pt[1]}</span>`;
+    else if (document.getElementById('fp').value) document.getElementById('pn').innerHTML = `<span class="err">✖ Chưa đúng mã</span>`;
+    else document.getElementById('pn').innerText = '';
   });
 
   function var_c(n) { return getComputedStyle(document.body).getPropertyValue(n).trim(); }
@@ -978,12 +1048,15 @@ function initSystem() {
   }));
 
   window.goDetail = function(uid) {
-    du.value = uid; $$('nav button')[1].click(); render_dt();
+    document.getElementById('du').value = uid; 
+    $$('nav button')[1].click(); 
+    render_dt();
   };
   window.refreshDashboardUI = function() {
     render_db(); render_dt();
   };
 
+  loadLocalLogs();
   buildUnitDropdowns();
   render_db();
   render_dt();
