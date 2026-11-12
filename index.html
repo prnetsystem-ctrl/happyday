@@ -144,13 +144,11 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 
 .card-detail {
   background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
-  border-radius: 8px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  border-radius: 8px; padding: 12px 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
-.card-detail h3 { margin: 0 0 8px 0; font-size: 12px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700;}
-.card-detail b { font-size: 32px; color: var(--c); display: block; margin-bottom: 8px; }
-.card-detail .dt-hl { color: var(--vp-orange); font-size: 20px; font-weight: 700; }
-.card-detail .stat-row { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--mut); }
-.card-detail .stat-row span { display: flex; align-items: center; gap: 4px; }
+.card-detail h3 { margin: 0 0 5px 0; font-size: 11px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700;}
+.card-detail b { font-size: 26px; color: var(--c); display: block; margin-bottom: 4px; }
+.card-detail small { display: block; color: var(--mut); font-size: 12px; }
 
 footer {
   text-align: center; padding: 20px; color: var(--mut); font-size: 13px;
@@ -265,9 +263,6 @@ footer {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 
 <script>
-// ==========================================
-// CÁC HÀM BẢO MẬT CHỐNG SAO CHÉP & F12
-// ==========================================
 document.addEventListener('contextmenu', event => event.preventDefault());
 document.addEventListener('keydown', function(e) {
   if (e.keyCode === 123 || 
@@ -346,8 +341,8 @@ document.getElementById('add').addEventListener('click', function() {
   if (DB.A[maDiemNhap] && DB.A[maDiemNhap][0] && DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
       alert("Điểm này đã được anh/chị đăng ký trong ngày này! Vui lòng chọn ngày khác.");
       let fpInstance = document.getElementById('fd')._flatpickr;
-      if(fpInstance) fpInstance.clear(); // Xóa trắng ô ngày
-      return; // CẮT ĐỨT QUÁ TRÌNH, KHÔNG FETCH, KHÔNG LƯU LOCAL LOG
+      if(fpInstance) fpInstance.clear(); 
+      return; 
   }
 
   const btnAdd = document.getElementById('add');
@@ -370,6 +365,7 @@ document.getElementById('add').addEventListener('click', function() {
   if (foundPt) tenDiemHienThi = foundPt[1];
 
   const tenCotSheet = "Kỳ " + soNgayCachBiet;
+
   const payload = { ngay: tenCotSheet, donVi: donViVal, maDiem: maDiemNhap };
 
   fetch(SCRIPT_URL, {
@@ -418,7 +414,7 @@ document.getElementById('add').addEventListener('click', function() {
   });
 });
 
-// XUẤT EXCEL CÓ THÊM CỘT DOANH THU TẠI CHI TIẾT ĐƠN VỊ
+// XUẤT EXCEL CÓ THÊM DOANH THU
 document.getElementById('exportExcel').addEventListener('click', function() {
   const uid = document.getElementById('du').value;
   if (!uid) { alert("Vui lòng chọn đơn vị trước khi tải dữ liệu!"); return; }
@@ -639,7 +635,9 @@ function initSystem() {
 
         sum[0] += kh_l; sum[1] += kh_dt; sum[2] += dk_w; sum[3] += ps_w; sum[4] += ps_m; sum[5] += (kh_l * 4); sum[6] += (kh_dt * 4);
         sum[7] += dk_d; sum[8] += dk_m;
-        u_arr.push({ id: uid, nm: nm, kh_l: kh_l, kh_dt: kh_dt, dk_w: dk_w, dk_d: dk_d, dk_m: dk_m, ps_w: ps_w, ps_m: ps_m, pw: P(ps_w, kh_l), pm: P(ps_m, kh_l * 4) });
+        
+        // SỬA LẠI TÍNH TOÁN % THEO ĐĂNG KÝ
+        u_arr.push({ id: uid, nm: nm, kh_l: kh_l, kh_dt: kh_dt, dk_w: dk_w, dk_d: dk_d, dk_m: dk_m, ps_w: ps_w, ps_m: ps_m, pw: P(dk_w, kh_l), pm: P(dk_m, kh_l * 4) });
       });
     }
 
@@ -684,7 +682,6 @@ function initSystem() {
       </div>
     `;
 
-    // Quét biểu đồ Lượt 7 Ngày đảm bảo đồng bộ với Data
     let dd = new Date(d); dd.setDate(dd.getDate() - 6);
     let days = [], d_vals = [];
     for (let i = 0; i < 7; i++) {
@@ -713,7 +710,8 @@ function initSystem() {
     u_arr.sort((a, b) => b.pw - a.pw).forEach(x => {
       tb += `<tr class="rw" onclick="window.goDetail('${x.id}')"><td>${x.id}</td><td>${x.nm}</td><td class="n ${x.dk_d<1?'err':'ok'}">${F(x.dk_d)}</td><td class="n">${F(x.kh_l)}</td><td class="n">${F(x.dk_w)}</td><td class="n">${F(x.ps_w)}</td><td><div class="bar" style="width:${Math.min(100, x.pw)}%; background:var(--vp-blue)"></div>${x.pw}%</td><td class="n">${F(x.dk_m)}</td><td class="n">${F(x.ps_m)}</td><td><div class="bar" style="width:${Math.min(100, x.pm)}%;background:var(--vp-orange)"></div>${x.pm}%</td></tr>`;
     });
-    tb += `<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">${F(sum[7])}</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[3], sum[0])}%</td><td class="n">${F(sum[8])}</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[4], sum[5])}%</td></tr></tbody>`;
+    // SỬA LẠI TÍNH TOÁN % THEO ĐĂNG KÝ TRÊN DÒNG TỔNG CỘNG
+    tb += `<tr class="tot"><td></td><td>TỔNG CỘNG</td><td class="n">${F(sum[7])}</td><td class="n">${F(sum[0])}</td><td class="n">${F(sum[2])}</td><td class="n">${F(sum[3])}</td><td class="n">${P(sum[2], sum[0])}%</td><td class="n">${F(sum[8])}</td><td class="n">${F(sum[4])}</td><td class="n">${P(sum[8], sum[5])}%</td></tr></tbody>`;
     $('#tb').innerHTML = th + tb;
   }
 
@@ -781,10 +779,7 @@ function initSystem() {
     document.getElementById('dt_unit_name').innerText = uName;
     document.getElementById('dt_period_name').innerText = perName;
 
-    let sum = [0, 0, 0, 0, 0];
-    let prev_sum = [0, 0, 0, 0, 0];
-    let p_arr = [];
-    
+    let sum = [0, 0, 0, 0, 0], p_arr = [];
     pts.forEach(pt => {
       let pid = pt[0].toString(), pnm = pt[1];
       if (q && !pid.includes(q) && !pnm.toLowerCase().includes(q)) return;
@@ -797,12 +792,6 @@ function initSystem() {
         if (a1.includes(dy)) dk++;
         let ix = a2.indexOf(dy);
         if (ix > -1) { tt++; dt += a2[ix + 1]; }
-      });
-
-      prev_day_arr.forEach(dy => {
-        if (a1.includes(dy)) prev_sum[0]++;
-        let ix = a2.indexOf(dy);
-        if (ix > -1) { prev_sum[1]++; prev_sum[3] += a2[ix + 1]; }
       });
 
       let st = tt > 0 ? 1 : (dk > 0 ? 2 : 3);
@@ -825,28 +814,19 @@ function initSystem() {
       <div class="card-detail" style="--c:var(--vp-blue)">
         <h3>TỔNG LƯỢT ĐĂNG KÝ</h3>
         <b>${F(sum[0])}</b>
-        <div class="stat-row">
-            ${getTrendHtml(sum[0], prev_sum[0])}
-            <span>${sum[4]} điểm tham gia</span>
-        </div>
+        <div class="stat-row"><span>${sum[4]} điểm tham gia</span></div>
       </div>
       
       <div class="card-detail" style="--c:var(--vp-orange)">
         <h3>LƯỢT PHÁT SINH DT</h3>
         <b>${F(sum[1])}</b>
-        <div class="stat-row">
-            ${getTrendHtml(sum[1], prev_sum[1])}
-            <span>Tỷ lệ: ${P(sum[1], sum[0])}% so với Đăng ký</span>
-        </div>
+        <div class="stat-row"><span>Tỷ lệ: ${P(sum[1], sum[0])}% so với Đăng ký</span></div>
       </div>
       
       <div class="card-detail" style="--c:var(--vp-blue)">
         <h3>TỔNG DOANH THU (TR)</h3>
         <b>${F(sum[3] / 1e6)} <span class="dt-hl">Tr</span></b>
-        <div class="stat-row">
-            ${getTrendHtml(sum[3]/1e6, prev_sum[3]/1e6)}
-            <span>Đạt ${P(sum[3] / 1e6, sum[2])}% Kế hoạch</span>
-        </div>
+        <div class="stat-row"><span>Đạt ${P(sum[3] / 1e6, sum[2])}% Kế hoạch</span></div>
       </div>
     `;
     
