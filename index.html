@@ -142,7 +142,6 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
   .info-banner b { color: #FBAF17; } 
 }
 
-/* ĐÃ ĐỒNG BỘ CSS CARD Ở TAB CHI TIẾT ĐƠN VỊ VỚI DASHBOARD */
 .card-detail {
   background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
   border-radius: 8px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
@@ -266,9 +265,6 @@ footer {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 
 <script>
-// ==========================================
-// CÁC HÀM BẢO MẬT CHỐNG SAO CHÉP & F12
-// ==========================================
 document.addEventListener('contextmenu', event => event.preventDefault());
 document.addEventListener('keydown', function(e) {
   if (e.keyCode === 123 || 
@@ -280,6 +276,7 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+// ĐÃ SỬ DỤNG LINK APP CỦA BẠN (TRONG FILE TRƯỚC ĐÓ BẠN CUNG CẤP LÀ ĐUÔI Q4Q)
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwBqWBMDxd73nRZJvQI4IdXmk_P9Qd-kcvY_NFNazciGN0ghmPR1kwO0MC0mFFrcL4Q/exec";
 let DB = { U: [], D: {}, P: {}, S: [], A: {} };
 
@@ -343,11 +340,12 @@ document.getElementById('add').addEventListener('click', function() {
   const ngayGoc = D('2026-06-26');
   const soNgayCachBiet = Math.floor((dObj - ngayGoc) / 864e5);
   
+  // CHỐNG TRÙNG LẶP: DỪNG TOÀN BỘ CODE NẾU ĐÃ TỒN TẠI
   if (DB.A[maDiemNhap] && DB.A[maDiemNhap][0] && DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
       alert("Điểm này đã được anh/chị đăng ký trong ngày này! Vui lòng chọn ngày khác.");
       let fpInstance = document.getElementById('fd')._flatpickr;
       if(fpInstance) fpInstance.clear(); 
-      return; 
+      return; // Dừng lại ở đây, không gửi data, không ghi lịch sử
   }
 
   const btnAdd = document.getElementById('add');
@@ -416,7 +414,6 @@ document.getElementById('add').addEventListener('click', function() {
   });
 });
 
-// XUẤT EXCEL CÓ THÊM DOANH THU
 document.getElementById('exportExcel').addEventListener('click', function() {
   const uid = document.getElementById('du').value;
   if (!uid) { alert("Vui lòng chọn đơn vị trước khi tải dữ liệu!"); return; }
@@ -637,7 +634,6 @@ function initSystem() {
 
         sum[0] += kh_l; sum[1] += kh_dt; sum[2] += dk_w; sum[3] += ps_w; sum[4] += ps_m; sum[5] += (kh_l * 4); sum[6] += (kh_dt * 4);
         sum[7] += dk_d; sum[8] += dk_m;
-        
         u_arr.push({ id: uid, nm: nm, kh_l: kh_l, kh_dt: kh_dt, dk_w: dk_w, dk_d: dk_d, dk_m: dk_m, ps_w: ps_w, ps_m: ps_m, pw: P(dk_w, kh_l), pm: P(dk_m, kh_l * 4) });
       });
     }
