@@ -46,6 +46,7 @@
   .p2 { background: #78350f !important; color: #fbbf24 !important; }
   .p3 { background: #374151 !important; color: #d1d5db !important; }
   #loading { color: #60a5fa !important; }
+  .spinner { border-color: rgba(96, 165, 250, 0.15) !important; border-top-color: #60a5fa !important; }
 }
 
 * { box-sizing: border-box; }
@@ -97,7 +98,6 @@ header {
   white-space: nowrap; 
 }
 
-/* CỐ ĐỊNH THANH NAV KHI CUỘN */
 nav { 
   display: flex; 
   gap: 4px; 
@@ -136,7 +136,6 @@ button.act:hover { background: #003366; }
 button.excel { background: #0f9d58; color: #fff; border: 0; cursor: pointer; padding: 7px 12px; border-radius: 6px; font-weight: bold; font-family: inherit;}
 button.excel:hover { background: #0b8043; }
 
-/* THẺ HIỂN THỊ ĐỒNG BỘ */
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 20px; }
 .card {
   background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
@@ -175,20 +174,30 @@ tr.rw { cursor: pointer; } tr.rw:hover td { background: rgba(251,175,23,0.1); }
 tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 #gbar { margin: 12px 0; }
 
-/* HIỆU ỨNG LOADING CHÍNH XÁC NHƯ YÊU CẦU */
+/* HIỆU ỨNG SPINNER VÀ LOADING MỚI */
 #loading { 
-  text-align: center; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center; 
   padding: 100px 20px; 
   color: var(--vp-blue); 
-  font-size: 16px; 
-  font-weight: 700;
-  animation: pulse 1.5s infinite;
+  text-align: center;
 }
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.4; }
-  100% { opacity: 1; }
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid rgba(0, 69, 136, 0.15);
+  border-top-color: var(--vp-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 20px;
 }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+#loading b { display: block; font-size: 16px; margin-bottom: 8px; }
+#loading small { color: var(--mut); font-size: 14px; }
 
 .info-banner { background: #fff8e1; border-left: 4px solid var(--vp-orange); padding: 10px 14px; border-radius: 4px; margin-bottom: 14px; color: #222; font-size: 14px; }
 .info-banner b { color: var(--vp-blue); }
@@ -198,7 +207,6 @@ footer {
   border-top: 1px solid var(--line); margin-top: 20px; background: var(--card);
 }
 
-/* THÔNG BÁO GÓC MÀN HÌNH (TOAST) */
 #toast {
   position: fixed; bottom: 20px; right: 20px; background: var(--vp-blue); color: #fff;
   padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500;
@@ -226,7 +234,12 @@ footer {
   <button data-t="nl">Đăng ký ra quân</button>
 </nav>
 
-<div id="loading">Đang kết nối để tải dữ liệu, vui lòng đợi vài giây...</div>
+<!-- GIAO DIỆN LOADING MỚI VỚI VÒNG XOAY -->
+<div id="loading">
+  <div class="spinner"></div>
+  <b>Đang kết nối để tải dữ liệu, vui lòng đợi vài giây...</b>
+  <small id="load-msg">(Lần tải đầu tiên trong ngày sẽ mất khoảng 3 - 5 giây)</small>
+</div>
 
 <main style="display:none;" id="main-content">
 <div class="ctl" id="gbar">
@@ -349,6 +362,15 @@ function showToast(msg, isSuccess = false) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+// HÀM HIỂN THỊ GIAO DIỆN (CÓ DELAY ĐỂ THẤY SPINNER)
+let uiRevealed = false;
+function revealUI() {
+    if (uiRevealed) return;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    uiRevealed = true;
+}
+
 // KHỞI TẠO LỊCH
 flatpickr("#nbc", {
     locale: "vn", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: todayStr,
@@ -361,11 +383,12 @@ try {
   const cached = localStorage.getItem('happyday_db_cache');
   if (cached) {
     DB = JSON.parse(cached);
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
     initSystem();
     systemInitialized = true;
-    showToast("Đang đồng bộ dữ liệu mới nhất...");
+    document.getElementById('load-msg').innerText = '(Đang đồng bộ dữ liệu mới nhất từ máy chủ...)';
+    
+    // Cố tình chờ 1.2 giây để người dùng thấy vòng xoay Spinner cho chuyên nghiệp
+    setTimeout(revealUI, 1200); 
   }
 } catch(e) {}
 
@@ -381,10 +404,9 @@ fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' })
     localStorage.setItem('happyday_db_cache', JSON.stringify(DB));
     
     if (!systemInitialized) {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
       initSystem();
       systemInitialized = true;
+      revealUI();
     } else {
       let currentDu = document.getElementById('du').value;
       if (typeof window.buildUnitDropdowns === 'function') {
@@ -452,7 +474,7 @@ document.getElementById('add').addEventListener('click', function() {
 
   let displayDate = `${String(dObj.getDate()).padStart(2, '0')}/${String(dObj.getMonth() + 1).padStart(2, '0')}/${dObj.getFullYear()}`;
   
-  // 1. CẬP NHẬT GIAO DIỆN LẬP TỨC 
+  // CẬP NHẬT GIAO DIỆN LẬP TỨC 
   if (!DB.A[maDiemNhap]) DB.A[maDiemNhap] = [[], []];
   if (!DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
     DB.A[maDiemNhap][0].push(soNgayCachBiet);
@@ -477,7 +499,7 @@ document.getElementById('add').addEventListener('click', function() {
   btnAdd.innerText = "Đăng ký";
   btnAdd.disabled = false;
 
-  // 2. TIẾN TRÌNH CHẠY NGẦM ĐỒNG BỘ LÊN GOOGLE SHEETS
+  // GỬI DỮ LIỆU ĐỒNG BỘ NGẦM LÊN GOOGLE SHEETS
   const payload = { ngay: displayDate, kyIndex: soNgayCachBiet, donVi: donViVal, maDiem: maDiemNhap };
   fetch(SCRIPT_URL, {
     method: 'POST',
