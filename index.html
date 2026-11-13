@@ -45,11 +45,11 @@
   .p1 { background: #064e3b !important; color: #34d399 !important; }
   .p2 { background: #78350f !important; color: #fbbf24 !important; }
   .p3 { background: #374151 !important; color: #d1d5db !important; }
+  #loading { color: #60a5fa !important; }
 }
 
 * { box-sizing: border-box; }
 
-/* BỎ FLEXBOX Ở BODY ĐỂ FIX LỖI STICKY MENU TRÊN MOBILE */
 body {
   margin: 0;
   font-family: 'Roboto', Arial, sans-serif;
@@ -83,7 +83,6 @@ header {
 .brand img { height: 45px; width: auto; object-fit: contain; }
 .header-titles { display: flex; flex-direction: column; overflow: hidden; flex: 1; }
 
-/* AUTO RESIZE TIÊU ĐỀ KHÔNG BỊ RỚT DÒNG TRÊN MOBILE */
 .header-titles h1 { 
   font-size: clamp(12px, 4vw, 18px); 
   margin: 0 0 4px 0; 
@@ -98,7 +97,7 @@ header {
   white-space: nowrap; 
 }
 
-/* CỐ ĐỊNH THANH NAV KHI CUỘN (STICKY) CHO MOBILE/DESKTOP */
+/* CỐ ĐỊNH THANH NAV KHI CUỘN */
 nav { 
   display: flex; 
   gap: 4px; 
@@ -176,9 +175,20 @@ tr.rw { cursor: pointer; } tr.rw:hover td { background: rgba(251,175,23,0.1); }
 tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 #gbar { margin: 12px 0; }
 
-#loading { text-align: center; padding: 80px 20px; color: var(--vp-blue); }
-#loading b { display: block; font-size: 16px; margin-bottom: 8px; }
-#loading small { color: var(--mut); font-size: 14px; }
+/* HIỆU ỨNG LOADING CHÍNH XÁC NHƯ YÊU CẦU */
+#loading { 
+  text-align: center; 
+  padding: 100px 20px; 
+  color: var(--vp-blue); 
+  font-size: 16px; 
+  font-weight: 700;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
 
 .info-banner { background: #fff8e1; border-left: 4px solid var(--vp-orange); padding: 10px 14px; border-radius: 4px; margin-bottom: 14px; color: #222; font-size: 14px; }
 .info-banner b { color: var(--vp-blue); }
@@ -216,10 +226,7 @@ footer {
   <button data-t="nl">Đăng ký ra quân</button>
 </nav>
 
-<div id="loading">
-  <b>Đang kết nối máy chủ Google để tải dữ liệu...</b>
-  <small>(Lần tải đầu tiên trong ngày sẽ mất khoảng 3 - 5 giây)</small>
-</div>
+<div id="loading">Đang kết nối để tải dữ liệu, vui lòng đợi vài giây...</div>
 
 <main style="display:none;" id="main-content">
 <div class="ctl" id="gbar">
@@ -227,7 +234,7 @@ footer {
   <span id="rng" class="note" style="font-weight: 500; font-size: 14px;"></span>
 </div>
 
-<!-- 1. TỔNG HỢP (DASHBOARD) -->
+<!-- 1. TỔNG HỢP -->
 <section class="pane on" id="db">
  <div class="cards" id="cards"></div>
  <div class="grid">
@@ -294,7 +301,7 @@ footer {
   <h4>Lịch sử vừa đăng ký (Lưu tạm trên máy hiện tại):</h4>
   <div class="wrap">
    <table>
-    <thead><tr><th>#</th><th>Ngày</th><th>Thứ</th><th>Đơn vị</th><th>Mã điểm</th><th>Tên điểm</th><th>Tuần</th><th>Tháng</th><th>Quý</th><th>Kiểm tra</th></tr></thead>
+    <thead><tr><th>#</th><th>Ngày</th><th>Thứ</th><th>Đơn vị</th><th>Mã điểm</th><th>Tên điểm</th><th>Tuần</th><th>Tháng</th><th>Quý</th><th>Trạng thái</th></tr></thead>
     <tbody id="lg"></tbody>
    </table>
   </div>
@@ -313,9 +320,6 @@ footer {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 
 <script>
-// ==========================================
-// CÁC HÀM BẢO MẬT CHỐNG SAO CHÉP & F12
-// ==========================================
 document.addEventListener('contextmenu', event => event.preventDefault());
 document.addEventListener('keydown', function(e) {
   if (e.keyCode === 123 || 
