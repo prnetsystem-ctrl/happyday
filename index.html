@@ -24,7 +24,7 @@
   --line: #e3e7ee;
 }
 
-/* TỐI ƯU GIAO DIỆN TỐI (DARK MODE) - NỀN ĐEN, CHỮ TRẮNG SÁNG */
+/* TỐI ƯU GIAO DIỆN TỐI (DARK MODE) */
 @media(prefers-color-scheme: dark) {
   :root {
     --bg: #121212; 
@@ -46,8 +46,10 @@
   .p2 { background: #78350f !important; color: #fbbf24 !important; }
   .p3 { background: #374151 !important; color: #d1d5db !important; }
 }
+
 * { box-sizing: border-box; }
 
+/* BỎ FLEXBOX Ở BODY ĐỂ FIX LỖI STICKY MENU TRÊN MOBILE */
 body {
   margin: 0;
   font-family: 'Roboto', Arial, sans-serif;
@@ -58,9 +60,6 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
 }
 
 input, select, textarea {
@@ -80,31 +79,34 @@ header {
   flex-wrap: wrap;
   gap: 15px;
 }
-.brand { display: flex; align-items: center; gap: 15px; }
+.brand { display: flex; align-items: center; gap: 15px; width: 100%; }
 .brand img { height: 45px; width: auto; object-fit: contain; }
-.header-titles { display: flex; flex-direction: column; overflow: hidden; }
+.header-titles { display: flex; flex-direction: column; overflow: hidden; flex: 1; }
 
-/* AUTO RESIZE TIÊU ĐỀ TRÊN MOBILE ĐỂ KHÔNG BỊ XUỐNG DÒNG */
+/* AUTO RESIZE TIÊU ĐỀ KHÔNG BỊ RỚT DÒNG TRÊN MOBILE */
 .header-titles h1 { 
-  font-size: clamp(11px, 4vw, 18px); 
+  font-size: clamp(12px, 4vw, 18px); 
   margin: 0 0 4px 0; 
   color: var(--vp-blue); 
   font-weight: 700; 
   text-transform: uppercase; 
   white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
 }
-.header-titles small { color: var(--mut); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.header-titles small { 
+  color: var(--mut); 
+  font-size: clamp(9px, 2.5vw, 13px); 
+  white-space: nowrap; 
+}
 
-/* CỐ ĐỊNH THANH NAV KHI CUỘN (STICKY) */
+/* CỐ ĐỊNH THANH NAV KHI CUỘN (STICKY) CHO MOBILE/DESKTOP */
 nav { 
   display: flex; 
   gap: 4px; 
   padding: 15px 22px 0; 
   background: var(--vp-blue); 
+  position: -webkit-sticky; 
   position: sticky; 
-  top: 0; 
+  top: -1px; 
   z-index: 1000; 
   box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
 }
@@ -115,7 +117,7 @@ nav button {
 nav button:hover { background: rgba(255,255,255,0.4); }
 nav button.on { background: var(--bg); color: var(--vp-blue); border-top: 3px solid var(--vp-orange); }
 
-main { padding: 0 22px 30px; margin-top: 15px; flex: 1; }
+main { padding: 0 22px 30px; margin-top: 15px; min-height: 70vh; }
 .pane { display: none; } .pane.on { display: block; }
 .ctl { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
 input, select, button.act {
@@ -173,7 +175,10 @@ tr.rw { cursor: pointer; } tr.rw:hover td { background: rgba(251,175,23,0.1); }
 .p3 { background: var(--line); color: var(--mut); }
 tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 #gbar { margin: 12px 0; }
-#loading { text-align: center; padding: 60px; font-size: 15px; color: var(--vp-blue); }
+
+#loading { text-align: center; padding: 80px 20px; color: var(--vp-blue); }
+#loading b { display: block; font-size: 16px; margin-bottom: 8px; }
+#loading small { color: var(--mut); font-size: 14px; }
 
 .info-banner { background: #fff8e1; border-left: 4px solid var(--vp-orange); padding: 10px 14px; border-radius: 4px; margin-bottom: 14px; color: #222; font-size: 14px; }
 .info-banner b { color: var(--vp-blue); }
@@ -211,7 +216,10 @@ footer {
   <button data-t="nl">Đăng ký ra quân</button>
 </nav>
 
-<div id="loading">Đang kết nối để tải dữ liệu, vui lòng đợi...</div>
+<div id="loading">
+  <b>Đang kết nối máy chủ Google để tải dữ liệu...</b>
+  <small>(Lần tải đầu tiên trong ngày sẽ mất khoảng 3 - 5 giây)</small>
+</div>
 
 <main style="display:none;" id="main-content">
 <div class="ctl" id="gbar">
@@ -219,7 +227,7 @@ footer {
   <span id="rng" class="note" style="font-weight: 500; font-size: 14px;"></span>
 </div>
 
-<!-- 1. TỔNG HỢP -->
+<!-- 1. TỔNG HỢP (DASHBOARD) -->
 <section class="pane on" id="db">
  <div class="cards" id="cards"></div>
  <div class="grid">
@@ -305,6 +313,9 @@ footer {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 
 <script>
+// ==========================================
+// CÁC HÀM BẢO MẬT CHỐNG SAO CHÉP & F12
+// ==========================================
 document.addEventListener('contextmenu', event => event.preventDefault());
 document.addEventListener('keydown', function(e) {
   if (e.keyCode === 123 || 
@@ -506,7 +517,9 @@ document.getElementById('exportExcel').addEventListener('click', function() {
         
         let dt = 0;
         let revIdx = revs.indexOf(idx);
-        if (revIdx > -1) { dt = revs[revIdx + 1]; }
+        if (revIdx > -1) {
+            dt = revs[revIdx + 1];
+        }
         
         records.push({ timestamp: dTime, ngay: ngayStr, thu: thuStr, donvi: tenDonVi, madiem: p[0], tendiem: p[1], tuan: `Tuần ${tuanNum}`, thang: `Tháng ${thangNum}`, quy: `Quý ${quyNum}`, doanhthu: dt });
     });
@@ -886,12 +899,17 @@ function initSystem() {
     } else if (p === 'Năm') {
       let yStr = d.getFullYear();
       let firstDayY = D(`${yStr}-01-01`);
+      let lastDayY = D(`${yStr}-12-31`);
       let s_d = Math.floor((firstDayY - ngayGoc) / 864e5);
-      if (s_d < 0) s_d = 0; 
-      let e_d = Math.floor((d - ngayGoc) / 864e5);
+      let e_d = Math.floor((lastDayY - ngayGoc) / 864e5);
       for (let i = s_d; i <= e_d; i++) day_arr.push(i);
       
-      perName = `Năm ${yStr} (Đến hiện tại)`;
+      let p_y = yStr - 1;
+      let p_firstDay = D(`${p_y}-01-01`);
+      let p_lastDay = D(`${p_y}-12-31`);
+      for (let i = Math.floor((p_firstDay - ngayGoc) / 864e5); i <= Math.floor((p_lastDay - ngayGoc) / 864e5); i++) prev_day_arr.push(i);
+      
+      perName = `Năm ${yStr}`;
     }
 
     let uName = u ? u[1] : "Tất cả";
