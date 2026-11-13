@@ -13,6 +13,7 @@
 <style>
 /* BỘ NHẬN DIỆN THƯƠNG HIỆU VIETNAM POST */
 :root {
+  color-scheme: light dark;
   --vp-blue: #004588;   
   --vp-orange: #FBAF17; 
   --vp-dark: #333333;
@@ -22,11 +23,28 @@
   --card: #ffffff;
   --line: #e3e7ee;
 }
+
+/* TỐI ƯU GIAO DIỆN TỐI (DARK MODE) - NỀN ĐEN, CHỮ TRẮNG SÁNG */
 @media(prefers-color-scheme: dark) {
   :root {
-    --bg: #14171c; --ink: #e8eaed; --mut: #9aa3b0; 
-    --card: #1e232b; --line: #2d343f;
+    --bg: #121212; 
+    --ink: #ffffff; 
+    --mut: #a1a1aa; 
+    --card: #1e1e1e; 
+    --line: #333333;
+    --vp-blue: #60a5fa; 
+    --vp-orange: #fbbf24;
   }
+  .header-titles h1 { color: #60a5fa !important; }
+  input, select, textarea, button.act { background: #2d3748 !important; color: #ffffff !important; border-color: #4a5568 !important; }
+  input.in, select.in, .flatpickr-input[readonly] { background: #423812 !important; color: #fde047 !important; border-color: #ca8a04 !important; }
+  .info-banner { background: #27272a !important; color: #ffffff !important; border-left-color: #fde047 !important; }
+  .info-banner b { color: #fde047 !important; }
+  th { background: #1e3a8a !important; color: #ffffff !important; }
+  tr.tot td { background: #1e3a8a !important; color: #93c5fd !important; }
+  .p1 { background: #064e3b !important; color: #34d399 !important; }
+  .p2 { background: #78350f !important; color: #fbbf24 !important; }
+  .p3 { background: #374151 !important; color: #d1d5db !important; }
 }
 * { box-sizing: border-box; }
 
@@ -64,11 +82,32 @@ header {
 }
 .brand { display: flex; align-items: center; gap: 15px; }
 .brand img { height: 45px; width: auto; object-fit: contain; }
-.header-titles { display: flex; flex-direction: column; }
-.header-titles h1 { font-size: 18px; margin: 0 0 4px 0; color: var(--vp-blue); font-weight: 700; text-transform: uppercase; }
-.header-titles small { color: var(--mut); font-size: 13px; }
+.header-titles { display: flex; flex-direction: column; overflow: hidden; }
 
-nav { display: flex; gap: 4px; padding: 15px 22px 0; background: var(--vp-blue); }
+/* AUTO RESIZE TIÊU ĐỀ TRÊN MOBILE ĐỂ KHÔNG BỊ XUỐNG DÒNG */
+.header-titles h1 { 
+  font-size: clamp(11px, 4vw, 18px); 
+  margin: 0 0 4px 0; 
+  color: var(--vp-blue); 
+  font-weight: 700; 
+  text-transform: uppercase; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
+.header-titles small { color: var(--mut); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* CỐ ĐỊNH THANH NAV KHI CUỘN (STICKY) */
+nav { 
+  display: flex; 
+  gap: 4px; 
+  padding: 15px 22px 0; 
+  background: var(--vp-blue); 
+  position: sticky; 
+  top: 0; 
+  z-index: 1000; 
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+}
 nav button {
   border: 0; padding: 10px 20px; border-radius: 8px 8px 0 0; background: rgba(255,255,255,0.2);
   color: #fff; cursor: pointer; font-weight: 700; font-family: inherit; font-size: 14px; transition: all 0.2s;
@@ -96,6 +135,7 @@ button.act:hover { background: #003366; }
 button.excel { background: #0f9d58; color: #fff; border: 0; cursor: pointer; padding: 7px 12px; border-radius: 6px; font-weight: bold; font-family: inherit;}
 button.excel:hover { background: #0b8043; }
 
+/* THẺ HIỂN THỊ ĐỒNG BỘ */
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 20px; }
 .card {
   background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
@@ -137,25 +177,21 @@ tr.tot td { font-weight: 700; background: #DDEBF7; color: var(--vp-blue); }
 
 .info-banner { background: #fff8e1; border-left: 4px solid var(--vp-orange); padding: 10px 14px; border-radius: 4px; margin-bottom: 14px; color: #222; font-size: 14px; }
 .info-banner b { color: var(--vp-blue); }
-@media(prefers-color-scheme: dark) {
-  .info-banner { background: rgba(251,175,23,0.15); color: #e8eaed; border-color: var(--line); border-left-color: var(--vp-orange); }
-  .info-banner b { color: #FBAF17; } 
-}
-
-.card-detail {
-  background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c);
-  border-radius: 8px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-.card-detail h3 { margin: 0 0 8px 0; font-size: 12px; color: var(--mut); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700;}
-.card-detail b { font-size: 32px; color: var(--c); display: block; margin-bottom: 8px; }
-.card-detail .dt-hl { color: var(--vp-orange); font-size: 20px; font-weight: 700; }
-.card-detail .stat-row { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--mut); }
-.card-detail .stat-row span { display: flex; align-items: center; gap: 4px; }
 
 footer {
   text-align: center; padding: 20px; color: var(--mut); font-size: 13px;
   border-top: 1px solid var(--line); margin-top: 20px; background: var(--card);
 }
+
+/* THÔNG BÁO GÓC MÀN HÌNH (TOAST) */
+#toast {
+  position: fixed; bottom: 20px; right: 20px; background: var(--vp-blue); color: #fff;
+  padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999;
+  transform: translateY(100px); opacity: 0; transition: all 0.3s ease;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast.success { background: #0f9d58; }
 </style>
 </head>
 <body>
@@ -170,7 +206,7 @@ footer {
 </header>
 
 <nav>
-  <button class="on" data-t="db">Dashboard</button>
+  <button class="on" data-t="db">Tổng hợp</button>
   <button data-t="dt">Chi tiết đơn vị</button>
   <button data-t="nl">Đăng ký ra quân</button>
 </nav>
@@ -183,7 +219,7 @@ footer {
   <span id="rng" class="note" style="font-weight: 500; font-size: 14px;"></span>
 </div>
 
-<!-- 1. DASHBOARD -->
+<!-- 1. TỔNG HỢP -->
 <section class="pane on" id="db">
  <div class="cards" id="cards"></div>
  <div class="grid">
@@ -205,6 +241,7 @@ footer {
      <option>Tuần</option>
      <option selected>Tháng</option>
      <option>Quý</option>
+     <option>Năm</option>
     </select>
    </label>
   </div>
@@ -261,6 +298,9 @@ footer {
   Tổng hợp lượt ra quân đăng ký được thiết kế bởi phòng TCBL - TCT Bưu điện Việt Nam
 </footer>
 
+<!-- THÔNG BÁO TOAST -->
+<div id="toast"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 
@@ -278,6 +318,7 @@ document.addEventListener('keydown', function(e) {
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUoVH70qvkn3CYgcn-c_LP_yAZFHzmfezxJY-TuDNJckQRvRleCd32kNi2EjO7BofJ/exec";
 let DB = { U: [], D: {}, P: {}, S: [], A: {} };
+let systemInitialized = false;
 
 const dNow = new Date();
 const yyyy = dNow.getFullYear();
@@ -285,45 +326,65 @@ const mm = String(dNow.getMonth() + 1).padStart(2, '0');
 const dd = String(dNow.getDate()).padStart(2, '0');
 const todayStr = `${yyyy}-${mm}-${dd}`;
 
+function showToast(msg, isSuccess = false) {
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  if (isSuccess) t.classList.add('success'); else t.classList.remove('success');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// KHỞI TẠO LỊCH
 flatpickr("#nbc", {
-    locale: "vn",
-    dateFormat: "Y-m-d",
-    altInput: true,
-    altFormat: "d/m/Y",
-    defaultDate: todayStr,
-    onChange: function() {
-        if(typeof render_db === 'function') { render_db(); render_dt(); }
-    }
+    locale: "vn", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: todayStr,
+    onChange: function() { if(typeof window.render_db === 'function') { window.render_db(); window.render_dt(); } }
 });
+flatpickr("#fd", { locale: "vn", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: todayStr });
 
-flatpickr("#fd", {
-    locale: "vn",
-    dateFormat: "Y-m-d",
-    altInput: true,
-    altFormat: "d/m/Y",
-    defaultDate: todayStr
-});
+// CƠ CHẾ TẢI SIÊU TỐC (CACHE-FIRST)
+try {
+  const cached = localStorage.getItem('happyday_db_cache');
+  if (cached) {
+    DB = JSON.parse(cached);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    initSystem();
+    systemInitialized = true;
+    showToast("Đang đồng bộ dữ liệu mới nhất...");
+  }
+} catch(e) {}
 
-// TẢI DỮ LIỆU BAN ĐẦU
+// Fetch ngầm dữ liệu mới nhất
 fetch(SCRIPT_URL, { method: 'GET', redirect: 'follow' })
   .then(res => res.json())
   .then(data => {
     if (data.error) {
-      document.getElementById('loading').innerHTML = `<span class="err">LỖI BACKEND: ${data.error}</span><br><small>Vui lòng kiểm tra lại tên sheet trên Google Sheets.</small>`;
+      if (!systemInitialized) document.getElementById('loading').innerHTML = `<span class="err">LỖI BACKEND: ${data.error}</span><br><small>Vui lòng kiểm tra lại Google Sheets.</small>`;
       return;
     }
     DB = data;
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-    initSystem();
-    loadLocalLogs();
+    localStorage.setItem('happyday_db_cache', JSON.stringify(DB));
+    
+    if (!systemInitialized) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      initSystem();
+      systemInitialized = true;
+    } else {
+      let currentDu = document.getElementById('du').value;
+      if (typeof window.buildUnitDropdowns === 'function') {
+         window.buildUnitDropdowns(currentDu);
+         window.render_db();
+         window.render_dt();
+      }
+      showToast("Đã đồng bộ số liệu mới nhất!", true);
+    }
   })
   .catch(err => {
     console.error(err);
-    document.getElementById('loading').innerHTML = `<span class="err">Không thể nạp dữ liệu. Vui lòng kiểm tra kết nối mạng hoặc link Web App.</span>`;
+    if (!systemInitialized) document.getElementById('loading').innerHTML = `<span class="err">Không thể nạp dữ liệu. Vui lòng kiểm tra kết nối mạng.</span>`;
   });
 
-// HÀM XỬ LÝ DATE LINH HOẠT & AN TOÀN
 const D = d_str => {
    if (!d_str) return new Date();
    if (d_str.includes('/')) {
@@ -333,7 +394,7 @@ const D = d_str => {
    return new Date(d_str + 'T00:00:00+07:00');
 };
 
-// XỬ LÝ LƯU ĐĂNG KÝ
+// XỬ LÝ LƯU ĐĂNG KÝ TỨC THỜI (OPTIMISTIC UI) - KHÔNG TẢI LẠI TRANG
 document.getElementById('add').addEventListener('click', function() {
   const ngayNhap = document.getElementById('fd').value;
   const donViVal = document.getElementById('fu').value;
@@ -376,7 +437,7 @@ document.getElementById('add').addEventListener('click', function() {
 
   let displayDate = `${String(dObj.getDate()).padStart(2, '0')}/${String(dObj.getMonth() + 1).padStart(2, '0')}/${dObj.getFullYear()}`;
   
-  // 1. CẬP NHẬT GIAO DIỆN NGAY LẬP TỨC 
+  // 1. CẬP NHẬT GIAO DIỆN LẬP TỨC 
   if (!DB.A[maDiemNhap]) DB.A[maDiemNhap] = [[], []];
   if (!DB.A[maDiemNhap][0].includes(soNgayCachBiet)) {
     DB.A[maDiemNhap][0].push(soNgayCachBiet);
@@ -389,8 +450,8 @@ document.getElementById('add').addEventListener('click', function() {
   saveLogToLocal(logItem);
   appendLogRow(logItem, document.getElementById('lg').children.length + 1);
   
-  window.updateHistoryTable(donViVal);
-  window.refreshDashboardUI();
+  if(typeof window.updateHistoryTable === 'function') window.updateHistoryTable(donViVal);
+  if(typeof window.render_db === 'function') { window.render_db(); window.render_dt(); }
   
   let fpInstance = document.getElementById('fd')._flatpickr;
   if(fpInstance) fpInstance.clear(); 
@@ -398,13 +459,11 @@ document.getElementById('add').addEventListener('click', function() {
   document.getElementById('pn').innerText = '';
 
   alert("Đã đăng ký thành công. Chúc các anh/chị triển khai tốt");
-  
   btnAdd.innerText = "Đăng ký";
   btnAdd.disabled = false;
 
-  // 2. GỬI DỮ LIỆU ĐỒNG BỘ NGẦM (Gửi đúng displayDate để sheet nhận dạng được)
+  // 2. TIẾN TRÌNH CHẠY NGẦM ĐỒNG BỘ LÊN GOOGLE SHEETS
   const payload = { ngay: displayDate, kyIndex: soNgayCachBiet, donVi: donViVal, maDiem: maDiemNhap };
-
   fetch(SCRIPT_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -447,9 +506,7 @@ document.getElementById('exportExcel').addEventListener('click', function() {
         
         let dt = 0;
         let revIdx = revs.indexOf(idx);
-        if (revIdx > -1) {
-            dt = revs[revIdx + 1];
-        }
+        if (revIdx > -1) { dt = revs[revIdx + 1]; }
         
         records.push({ timestamp: dTime, ngay: ngayStr, thu: thuStr, donvi: tenDonVi, madiem: p[0], tendiem: p[1], tuan: `Tuần ${tuanNum}`, thang: `Tháng ${thangNum}`, quy: `Quý ${quyNum}`, doanhthu: dt });
     });
@@ -511,17 +568,42 @@ function initSystem() {
   window.render_db = render_db;
   window.render_dt = render_dt;
 
-  function buildUnitDropdowns() {
+  window.buildUnitDropdowns = function(preserveValue) {
     let optHtml = '<option value="">-- Lựa chọn đơn vị --</option>';
     if (DB.U && DB.U.length > 0) {
       DB.U.forEach(u => { optHtml += `<option value="${u[0]}">${u[0]} - ${u[1]}</option>`; });
     }
-    du.innerHTML = optHtml; fu.innerHTML = optHtml;
-    if (DB.U && DB.U.length > 0) { du.value = String(DB.U[0][0]); }
-    if (!du.value && du.options.length > 1) { du.selectedIndex = 1; }
-    fu.value = "";
-    populatePoints();
-  }
+    
+    let du = document.getElementById('du');
+    let fu = document.getElementById('fu');
+    let oldDu = preserveValue || du.value;
+    let oldFu = fu.value;
+
+    du.innerHTML = optHtml; 
+    fu.innerHTML = optHtml;
+
+    if (oldDu && DB.U.find(x => String(x[0]) === String(oldDu))) { 
+       du.value = oldDu; 
+    } else if (DB.U && DB.U.length > 0) { 
+       du.value = String(DB.U[0][0]); 
+    }
+    if (oldFu) fu.value = oldFu;
+
+    window.populatePoints();
+  };
+
+  window.populatePoints = function() {
+    let fu = document.getElementById('fu');
+    if(!fu) return;
+    let uid = fu.value;
+    let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
+    let h = '';
+    pts.forEach(p => { h += `<option value="${p[0]} - ${p[1]}">`; });
+    document.getElementById('pl').innerHTML = h;
+    document.getElementById('fp').value = ''; 
+    document.getElementById('pn').innerText = '';
+    window.updateHistoryTable(uid);
+  };
 
   function getTrendHtml(val, prevVal, isPercent = false) {
     if (prevVal === 0 && val > 0) return `<span class="trend-up">▲ 100% so với kỳ trước (0)</span>`;
@@ -534,6 +616,8 @@ function initSystem() {
   }
 
   function render_db() {
+    let nbc = document.getElementById('nbc');
+    if(!nbc) return;
     let d_str = nbc.value, d = D(d_str), w = T(d_str), m = d.getMonth() + 1, q = Q(m);
     let dy_idx = Math.floor((d - ngayGoc) / 864e5);
     
@@ -716,9 +800,11 @@ function initSystem() {
   }
 
   function render_dt() {
+    let du = document.getElementById('du');
+    if(!du) return;
     let uid = du.value;
     
-    if (!uid || !DB.U.find(x => String(x[0]) === String(uid))) {
+    if (!uid || !DB.U || !DB.U.find(x => String(x[0]) === String(uid))) {
         $('#dcards').innerHTML = `
           <div class="card" style="--c:var(--vp-blue)">
             <h3>TỔNG LƯỢT ĐĂNG KÝ</h3><b>0</b><div class="stat-row"><span>Vui lòng chọn đơn vị</span></div>
@@ -731,14 +817,19 @@ function initSystem() {
           </div>
         `;
         $('#dtb').innerHTML = '';
-        document.getElementById('dt_unit_name').innerText = '...';
-        document.getElementById('dt_period_name').innerText = '...';
+        $('#dt_unit_name').innerText = '...';
+        $('#dt_period_name').innerText = '...';
         $('#dn').innerText = '';
         return;
     }
 
-    let p = dp.value, q = dq.value.toLowerCase().trim(), s = ds.value;
-    let d_str = nbc.value, d = D(d_str), w = T(d_str), m = d.getMonth() + 1, qy = Q(m);
+    let p = document.getElementById('dp').value;
+    let q = document.getElementById('dq').value.toLowerCase().trim();
+    let s = document.getElementById('ds').value;
+    
+    let d_str = document.getElementById('nbc').value;
+    let d = D(d_str), w = T(d_str), m = d.getMonth() + 1, qy = Q(m);
+    
     let u = DB.U.find(x => String(x[0]) === String(uid));
     let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
     
@@ -773,7 +864,7 @@ function initSystem() {
       let p_lastDay = new Date(p_firstDayNext.getTime() - 864e5);
       for (let i = Math.floor((p_firstDay - ngayGoc) / 864e5); i <= Math.floor((p_lastDay - ngayGoc) / 864e5); i++) prev_day_arr.push(i);
       perName = `Tháng ${m}/${d.getFullYear()}`;
-    } else {
+    } else if (p === 'Quý') {
       let sm = (qy - 1) * 3 + 1;
       let yStr = d.getFullYear();
       let firstDayQ = D(`${yStr}-${String(sm).padStart(2, '0')}-01`);
@@ -792,6 +883,15 @@ function initSystem() {
       let p_lastDay = new Date(p_firstDayNext.getTime() - 864e5);
       for (let i = Math.floor((p_firstDay - ngayGoc) / 864e5); i <= Math.floor((p_lastDay - ngayGoc) / 864e5); i++) prev_day_arr.push(i);
       perName = `Quý ${qy}/${d.getFullYear()}`;
+    } else if (p === 'Năm') {
+      let yStr = d.getFullYear();
+      let firstDayY = D(`${yStr}-01-01`);
+      let s_d = Math.floor((firstDayY - ngayGoc) / 864e5);
+      if (s_d < 0) s_d = 0; 
+      let e_d = Math.floor((d - ngayGoc) / 864e5);
+      for (let i = s_d; i <= e_d; i++) day_arr.push(i);
+      
+      perName = `Năm ${yStr} (Đến hiện tại)`;
     }
 
     let uName = u ? u[1] : "Tất cả";
@@ -840,7 +940,7 @@ function initSystem() {
         <h3>TỔNG LƯỢT ĐĂNG KÝ</h3>
         <b>${F(sum[0])}</b>
         <div class="stat-row">
-            ${getTrendHtml(sum[0], prev_sum[0])}
+            ${p === 'Năm' ? '<span>Chỉ lấy dữ liệu năm nay</span>' : getTrendHtml(sum[0], prev_sum[0])}
             <span>${sum[4]} điểm tham gia</span>
         </div>
       </div>
@@ -849,7 +949,7 @@ function initSystem() {
         <h3>LƯỢT PHÁT SINH DT</h3>
         <b>${F(sum[1])}</b>
         <div class="stat-row">
-            ${getTrendHtml(sum[1], prev_sum[1])}
+            ${p === 'Năm' ? '' : getTrendHtml(sum[1], prev_sum[1])}
             <span>Tỷ lệ: ${P(sum[1], sum[0])}% so với Đăng ký</span>
         </div>
       </div>
@@ -858,7 +958,7 @@ function initSystem() {
         <h3>TỔNG DOANH THU (TR)</h3>
         <b>${F(sum[3] / 1e6)} <span class="dt-hl">Tr</span></b>
         <div class="stat-row">
-            ${getTrendHtml(sum[3]/1e6, prev_sum[3]/1e6)}
+            ${p === 'Năm' ? '' : getTrendHtml(sum[3]/1e6, prev_sum[3]/1e6)}
             <span>Đạt ${P(sum[3] / 1e6, sum[2])}% Kế hoạch</span>
         </div>
       </div>
@@ -874,15 +974,6 @@ function initSystem() {
       tb += `<tr><td>${x.id}</td><td>${x.nm}</td><td class="n">${x.kh_d}</td><td class="n ${x.dk < x.kh_d ? 'err' : ''}">${x.dk}</td><td class="n ${x.tt < x.dk ? 'err' : 'ok'}">${x.tt}</td><td class="n">${F(x.dt)}</td><td style="text-align:center"><span class="pill ${p_cl}">${p_tx}</span></td><td style="text-align:center;font-size:11px;color:var(--vp-blue)">${x.weekStr}</td></tr>`;
     });
     $('#dtb').innerHTML = th + tb;
-  }
-
-  function populatePoints() {
-    let uid = fu.value;
-    let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
-    let h = '';
-    pts.forEach(p => { h += `<option value="${p[0]} - ${p[1]}">`; });
-    pl.innerHTML = h; fp.value = ''; pn.innerText = '';
-    window.updateHistoryTable(uid);
   }
 
   window.updateHistoryTable = function(uid) {
@@ -914,19 +1005,33 @@ function initSystem() {
     tbody.innerHTML = html;
   };
 
-  fu.addEventListener('change', populatePoints);
-  du.addEventListener('change', render_dt);
-  dp.addEventListener('change', render_dt);
-  dq.addEventListener('input', render_dt);
-  ds.addEventListener('change', render_dt);
+  function populatePoints() {
+    let fu = document.getElementById('fu');
+    if(!fu) return;
+    let uid = fu.value;
+    let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
+    let h = '';
+    pts.forEach(p => { h += `<option value="${p[0]} - ${p[1]}">`; });
+    document.getElementById('pl').innerHTML = h;
+    document.getElementById('fp').value = ''; 
+    document.getElementById('pn').innerText = '';
+    window.updateHistoryTable(uid);
+  }
 
-  fp.addEventListener('input', () => {
-    let raw = fp.value.trim().split(' - ')[0];
-    let pts = (DB.P && DB.P[fu.value]) ? DB.P[fu.value] : [];
+  document.getElementById('fu').addEventListener('change', populatePoints);
+  document.getElementById('du').addEventListener('change', render_dt);
+  document.getElementById('dp').addEventListener('change', render_dt);
+  document.getElementById('dq').addEventListener('input', render_dt);
+  document.getElementById('ds').addEventListener('change', render_dt);
+
+  document.getElementById('fp').addEventListener('input', () => {
+    let raw = document.getElementById('fp').value.trim().split(' - ')[0];
+    let uid = document.getElementById('fu').value;
+    let pts = (DB.P && DB.P[uid]) ? DB.P[uid] : [];
     let pt = pts.find(x => x[0].toString() === raw);
-    if (pt) pn.innerHTML = `<span class="ok">✔ ${pt[1]}</span>`;
-    else if (fp.value) pn.innerHTML = `<span class="err">✖ Chưa đúng mã</span>`;
-    else pn.innerText = '';
+    if (pt) document.getElementById('pn').innerHTML = `<span class="ok">✔ ${pt[1]}</span>`;
+    else if (document.getElementById('fp').value) document.getElementById('pn').innerHTML = `<span class="err">✖ Chưa đúng mã</span>`;
+    else document.getElementById('pn').innerText = '';
   });
 
   function var_c(n) { return getComputedStyle(document.body).getPropertyValue(n).trim(); }
@@ -978,12 +1083,15 @@ function initSystem() {
   }));
 
   window.goDetail = function(uid) {
-    du.value = uid; $$('nav button')[1].click(); render_dt();
+    document.getElementById('du').value = uid; 
+    $$('nav button')[1].click(); 
+    render_dt();
   };
   window.refreshDashboardUI = function() {
     render_db(); render_dt();
   };
 
+  loadLocalLogs();
   buildUnitDropdowns();
   render_db();
   render_dt();
